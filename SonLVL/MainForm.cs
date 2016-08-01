@@ -3898,8 +3898,10 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				gfx.SetOptions();
 				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
+				gfx.PixelOffsetMode = PixelOffsetMode.Half;
 				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, 128, 128);
-				gfx.DrawRectangle(Pens.White, SelectedBlockTile.X * 32 - 1, SelectedBlockTile.Y * 32 - 1, 31, 31);
+				gfx.PixelOffsetMode = PixelOffsetMode.None;
+				gfx.DrawRectangle(Pens.White, SelectedBlockTile.X * 32, SelectedBlockTile.Y * 32, 31, 31);
 			}
 		}
 
@@ -4262,7 +4264,8 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (TileSelector.SelectedIndex == -1) return;
 			e.Graphics.SetOptions();
-			e.Graphics.DrawImage(tile.Scale(16).ToBitmap(curpal), 0, 0, 128, 128);
+			e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+			e.Graphics.DrawImage(tile.ToBitmap(curpal), 0, 0, 128, 128);
 			if (path1ToolStripMenuItem.Checked || path2ToolStripMenuItem.Checked)
 			{
 				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd(SelectedTile)]);
@@ -5429,6 +5432,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (CollisionSelector.SelectedIndex == -1) return;
 			e.Graphics.SetOptions();
+			e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
 			if (showBlockBehindCollisionCheckBox.Checked)
 			{
 				e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));

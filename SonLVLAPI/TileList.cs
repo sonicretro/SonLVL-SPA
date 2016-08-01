@@ -86,19 +86,29 @@ namespace SonicRetro.SonLVL.API
 			InitializeComponent();
 		}
 
+		private int CalcScrollbarMax(int lineWidth, int listHeight, int imgWidth, int imgHeight, int imageCount)
+		{
+			if (imageCount <= 0)
+				return 0;
+			int tilesPerRow = Math.Max(lineWidth / imgWidth, 1);
+			int scrollHeight = (int)Math.Ceiling(imageCount / (double)tilesPerRow) * imgHeight - listHeight;
+			scrollHeight = (int)Math.Ceiling(scrollHeight / (double)imgWidth) * imgWidth;	// make it display the last line completely
+			return Math.Max(scrollHeight, 0);
+		}
+
 		public void ChangeSize()
 		{
 			switch (Direction)
 			{
 				case Direction.Horizontal:
-					int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / (imageHeight + 4), 1);
-					hScrollBar1.Maximum = Math.Max(((int)Math.Ceiling(Images.Count / (double)tilesPerCol) * (imageWidth + 4)) - Width, 0);
 					hScrollBar1.SmallChange = hScrollBar1.LargeChange = imageHeight + 4;
+					hScrollBar1.Maximum = CalcScrollbarMax(Height - hScrollBar1.Height, Width, imageHeight + 4, imageWidth + 4, Images.Count);
+					hScrollBar1.Maximum += hScrollBar1.LargeChange - 1;	// work around ScrollBar bug (being unable to scroll to last row)
 					break;
 				case Direction.Vertical:
-					int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / (imageWidth + 4), 1);
-					vScrollBar1.Maximum = Math.Max(((int)Math.Ceiling(Images.Count / (double)tilesPerRow) * (imageHeight + 4)) - Height, 0);
 					vScrollBar1.SmallChange = vScrollBar1.LargeChange = imageWidth + 4;
+					vScrollBar1.Maximum = CalcScrollbarMax(Width - vScrollBar1.Width, Height, imageWidth + 4, imageHeight + 4, Images.Count);
+					vScrollBar1.Maximum += vScrollBar1.LargeChange - 1;	// work around ScrollBar bug (being unable to scroll to last row)
 					break;
 			}
 			Invalidate();
@@ -120,6 +130,7 @@ namespace SonicRetro.SonLVL.API
 					int edc = Math.Min((int)Math.Ceiling((hScrollBar1.Value + Width) / (double)actualImageWidth), numCols);
 					Graphics g = e.Graphics;
 					g.SetOptions();
+					g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 					g.Clear(BackColor);
 					int i = stc * tilesPerCol;
 					for (int c = stc; c < edc; c++)
@@ -139,6 +150,7 @@ namespace SonicRetro.SonLVL.API
 					int edr = Math.Min((int)Math.Ceiling((vScrollBar1.Value + Height) / (double)actualImageHeight), numRows);
 					g = e.Graphics;
 					g.SetOptions();
+					g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 					g.Clear(BackColor);
 					i = str * tilesPerRow;
 					for (int r = str; r < edr; r++)
@@ -327,10 +339,13 @@ namespace SonicRetro.SonLVL.API
 			}
 			set
 			{
+				// Note: Due to a bug the scroll bar itself can only scroll in the range of
+				//       [0 .. Maximum-LargeChange+1]
+				//       We compensate for that when setting .Maximum, so we need to make up for that compensation here.
 				if (direction == API.Direction.Horizontal)
-					hScrollBar1.Value = Math.Min(hScrollBar1.Maximum, Math.Max(0, value));
+					hScrollBar1.Value = Math.Min(hScrollBar1.Maximum - hScrollBar1.LargeChange + 1, Math.Max(0, value));
 				else
-					vScrollBar1.Value = Math.Min(vScrollBar1.Maximum, Math.Max(0, value));
+					vScrollBar1.Value = Math.Min(vScrollBar1.Maximum - vScrollBar1.LargeChange + 1, Math.Max(0, value));
 			}
 		}
 

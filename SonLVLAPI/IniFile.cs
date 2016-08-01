@@ -87,6 +87,10 @@ namespace SonicRetro.SonLVL.API
 					}
 					else
 						key = line;
+					if (!IsNullOrWhiteSpace(key))
+						key = key.Trim();
+					if (!IsNullOrWhiteSpace(value))
+						value = value.Trim();
 					try
 					{
 						curent.Add(key, value);
