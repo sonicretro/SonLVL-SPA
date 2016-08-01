@@ -20,6 +20,11 @@ namespace SonicRetro.SonLVL.GUI
 		private DateTime t, build;
 		private void okButton_Click(object sender, EventArgs e)
 		{
+			if (true)
+			{
+				MessageBox.Show("Sorry, but this feature is disabled for this SonLVL mod.");
+				return;
+			}
 			if (textBox1.Text.Length == 0)
 			{
 				MessageBox.Show("Additional Info cannot be empty!");

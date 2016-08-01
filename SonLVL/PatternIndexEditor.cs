@@ -33,7 +33,7 @@ namespace SonicRetro.SonLVL
 				{
 					xFlip.Checked = value.XFlip;
 					yFlip.Checked = value.YFlip;
-					priority.Checked = value.Priority;
+					//priority.Checked = value.Priority;
 					palette.Value = value.Palette;
 					tile.Value = value.Tile;
 					tileList.Images.Clear();
@@ -68,8 +68,9 @@ namespace SonicRetro.SonLVL
 		{
 			if (!initializing)
 			{
-				selectedObject.Priority = priority.Checked;
+				//selectedObject.Priority = priority.Checked;
 				PropertyValueChanged(priority, EventArgs.Empty);
+				palette_ValueChanged(sender, e);
 			}
 		}
 
@@ -77,12 +78,13 @@ namespace SonicRetro.SonLVL
 		{
 			if (!initializing)
 			{
+				int palBase = priority.Checked ? 16 : 0;
 				selectedObject.Palette = (byte)palette.Value;
 				PropertyValueChanged(palette, EventArgs.Empty);
 				initializing = true;
 				tileList.Images.Clear();
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value));
+					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, palBase + (int)palette.Value));
 				tileList.SelectedIndex = selectedObject.Tile;
 				initializing = false;
 			}

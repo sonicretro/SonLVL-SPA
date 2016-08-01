@@ -73,5 +73,12 @@ namespace SonicRetro.SonLVL.API.Properties {
 				return ((System.Drawing.Bitmap)(obj));
 			}
 		}
+        
+		internal static System.Drawing.Bitmap UnknownImgSPA {
+			get {
+				object obj = ResourceManager.GetObject("UnknownImgSPA", resourceCulture);
+				return ((System.Drawing.Bitmap)(obj));
+			}
+		}
 	}
 }

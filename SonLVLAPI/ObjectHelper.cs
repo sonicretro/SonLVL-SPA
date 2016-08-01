@@ -18,7 +18,7 @@ namespace SonicRetro.SonLVL.API
 			return new Sprite(LevelData.MapFrameToBmp(artfile, MappingsFrame.Load(mapfile, version)[frame], startpal));
 		}
 
-		public static Sprite MapASMToBmp(byte[] artfile, string mapfileloc, int frame, int startpal)
+		/*public static Sprite MapASMToBmp(byte[] artfile, string mapfileloc, int frame, int startpal)
 		{
 			return MapASMToBmp(artfile, mapfileloc, frame, startpal, EngineVersion.Invalid);
 		}
@@ -95,7 +95,7 @@ namespace SonicRetro.SonLVL.API
 			if (dplcversion == EngineVersion.Invalid)
 				dplcversion = LevelData.Game.DPLCVersion;
 			return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc, mapversion), mapversion, LevelData.ASMToBin(dplcloc, dplcversion), dplcversion, frame, startpal);
-		}
+		}*/
 
 		public static Sprite UnknownObject { get { return new Sprite(new BitmapBits(LevelData.UnknownImg), new Point(-8, -7)); } }
 

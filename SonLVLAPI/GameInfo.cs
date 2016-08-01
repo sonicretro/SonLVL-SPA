@@ -10,15 +10,21 @@ namespace SonicRetro.SonLVL.API
 	public class GameInfo
 	{
 		[IniAlwaysInclude]
-		[DefaultValue(EngineVersion.S2)]
+		[DefaultValue(EngineVersion.SPA)]
 		[IniName("version")]
 		public EngineVersion EngineVersion { get; set; }
+		[IniName("sprtiles")]
+		public string Sprites { get; set; }
+		[IniName("palettes")]
+		public string GamePalettes { get; set; }
 		[IniName("objlst")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public string[] ObjectList { get; set; }
-		[IniName("objartcmp")]
-		[DefaultValue(CompressionType.Nemesis)]
-		public CompressionType ObjectArtCompression { get; set; }
+		[IniName("collimg")]
+		public string CollisionBitmap { get; set; }
+		//[IniName("objartcmp")]
+		//[DefaultValue(CompressionType.Nemesis)]
+		//public CompressionType ObjectArtCompression { get; set; }
 		[IniName("mapver")]
 		public EngineVersion MappingsVersion { get; set; }
 		[IniName("dplcver")]
@@ -34,16 +40,14 @@ namespace SonicRetro.SonLVL.API
 		[IniName("blockmax")]
 		[TypeConverter(typeof(UInt16HexConverter))]
 		public ushort? BlockMax { get; set; }
-		[IniName("chunkfmt")]
+		/*[IniName("chunkfmt")]
 		public EngineVersion ChunkFormat { get; set; }
-		[IniName("chunkcmp")]
-		public CompressionType ChunkCompression { get; set; }
 		[IniName("chunksize")]
 		public int ChunkSize { get; set; }
 		[IniName("chunkwidth")]
 		public int ChunkWidth { get; set; }
 		[IniName("chunkheight")]
-		public int ChunkHeight { get; set; }
+		public int ChunkHeight { get; set; }*/
 		[IniName("layoutfmt")]
 		public EngineVersion LayoutFormat { get; set; }
 		[IniName("layoutcmp")]
@@ -62,21 +66,13 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion ObjectFormat { get; set; }
 		[IniName("objectcmp")]
 		public CompressionType ObjectCompression { get; set; }
-		[IniName("ringfmt")]
-		public EngineVersion RingFormat { get; set; }
-		[IniName("ringcmp")]
-		public CompressionType RingCompression { get; set; }
-		[IniName("ringcodefile")]
-		public string RingCodeFile { get; set; }
-		[IniName("ringcodetype")]
-		public string RingCodeType { get; set; }
 		[IniName("colindfmt")]
 		public EngineVersion CollisionIndexFormat { get; set; }
 		[IniName("colindcmp")]
 		public CompressionType CollisionIndexCompression { get; set; }
 		[IniName("colind")]
 		public string CollisionIndex { get; set; }
-		[IniName("colind1")]
+		/*[IniName("colind1")]
 		public string CollisionIndex1 { get; set; }
 		[IniName("colind2")]
 		public string CollisionIndex2 { get; set; }
@@ -86,14 +82,10 @@ namespace SonicRetro.SonLVL.API
 		public CompressionType CollisionArrayCompression { get; set; }
 		[IniName("colarr1")]
 		public string CollisionArray1 { get; set; }
-		[IniName("colarr2")]
-		public string CollisionArray2 { get; set; }
 		[IniName("anglefmt")]
 		public EngineVersion AngleFormat { get; set; }
 		[IniName("anglecmp")]
-		public CompressionType AngleCompression { get; set; }
-		[IniName("angles")]
-		public string Angles { get; set; }
+		public CompressionType AngleCompression { get; set; }*/
 		[IniName("buildscr")]
 		public string BuildScript { get; set; }
 		[IniName("romfile")]
@@ -113,10 +105,6 @@ namespace SonicRetro.SonLVL.API
 			if (File.Exists(userfile))
 				ini = IniFile.Combine(ini, IniFile.Load(userfile));
 			GameInfo result = IniSerializer.Deserialize<GameInfo>(ini);
-			if (result.MappingsVersion == EngineVersion.Invalid)
-				result.MappingsVersion = result.EngineVersion;
-			if (result.DPLCVersion == EngineVersion.Invalid)
-				result.DPLCVersion = result.MappingsVersion;
 			return result;
 		}
 
@@ -151,21 +139,7 @@ namespace SonicRetro.SonLVL.API
 			if (result.TileCompression == CompressionType.Invalid)
 				switch (result.TileFormat)
 				{
-					case EngineVersion.S1:
-					case EngineVersion.SCD:
-					case EngineVersion.S2NA:
-						result.TileCompression = CompressionType.Nemesis;
-						break;
-					case EngineVersion.S2:
-						result.TileCompression = CompressionType.Kosinski;
-						break;
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						result.TileCompression = CompressionType.KosinskiM;
-						break;
-					case EngineVersion.SCDPC:
-						result.TileCompression = CompressionType.SZDD;
-						break;
+					case EngineVersion.SPA:
 					default:
 						result.TileCompression = CompressionType.Uncompressed;
 						break;
@@ -173,30 +147,15 @@ namespace SonicRetro.SonLVL.API
 			if (result.BlockCompression == CompressionType.Invalid)
 				switch (result.BlockFormat)
 				{
-					case EngineVersion.S1:
-						result.BlockCompression = CompressionType.Enigma;
-						break;
-					case EngineVersion.SCD:
-						result.BlockCompression = CompressionType.Nemesis;
-						break;
-					case EngineVersion.S2:
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						result.BlockCompression = CompressionType.Kosinski;
-						break;
+					case EngineVersion.SPA:
 					default:
 						result.BlockCompression = CompressionType.Uncompressed;
 						break;
 				}
-			if (result.ChunkCompression == CompressionType.Invalid)
+			/*if (result.ChunkCompression == CompressionType.Invalid)
 				switch (result.ChunkFormat)
 				{
-					case EngineVersion.S1:
-					case EngineVersion.S2:
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						result.ChunkCompression = CompressionType.Kosinski;
-						break;
+					case EngineVersion.SPA:
 					default:
 						result.ChunkCompression = CompressionType.Uncompressed;
 						break;
@@ -206,46 +165,37 @@ namespace SonicRetro.SonLVL.API
 			else if (result.ChunkWidth == 0 || result.ChunkHeight == 0)
 				switch (result.ChunkFormat)
 				{
-					case EngineVersion.S1:
-					case EngineVersion.SCD:
-					case EngineVersion.SCDPC:
-						result.ChunkWidth = result.ChunkHeight = 256;
+					case EngineVersion.SPA:
+						result.ChunkWidth = result.ChunkHeight = 32;
 						break;
-					case EngineVersion.S2NA:
-					case EngineVersion.S2:
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						result.ChunkWidth = result.ChunkHeight = 128;
-						break;
-				}
+				}*/
 			if (result.FGLayoutCompression == CompressionType.Invalid)
 				result.FGLayoutCompression = result.LayoutCompression;
 			if (result.BGLayoutCompression == CompressionType.Invalid)
 				result.BGLayoutCompression = result.LayoutCompression;
-			result.Palettes = new NamedPaletteList[info.ExtraPalettes.Length + 1];
-			result.Palettes[0] = new NamedPaletteList("Normal", info.Palette);
-			if (info.ExtraPalettes.Length > 0)
-				info.ExtraPalettes.CopyTo(result.Palettes, 1);
+			//result.Palettes = new NamedPaletteList[info.ExtraPalettes.Length + 1];
+			//result.Palettes[0] = new NamedPaletteList("Normal", info.Palette);
+			//if (info.ExtraPalettes.Length > 0)
+			//	info.ExtraPalettes.CopyTo(result.Palettes, 1);
+			result.Palettes = new NamedPaletteList[1];
+			result.Palettes[0] = new NamedPaletteList("Normal");
 			if (result.ObjectCompression == CompressionType.Invalid)
 				result.ObjectCompression = CompressionType.Uncompressed;
-			if (result.RingCompression == CompressionType.Invalid)
-				result.RingCompression = CompressionType.Uncompressed;
-			if (result.BumperCompression == CompressionType.Invalid)
-				result.BumperCompression = CompressionType.Uncompressed;
+			//if (result.RingCompression == CompressionType.Invalid)
+			//	result.RingCompression = CompressionType.Uncompressed;
+			//if (result.BumperCompression == CompressionType.Invalid)
+			//	result.BumperCompression = CompressionType.Uncompressed;
 			if (result.CollisionIndexCompression == CompressionType.Invalid)
 				switch (result.CollisionIndexFormat)
 				{
-					case EngineVersion.S2:
-						result.CollisionIndexCompression = CompressionType.Kosinski;
-						break;
 					default:
 						result.CollisionIndexCompression = CompressionType.Uncompressed;
 						break;
 				}
-			if (result.CollisionArrayCompression == CompressionType.Invalid)
+			/*if (result.CollisionArrayCompression == CompressionType.Invalid)
 				result.CollisionArrayCompression = CompressionType.Uncompressed;
 			if (result.AngleCompression == CompressionType.Invalid)
-				result.AngleCompression = CompressionType.Uncompressed;
+				result.AngleCompression = CompressionType.Uncompressed;*/
 			return result;
 		}
 	}
@@ -256,6 +206,19 @@ namespace SonicRetro.SonLVL.API
 		public string DisplayName { get; set; }
 		[IniName("version")]
 		public EngineVersion EngineVersion { get; set; }
+		[IniName("asmlabel")]
+		public string AsmLabel { get; set; }
+		[IniName("sizex")]
+		public int LevelWidth { get; set; }
+		[IniName("sizey")]
+		public int LevelHeight { get; set; }
+		[IniName("bgpal")]
+		[DefaultValue(-1)]
+		public int BGPalette { get; set; }
+		[IniName("startx")]
+		public int StartPosX { get; set; }
+		[IniName("starty")]
+		public int StartPosY { get; set; }
 		[IniName("tilefmt")]
 		public EngineVersion TileFormat { get; set; }
 		[IniName("tilecmp")]
@@ -270,19 +233,19 @@ namespace SonicRetro.SonLVL.API
 		[IniName("blocks")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public FileInfo[] Blocks { get; set; }
-		[IniName("chunkfmt")]
-		public EngineVersion ChunkFormat { get; set; }
-		[IniName("chunkcmp")]
-		public CompressionType ChunkCompression { get; set; }
-		[IniName("chunksize")]
-		public int ChunkSize { get; set; }
-		[IniName("chunkwidth")]
-		public int ChunkWidth { get; set; }
-		[IniName("chunkheight")]
-		public int ChunkHeight { get; set; }
-		[IniName("chunks")]
-		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
-		public FileInfo[] Chunks { get; set; }
+		//[IniName("chunkfmt")]
+		//public EngineVersion ChunkFormat { get; set; }
+		//[IniName("chunkcmp")]
+		//public CompressionType ChunkCompression { get; set; }
+		//[IniName("chunksize")]
+		//public int ChunkSize { get; set; }
+		//[IniName("chunkwidth")]
+		//public int ChunkWidth { get; set; }
+		//[IniName("chunkheight")]
+		//public int ChunkHeight { get; set; }
+		//[IniName("chunks")]
+		//[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+		//public FileInfo[] Chunks { get; set; }
 		[IniName("layoutfmt")]
 		public EngineVersion LayoutFormat { get; set; }
 		[IniName("layoutcmp")]
@@ -305,15 +268,17 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion PaletteFormat { get; set; }
 		[IniIgnore]
 		public NamedPaletteList[] Palettes { get; set; }
-		[IniName("palette")]
-		public PaletteList Palette { get; set; }
-		[IniName("palette")]
-		[IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 2)]
-		public NamedPaletteList[] ExtraPalettes { get; set; }
-		[DefaultValue(0)]
-		[IniName("waterpal")]
-		public int WaterPalette { get; set; }
-		[DefaultValue(0x600)]
+		[IniName("fgpalette")]
+		public string FGPaletteList { get; set; }
+		[IniName("bgpalette")]
+		public string BGPaletteList { get; set; }
+		//[IniName("palette")]
+		//[IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 2)]
+		//public NamedPaletteList[] ExtraPalettes { get; set; }
+		//[DefaultValue(0)]
+		//[IniName("waterpal")]
+		//public int WaterPalette { get; set; }
+		//[DefaultValue(0x600)]
 		[IniName("waterheight")]
 		[TypeConverter(typeof(Int32HexConverter))]
 		public int WaterHeight { get; set; }
@@ -323,20 +288,20 @@ namespace SonicRetro.SonLVL.API
 		public CompressionType ObjectCompression { get; set; }
 		[IniName("objects")]
 		public string Objects { get; set; }
-		[IniName("ringfmt")]
-		public EngineVersion RingFormat { get; set; }
-		[IniName("ringcmp")]
-		public CompressionType RingCompression { get; set; }
-		[IniName("ringcodefile")]
-		public string RingCodeFile { get; set; }
-		[IniName("ringcodetype")]
-		public string RingCodeType { get; set; }
-		[IniName("rings")]
-		public string Rings { get; set; }
-		[IniName("bumpercmp")]
-		public CompressionType BumperCompression { get; set; }
-		[IniName("bumpers")]
-		public string Bumpers { get; set; }
+//		[IniName("ringfmt")]
+//		public EngineVersion RingFormat { get; set; }
+//		[IniName("ringcmp")]
+//		public CompressionType RingCompression { get; set; }
+//		[IniName("ringcodefile")]
+//		public string RingCodeFile { get; set; }
+//		[IniName("ringcodetype")]
+//		public string RingCodeType { get; set; }
+//		[IniName("rings")]
+//		public string Rings { get; set; }
+//		[IniName("bumpercmp")]
+//		public CompressionType BumperCompression { get; set; }
+//		[IniName("bumpers")]
+//		public string Bumpers { get; set; }
 		[IniName("startpos")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public StartPositionInfo[] StartPositions { get; set; }
@@ -346,7 +311,7 @@ namespace SonicRetro.SonLVL.API
 		public CompressionType CollisionIndexCompression { get; set; }
 		[IniName("colind")]
 		public string CollisionIndex { get; set; }
-		[IniName("colind1")]
+		/*[IniName("colind1")]
 		public string CollisionIndex1 { get; set; }
 		[IniName("colind2")]
 		public string CollisionIndex2 { get; set; }
@@ -365,17 +330,20 @@ namespace SonicRetro.SonLVL.API
 		[IniName("anglecmp")]
 		public CompressionType AngleCompression { get; set; }
 		[IniName("angles")]
-		public string Angles { get; set; }
+		public string Angles { get; set; }*/
 		[IniName("timezone")]
 		public TimeZone TimeZone { get; set; }
 		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
 		[IniName("loopchunks")]
 		public List<byte> LoopChunks { get; set; }
-		[IniName("sprites")]
+		[IniName("sprtiles")]
 		public string Sprites { get; set; }
+		[IniName("palettes")]
+		public string GamePalettes { get; set; }
 		[IniName("objlst")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public string[] ObjectList { get; set; }
+		
 	}
 
 	[TypeConverter(typeof(StringConverter<FileInfo>))]
@@ -418,7 +386,10 @@ namespace SonicRetro.SonLVL.API
 		{
 			string[] files = data.Split('|');
 			Name = files[0];
-			Palettes = new PaletteList(string.Join("|", files, 1, files.Length - 1));
+			if (files.Length > 1)
+				Palettes = new PaletteList(string.Join("|", files, 1, files.Length - 1));
+			else
+				Palettes = null;
 		}
 
 		public NamedPaletteList(string name, PaletteList paletteList)

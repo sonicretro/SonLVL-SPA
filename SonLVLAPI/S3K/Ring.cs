@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace SonicRetro.SonLVL.API.S3K
 {
-	public class Ring : RingLayoutFormat
+	/*public class Ring : RingLayoutFormat
 	{
 		Sprite spr;
 
@@ -154,5 +154,5 @@ namespace SonicRetro.SonLVL.API.S3K
 		{
 			Sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
 		}
-	}
+	}*/
 }

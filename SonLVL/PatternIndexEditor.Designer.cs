@@ -85,10 +85,12 @@ namespace SonicRetro.SonLVL
 			// tileList
 			// 
 			this.tileList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-			| System.Windows.Forms.AnchorStyles.Left) 
-			| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.tileList.BackColor = System.Drawing.SystemColors.Window;
+			this.tileList.ImageHeight = 64;
 			this.tileList.ImageSize = 64;
+			this.tileList.ImageWidth = 64;
 			this.tileList.Location = new System.Drawing.Point(3, 78);
 			this.tileList.Name = "tileList";
 			this.tileList.ScrollValue = 0;
@@ -102,9 +104,9 @@ namespace SonicRetro.SonLVL
 			this.priority.AutoSize = true;
 			this.priority.Location = new System.Drawing.Point(119, 3);
 			this.priority.Name = "priority";
-			this.priority.Size = new System.Drawing.Size(57, 17);
+			this.priority.Size = new System.Drawing.Size(61, 17);
 			this.priority.TabIndex = 4;
-			this.priority.Text = "Priority";
+			this.priority.Text = "FG Pal.";
 			this.priority.UseVisualStyleBackColor = true;
 			this.priority.CheckedChanged += new System.EventHandler(this.priority_CheckedChanged);
 			// 
@@ -112,10 +114,10 @@ namespace SonicRetro.SonLVL
 			// 
 			this.palette.Location = new System.Drawing.Point(52, 26);
 			this.palette.Maximum = new decimal(new int[] {
-			3,
-			0,
-			0,
-			0});
+            15,
+            0,
+            0,
+            0});
 			this.palette.Name = "palette";
 			this.palette.Size = new System.Drawing.Size(37, 20);
 			this.palette.TabIndex = 6;
@@ -126,10 +128,10 @@ namespace SonicRetro.SonLVL
 			this.tile.Hexadecimal = true;
 			this.tile.Location = new System.Drawing.Point(36, 52);
 			this.tile.Maximum = new decimal(new int[] {
-			2047,
-			0,
-			0,
-			0});
+            2047,
+            0,
+            0,
+            0});
 			this.tile.Name = "tile";
 			this.tile.Size = new System.Drawing.Size(53, 20);
 			this.tile.TabIndex = 8;
@@ -162,7 +164,7 @@ namespace SonicRetro.SonLVL
 		private System.Windows.Forms.CheckBox xFlip;
 		private System.Windows.Forms.CheckBox yFlip;
 		private API.TileList tileList;
-		private System.Windows.Forms.CheckBox priority;
+		public System.Windows.Forms.CheckBox priority;
 		private System.Windows.Forms.NumericUpDown palette;
 		private System.Windows.Forms.NumericUpDown tile;
 	}

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Xml;
 using System.Xml.Serialization;
+using System.ComponentModel;	// for DefaultValue
 
 namespace SonicRetro.SonLVL.API.XMLDef
 {
@@ -17,10 +18,10 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public string Name { get; set; }
 		[XmlAttribute]
 		public string Image { get; set; }
-		[XmlAttribute]
+		/*[XmlAttribute]
 		public bool RememberState { get; set; }
 		[XmlIgnore]
-		public bool RememberStateSpecified { get { return !RememberState; } set { } }
+		public bool RememberStateSpecified { get { return !RememberState; } set { } }*/
 		[XmlIgnore]
 		public byte DefaultSubtypeValue { get; set; }
 		[XmlAttribute]
@@ -59,7 +60,7 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		}
 	}
 
-	public class ArtFile
+	/*public class ArtFile
 	{
 		[XmlAttribute]
 		public string filename { get; set; }
@@ -111,13 +112,68 @@ namespace SonicRetro.SonLVL.API.XMLDef
 	{
 		Binary,
 		ASM
+	}*/
+
+	public class SpriteAttributes
+	{
+		[XmlIgnore]
+		[DefaultValue(0x10)]
+		public byte flags { get; set; }
+		[XmlAttribute(AttributeName="flags")]
+		public string flagsstr
+		{
+			get { return flags.ToString("X2"); }
+			set { flags = byte.Parse(value, NumberStyles.HexNumber); }
+		}
+		
+		[XmlIgnore]
+		[DefaultValue((short)-2)]
+		public short pal1 { get; set; }
+		[XmlAttribute(AttributeName="pal1")]
+		[DefaultValue("FFFD")]
+		public string pal1str
+		{
+			get { return pal1.ToString("X3"); }
+			set { pal1 = short.Parse(value, NumberStyles.HexNumber); }
+		}
+		
+		[XmlIgnore]
+		[DefaultValue((short)-2)]
+		public short pal2 { get; set; }
+		[XmlAttribute(AttributeName="pal2")]
+		[DefaultValue("FFFD")]
+		public string pal2str
+		{
+			get { return pal2.ToString("X3"); }
+			set { pal2 = string.IsNullOrEmpty(value) ? (short)-1 : short.Parse(value, NumberStyles.HexNumber); }
+		}
+	}
+
+	public class SpriteFile
+	{
+		[XmlAttribute]
+		public string filename { get; set; }
+		[XmlIgnore]
+		[DefaultValue(0x10)]
+		public byte flags { get; set; }
+		[XmlAttribute(AttributeName="flags")]
+		public string flagsstr
+		{
+			get { return flags.ToString("X2"); }
+			set { flags = byte.Parse(value, NumberStyles.HexNumber); }
+		}
+		[XmlAttribute]
+		public int X { get; set; }
+		[XmlAttribute]
+		public int Y { get; set; }
 	}
 
 	public class ImageList
 	{
-		[XmlElement("ImageFromMappings", typeof(ImageFromMappings))]
+		//[XmlElement("ImageFromMappings", typeof(ImageFromMappings))]
 		[XmlElement("ImageFromBitmap", typeof(ImageFromBitmap))]
-		[XmlElement("ImageFromSprite", typeof(ImageFromSprite))]
+		//[XmlElement("ImageFromSprite", typeof(ImageFromSprite))]
+		[XmlElement("ImageFromSprites", typeof(ImageFromSprites))]
 		public Image[] Items { get; set; }
 	}
 
@@ -130,12 +186,12 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public bool offsetSpecified { get { return !offset.IsEmpty; } set { } }
 	}
 
-	public class ImageFromMappings : Image
+	/*public class ImageFromMappings : Image
 	{
 		[XmlElement("ArtFile")]
 		public ArtFile[] ArtFiles { get; set; }
 		public MapFile MapFile { get; set; }
-	}
+	}*/
 
 	public class ImageFromBitmap : Image
 	{
@@ -166,10 +222,17 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public System.Drawing.Point ToPoint() { return new System.Drawing.Point(X, Y); }
 	}
 
-	public class ImageFromSprite : Image
+	/*public class ImageFromSprite : Image
 	{
 		[XmlAttribute]
 		public int frame { get; set; }
+	}*/
+
+	public class ImageFromSprites : Image
+	{
+		public SpriteAttributes Attributes { get; set; }
+		[XmlElement("SpriteFile")]
+		public SpriteFile[] SpriteFile { get; set; }
 	}
 
 	public class SubtypeList

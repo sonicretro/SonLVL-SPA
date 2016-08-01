@@ -1,0 +1,29 @@
+Palettes:
+	Sonic: 000, 007
+	Tails: 1B9, 1BA
+
+PAniScr_3987F1: [Sonic]
+PlrSprite 0065:	[wait 1]
+	0146_208E.spr:01
+	0143_2038.spr:00
+PlrSprite 0066:	[wait 2]
+	0147_20A4.spr:01
+	0144_2052.spr:00
+PlrSprite 0067:	[watch clock]
+	0148_20BA.spr:01
+	0145_206C.spr:00
+
+
+PAniScr_39884C: [Tails]
+PlrSprite 007A:	[wait 1]
+	0698_B74E.spr:01
+	0692_B6A2.spr:00
+PlrSprite 007B:	[wait 2]
+	0699_B758.spr:01
+	0693_B6CC.spr:00
+PlrSprite 007C:	[wait 3]
+	069A_B762.spr:01
+	0694_B6EE.spr:00
+PlrSprite 007D:	[wait 4]
+	069B_B76C.spr:01
+	0695_B718.spr:00

@@ -23,7 +23,7 @@ namespace SonicRetro.SonLVL
 
 		public event EventHandler PropertyValueChanged = delegate { };
 
-		bool initializing;
+		/*bool initializing;
 
 		private ChunkBlock selectedObject;
 		[Browsable(false)]
@@ -53,63 +53,63 @@ namespace SonicRetro.SonLVL
 				}
 				initializing = false;
 			}
-		}
+		}*/
 
 		private void xFlip_CheckedChanged(object sender, EventArgs e)
 		{
-			if (!initializing)
+			/*if (!initializing)
 			{
 				selectedObject.XFlip = xFlip.Checked;
 				PropertyValueChanged(xFlip, EventArgs.Empty);
-			}
+			}*/
 		}
 
 		private void yFlip_CheckedChanged(object sender, EventArgs e)
 		{
-			if (!initializing)
+			/*if (!initializing)
 			{
 				selectedObject.YFlip = yFlip.Checked;
 				PropertyValueChanged(yFlip, EventArgs.Empty);
-			}
+			}*/
 		}
 
 		private void solidity1_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (!initializing)
+			/*if (!initializing)
 			{
 				selectedObject.Solid1 = (Solidity)solidity1.SelectedIndex;
 				PropertyValueChanged(solidity1, EventArgs.Empty);
-			}
+			}*/
 		}
 
 		private void solidity2_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (!initializing)
+			/*if (!initializing)
 			{
 				((S2ChunkBlock)selectedObject).Solid2 = (Solidity)solidity2.SelectedIndex;
 				PropertyValueChanged(solidity2, EventArgs.Empty);
-			}
+			}*/
 		}
 
 		private void block_ValueChanged(object sender, EventArgs e)
 		{
-			if (!initializing)
+			/*if (!initializing)
 			{
 				selectedObject.Block = (ushort)block.Value;
 				PropertyValueChanged(block, EventArgs.Empty);
 				initializing = true;
 				blockList.SelectedIndex = block.Value >= LevelData.Blocks.Count ? -1 : (int)block.Value;
 				initializing = false;
-			}
+			}*/
 		}
 
 		private void blockList_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (!initializing && blockList.SelectedIndex > -1)
+			/*if (!initializing && blockList.SelectedIndex > -1)
 			{
 				block.Maximum = Math.Max(LevelData.GetBlockMax(), LevelData.Blocks.Count) - 1;
 				block.Value = blockList.SelectedIndex;
-			}
+			}*/
 		}
 	}
 }

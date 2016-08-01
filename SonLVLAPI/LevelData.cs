@@ -19,26 +19,34 @@ namespace SonicRetro.SonLVL.API
 		public static byte[] TileArray;
 		public static MultiFileIndexer<Block> Blocks;
 		public static List<BitmapBits[]> BlockBmpBits;
-		public static List<BitmapBits> CompBlockBmpBits;
+		//public static List<BitmapBits> CompBlockBmpBits;
 		public static List<Bitmap[]> BlockBmps;
-		public static List<Bitmap> CompBlockBmps;
-		public static MultiFileIndexer<Chunk> Chunks;
-		public static List<BitmapBits[]> ChunkBmpBits;
-		public static List<BitmapBits> CompChunkBmpBits;
-		public static List<Bitmap[]> ChunkBmps;
-		public static List<Bitmap> CompChunkBmps;
+		public static List<Bitmap>[] BlockBmpsA;	// [0] - background, [1] - foreground
+		//public static List<Bitmap> CompBlockBmps;
+		//public static MultiFileIndexer<Chunk> Chunks;
+		//public static List<BitmapBits[]> ChunkBmpBits;
+		//public static List<BitmapBits> CompChunkBmpBits;
+		//public static List<Bitmap[]> ChunkBmps;
+		//public static List<Bitmap> CompChunkBmps;
 		public static LayoutData Layout;
 		public static LayoutFormat LayoutFormat;
+		public static byte[] SpriteTiles;
+		public static SonLVLColor[] PalCollection;
 		public static List<string> PalName;
+		public static SonLVLColor BGColor;
 		public static List<SonLVLColor[,]> Palette;
-		public static List<byte[,]> PalNum;
-		public static List<int[,]> PalAddr;
+		//public static List<byte[,]> PalNum;
+		//public static List<int[,]> PalAddr;
+		public static PaletteIDList PalIDsFG;
+		public static PaletteIDList PalIDsBG;
 		public static int CurPal;
 		public static ColorPalette BmpPal;
+		public static byte BmpPalColMax;
+		public static byte[] BmpPalColLUT;		// Palette ID/Color -> Bitmap Palette Entry
 		public static List<ObjectEntry> Objects;
-		public static List<RingEntry> Rings;
+		//public static List<RingEntry> Rings;
 		public static RingFormat RingFormat;
-		public static List<CNZBumperEntry> Bumpers;
+		//public static List<CNZBumperEntry> Bumpers;
 		public static List<StartPositionEntry> StartPositions;
 		public static Dictionary<string, ObjectData> INIObjDefs;
 		public static Dictionary<byte, ObjectDefinition> ObjTypes;
@@ -46,14 +54,17 @@ namespace SonicRetro.SonLVL.API
 		public static List<StartPositionDefinition> StartPosDefs;
 		public static bool littleendian;
 		public static Dictionary<string, byte[]> filecache;
-		public static List<byte> ColInds1;
-		public static List<byte> ColInds2;
-		public static sbyte[][] ColArr1;
-		public static byte[] Angles;
+		public static List<short> ColInds;	// tile collision indices
+		//public static List<byte> ColInds1;
+		//public static List<byte> ColInds2;
+		//public static sbyte[][] ColArr1;
+		//public static byte[] Angles;
 		public static BitmapBits[] ColBmpBits;
 		public static Bitmap[] ColBmps;
-		public static List<BitmapBits[]> ChunkColBmpBits;
-		public static List<Bitmap[]> ChunkColBmps;
+		public static List<BitmapBits> BlockColBmpBits;
+		public static List<Bitmap> BlockColBmps;
+		//public static List<BitmapBits[]> ChunkColBmpBits;
+		//public static List<Bitmap[]> ChunkColBmps;
 		public static Bitmap UnknownImg;
 		public static List<Sprite> Sprites;
 		public delegate void LogEventHandler(params string[] message);
@@ -62,26 +73,29 @@ namespace SonicRetro.SonLVL.API
 		internal static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
 		internal static readonly bool IsWindows = !(Environment.OSVersion.Platform == PlatformID.MacOSX | Environment.OSVersion.Platform == PlatformID.Unix | Environment.OSVersion.Platform == PlatformID.Xbox);
 		private static readonly BitmapBits InvalidTile = new BitmapBits(8, 8);
-		private static readonly BitmapBits InvalidBlock = new BitmapBits(16, 16);
+		private static readonly BitmapBits InvalidBlock = new BitmapBits(32, 32);
 		public const int ColorTransparent = 0;
-		public const int ColorWhite = 128;
-		public const int ColorYellow = 129;
-		public const int ColorBlack = 130;
+		public const int ColorFirstGlobal = 251;
+		public const int ColorRed = 251;
+		public const int ColorWhite = 252;
+		public const int ColorYellow = 253;
+		public const int ColorBlack = 254;
+		public const int ColorGrid = 255;
 
 		static LevelData()
 		{
-			InvalidTile.DrawLine(15, 0, 0, 7, 0);
-			InvalidTile.DrawLine(15, 0, 0, 0, 7);
-			InvalidTile.DrawLine(15, 7, 7, 0, 7);
-			InvalidTile.DrawLine(15, 7, 7, 7, 0);
-			InvalidTile.DrawLine(15, 0, 0, 7, 7);
-			InvalidTile.DrawLine(15, 0, 7, 7, 0);
-			InvalidBlock.DrawLine(15, 0, 0, 15, 0);
-			InvalidBlock.DrawLine(15, 0, 0, 0, 15);
-			InvalidBlock.DrawLine(15, 15, 15, 0, 15);
-			InvalidBlock.DrawLine(15, 15, 15, 15, 0);
-			InvalidBlock.DrawLine(15, 0, 0, 15, 15);
-			InvalidBlock.DrawLine(15, 0, 15, 15, 0);
+			InvalidTile.DrawLine(3, 0, 0, 7, 0);
+			InvalidTile.DrawLine(3, 0, 0, 0, 7);
+			InvalidTile.DrawLine(3, 7, 7, 0, 7);
+			InvalidTile.DrawLine(3, 7, 7, 7, 0);
+			InvalidTile.DrawLine(3, 0, 0, 7, 7);
+			InvalidTile.DrawLine(3, 0, 7, 7, 0);
+			InvalidBlock.DrawLine(3, 0, 0, 31, 0);
+			InvalidBlock.DrawLine(3, 0, 0, 0, 31);
+			InvalidBlock.DrawLine(3, 31, 31, 0, 31);
+			InvalidBlock.DrawLine(3, 31, 31, 31, 0);
+			InvalidBlock.DrawLine(3, 0, 0, 15, 31);
+			InvalidBlock.DrawLine(3, 0, 31, 31, 0);
 		}
 
 		public static void LoadGame(string filename)
@@ -91,21 +105,8 @@ namespace SonicRetro.SonLVL.API
 			Environment.CurrentDirectory = Path.GetDirectoryName(filename);
 			switch (Game.EngineVersion)
 			{
-				case EngineVersion.S1:
-				case EngineVersion.SCD:
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-					UnknownImg = Properties.Resources.UnknownImg.Copy();
-					break;
-				case EngineVersion.SCDPC:
-					UnknownImg = Properties.Resources.UnknownImg.Copy();
-					littleendian = true;
-					break;
-				case EngineVersion.S3K:
-					UnknownImg = Properties.Resources.UnknownImg3K.Copy();
-					break;
-				case EngineVersion.SKC:
-					UnknownImg = Properties.Resources.UnknownImg3K.Copy();
+				case EngineVersion.SPA:
+					UnknownImg = Properties.Resources.UnknownImgSPA.Copy();
 					littleendian = true;
 					break;
 				default:
@@ -119,37 +120,22 @@ namespace SonicRetro.SonLVL.API
 			Level = Game.GetLevelInfo(levelname);
 			switch (Level.EngineVersion)
 			{
-				case EngineVersion.S1:
-				case EngineVersion.SCD:
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-					UnknownImg = Properties.Resources.UnknownImg.Copy();
-					littleendian = false;
-					break;
-				case EngineVersion.SCDPC:
-					UnknownImg = Properties.Resources.UnknownImg.Copy();
-					littleendian = true;
-					break;
-				case EngineVersion.S3K:
-					UnknownImg = Properties.Resources.UnknownImg3K.Copy();
-					littleendian = false;
-					break;
-				case EngineVersion.SKC:
-					UnknownImg = Properties.Resources.UnknownImg3K.Copy();
+				case EngineVersion.SPA:
+					UnknownImg = Properties.Resources.UnknownImgSPA.Copy();
 					littleendian = true;
 					break;
 				default:
 					throw new NotImplementedException("Game type " + Level.EngineVersion.ToString() + " is not supported!");
 			}
 			Log("Loading " + Level.DisplayName + "...");
-			if ((Level.ChunkWidth & 15) != 0)
+			/*if ((Level.ChunkWidth & 15) != 0)
 				throw new ArgumentException("Chunk width must be divisible by 16!");
 			if ((Level.ChunkHeight & 15) != 0)
-				throw new ArgumentException("Chunk height must be divisible by 16!");
+				throw new ArgumentException("Chunk height must be divisible by 16!");*/
 			byte[] tmp = null;
 			List<byte> data = new List<byte>();
 			Tiles = new MultiFileIndexer<byte[]>();
-			if (Level.TileFormat != EngineVersion.SCDPC)
+			//if (Level.TileFormat != EngineVersion.SCDPC)
 			{
 				foreach (FileInfo tileent in Level.Tiles)
 				{
@@ -158,46 +144,21 @@ namespace SonicRetro.SonLVL.API
 					{
 						Log("Loading 8x8 tiles from file \"" + tileent.Filename + "\", using compression " + Level.TileCompression.ToString() + "...");
 						tmp = Compression.Decompress(tileent.Filename, Level.TileCompression);
-						Pad(ref tmp, 32);
+						Pad(ref tmp, 16);
 						List<byte[]> tiles = new List<byte[]>();
-						for (int i = 0; i < tmp.Length; i += 32)
+						for (int i = 0; i < tmp.Length; i += 0x10)
 						{
-							byte[] tile = new byte[32];
-							Array.Copy(tmp, i, tile, 0, 32);
+							byte[] tile = new byte[0x10];
+							Array.Copy(tmp, i, tile, 0, 0x10);
 							tiles.Add(tile);
 						}
-						Tiles.AddFile(tiles, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 32);
+						Tiles.AddFile(tiles, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 0x10);
 					}
 					else
 					{
 						Log("8x8 tile file \"" + tileent.Filename + "\" not found.");
-						Tiles.AddFile(new List<byte[]>() { new byte[32] }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 32);
+						Tiles.AddFile(new List<byte[]>() { new byte[0x10] }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 0x10);
 					}
-				}
-			}
-			else
-			{
-				Level.TileCompression = CompressionType.SZDD;
-				if (File.Exists(Level.Tiles[0].Filename))
-				{
-					Log("Loading 8x8 tiles from file \"" + Level.Tiles[0].Filename + "\", using compression SZDD...");
-					tmp = Compression.Decompress(Level.Tiles[0].Filename, CompressionType.SZDD);
-					int sta = ByteConverter.ToInt32(tmp, 0xC);
-					int numt = ByteConverter.ToInt32(tmp, 8);
-					List<byte[]> tiles = new List<byte[]>();
-					for (int i = 0; i < numt; i++)
-					{
-						byte[] tile = new byte[32];
-						Array.Copy(tmp, sta, tile, 0, 32);
-						tiles.Add(tile);
-						sta += 32;
-					}
-					Tiles.AddFile(tiles, -1);
-				}
-				else
-				{
-					Log("8x8 tile file \"" + Level.Tiles[0].Filename + "\" not found.");
-					Tiles.AddFile(new List<byte[]>() { new byte[32] }, -1);
 				}
 			}
 			UpdateTileArray();
@@ -206,7 +167,7 @@ namespace SonicRetro.SonLVL.API
 			{
 				if (File.Exists(tileent.Filename))
 				{
-					Log("Loading 16x16 blocks from file \"" + tileent.Filename + "\", using compression " + Level.BlockCompression.ToString() + "...");
+					Log("Loading 32x32 blocks from file \"" + tileent.Filename + "\", using compression " + Level.BlockCompression.ToString() + "...");
 					tmp = Compression.Decompress(tileent.Filename, Level.BlockCompression);
 					Pad(ref tmp, Block.Size);
 					List<Block> tmpblk = new List<Block>();
@@ -220,13 +181,13 @@ namespace SonicRetro.SonLVL.API
 				}
 				else
 				{
-					Log("16x16 block file \"" + tileent.Filename + "\" not found.");
+					Log("32x32 block file \"" + tileent.Filename + "\" not found.");
 					Blocks.AddFile(new List<Block>() { new Block() }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Block.Size);
 				}
 			}
 			if (Blocks.Count == 0)
 				Blocks.AddFile(new List<Block>() { new Block() }, -1);
-			Chunks = new MultiFileIndexer<Chunk>();
+			/*Chunks = new MultiFileIndexer<Chunk>();
 			data = new List<byte>();
 			int fileind = 0;
 			foreach (FileInfo tileent in Level.Chunks)
@@ -264,11 +225,11 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			if (Chunks.Count == 0)
-				Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);
+				Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);*/
 			Layout = new LayoutData();
 			switch (Level.LayoutFormat)
 			{
-				case EngineVersion.S1:
+				/*case EngineVersion.S1:
 				case EngineVersion.SCD:
 					LayoutFormat = new S1.Layout();
 					break;
@@ -286,6 +247,10 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case EngineVersion.SCDPC:
 					LayoutFormat = new SCDPC.Layout();
+					break;*/
+				case EngineVersion.SPA:
+					LayoutFormat = new SPA.Layout();
+					((SPA.Layout)LayoutFormat).LayoutSize = new Size(Level.LevelWidth, Level.LevelHeight);
 					break;
 				case EngineVersion.Custom:
 					string dllfile = System.IO.Path.Combine("dllcache", Level.LayoutCodeType + ".dll");
@@ -344,8 +309,7 @@ namespace SonicRetro.SonLVL.API
 				((LayoutFormatCombined)LayoutFormat).TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
 			else
 				((LayoutFormatSeparate)LayoutFormat).TryReadLayout(Level.FGLayout, Level.BGLayout, Level.FGLayoutCompression, Level.BGLayoutCompression, Layout);
-			PalName = new List<string>();
-			Palette = new List<SonLVLColor[,]>();
+			/*PalName = new List<string>();
 			PalNum = new List<byte[,]>();
 			PalAddr = new List<int[,]>();
 			byte palfilenum = 0;
@@ -382,9 +346,40 @@ namespace SonicRetro.SonLVL.API
 					}
 					palfilenum++;
 				}
+			}*/
+			//if (Level.EngineVersion == EngineVersion.SPA)
+			PalCollection = SonLVLColor.Load(Level.GamePalettes, Level.EngineVersion);
+			BmpPalColLUT = new byte[PalCollection.Length];
+			PalIDsFG = PaletteIDList.Load(Level.FGPaletteList, Level.EngineVersion);
+			PalIDsBG = PaletteIDList.Load(Level.BGPaletteList, Level.EngineVersion);
+			PalName = new List<string>();
+			Palette = new List<SonLVLColor[,]>();
+			if (Level.BGPalette != -1)
+				BGColor = PalCollection[Level.BGPalette * 3];
+			else
+				BGColor = new SonLVLColor(Color.Black);
+			for (int palnum = 0; palnum < Level.Palettes.Length; palnum++)
+			{
+				PalName.Add(Level.Palettes[palnum].Name);
+				Palette.Add(new SonLVLColor[32, 4]);
+				for (int pa = 0; pa < 16; pa++)
+				{
+					ushort fgPalID = PalIDsFG.palIDs[pa];
+					ushort bgPalID = PalIDsBG.palIDs[pa];
+					for (int pi = 0; pi < 3; pi++)
+					{
+						Palette[palnum][0x10 + pa, 1+pi] = PalCollection[fgPalID * 3 + pi];
+						Palette[palnum][0x00 + pa, 1+pi] = PalCollection[bgPalID * 3 + pi];
+						if (BmpPalColLUT[fgPalID * 3 + pi] == 0)
+							BmpPalColLUT[fgPalID * 3 + pi] = (byte)(1 + (0x10 + pa) * 3 + pi);
+						if (BmpPalColLUT[bgPalID * 3 + pi] == 0)
+							BmpPalColLUT[bgPalID * 3 + pi] = (byte)(1 + (0x00 + pa) * 3 + pi);
+					}
+				}
 			}
 			CurPal = 0;
-			switch (Level.RingFormat)
+			RingFormat = new RingBGFormat();
+			/*switch (Level.RingFormat)
 			{
 				case EngineVersion.S1:
 				case EngineVersion.SCD:
@@ -451,21 +446,28 @@ namespace SonicRetro.SonLVL.API
 						}
 					}
 					break;
+			}*/
+			if (Level.Sprites != null)
+			{
+				Log("Loading 8x8 sprite tiles from file \"" + Level.Sprites + "\", using compression " + Level.TileCompression.ToString() + "...");
+				SpriteTiles = Compression.Decompress(Level.Sprites, Level.TileCompression);
 			}
 			Sprites = new List<Sprite>();
 			if (loadGraphics)
 			{
 				Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed);
 				BmpPal = palbmp.Palette;
-				for (int i = 0; i < 64; i++)
-					BmpPal.Entries[i] = PaletteToColor(i / 16, i % 16, true);
-				for (int i = 64; i < 256; i++)
-					BmpPal.Entries[i] = Color.Black;
+				BmpPal.Entries[0] = PaletteToColor(0, 0, true);
+				for (int i = 0; i < 32*3; i++)
+					BmpPal.Entries[1+i] = PaletteToColor(i / 3, 1 + i % 3, true);
+				BmpPalColMax = 1 + 32 * 3;
+				BmpPal.Entries.Fill(Color.Black, 97, ColorFirstGlobal - 97);
+				BmpPal.Entries[ColorRed] = Color.Red;
 				BmpPal.Entries[ColorWhite] = Color.White;
 				BmpPal.Entries[ColorYellow] = Color.Yellow;
 				BmpPal.Entries[ColorBlack] = Color.Black;
 				UnknownImg.Palette = BmpPal;
-				if (Level.Sprites != null)
+				/*if (Level.Sprites != null)
 				{
 					tmp = Compression.Decompress(Level.Sprites, CompressionType.SZDD);
 					int numspr = ByteConverter.ToInt32(tmp, 8);
@@ -485,7 +487,7 @@ namespace SonicRetro.SonLVL.API
 						bmp.IncrementIndexes(startcol);
 						Sprites.Add(new Sprite(bmp, new Point(ByteConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 0), ByteConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 2))));
 					}
-				}
+				}*/
 				INIObjDefs = new Dictionary<string, ObjectData>();
 				ObjTypes = new Dictionary<byte, ObjectDefinition>();
 				filecache = new Dictionary<string, byte[]>();
@@ -513,7 +515,7 @@ namespace SonicRetro.SonLVL.API
 					tmp = Compression.Decompress(Level.Objects, Level.ObjectCompression);
 					switch (Level.ObjectFormat)
 					{
-						case EngineVersion.S1:
+						/*case EngineVersion.S1:
 							for (int oa = 0; oa < tmp.Length; oa += S1ObjectEntry.Size)
 							{
 								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
@@ -556,6 +558,31 @@ namespace SonicRetro.SonLVL.API
 								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
 								Objects.Add(new ChaotixObjectEntry(tmp, oa));
 							}
+							break;*/
+						case EngineVersion.SPA:
+							{
+								// ob = Object Block, oba = Object Block Address, oa = Object Address
+								int oaBase, oba, oa;
+								int obWidth, obHeight;
+
+								obWidth = tmp[0];
+								obHeight = tmp[1];
+								oaBase = oba = 2;
+								for (int oby = 0; oby < obHeight; oby ++)
+									for (int obx = 0; obx < obWidth; obx ++)
+									{
+										oa = ByteConverter.ToUInt16(tmp, oba);
+										oba += 2;
+										if (oa == 0)
+											continue;
+										oa += oaBase;
+										//int oIdxStart = tmp[oa + 0];
+										int oCount = tmp[oa + 1];
+										oa += 2;
+										for (int i = 0; i < oCount; i++, oa += SPAObjectEntry.Size)
+											Objects.Add(new SPAObjectEntry(tmp, oa));
+									}
+							}
 							break;
 					}
 					if (loadGraphics)
@@ -565,7 +592,7 @@ namespace SonicRetro.SonLVL.API
 				else
 					Log("Object file \"" + Level.Objects + "\" not found.");
 			}
-			if (Level.Rings != null && RingFormat is RingLayoutFormat)
+			/*if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
 				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression);
 				if (loadGraphics)
@@ -595,7 +622,7 @@ namespace SonicRetro.SonLVL.API
 			else
 			{
 				Bumpers = null;
-			}
+			}*/
 			StartPositions = new List<StartPositionEntry>();
 			StartPosDefs = new List<StartPositionDefinition>();
 			if (Level.StartPositions != null)
@@ -624,13 +651,45 @@ namespace SonicRetro.SonLVL.API
 					}
 				}
 			}
-			ColInds1 = new List<byte>();
+			ColInds = new List<short>();
+			tmp = Compression.Decompress(Level.CollisionIndex, Level.CollisionIndexCompression);
+			for (int i = 0; i < tmp.Length; i += 2)
+			{
+				short colVal = ByteConverter.ToInt16(tmp, i);
+				ColInds.Add(colVal);
+			}
+			if (ColInds.Count == Tiles.Count)
+			{
+				// In the vanilla game, there are as many tiles as there are collision
+				// indices - INCLUDING the terminator (which has an empty tile).
+				// So let's check for this case and remove the last tile.
+				int lastIdx = ColInds.Count - 1;
+				if (ColInds[lastIdx] == -1)
+				{
+					ushort tdused = 0;
+					for (int i = 0; i < 16; i++)
+						tdused |= Tiles[lastIdx][i];
+					if (tdused == 0)
+					{
+						Tiles.RemoveAt(lastIdx);
+						ColInds.RemoveAt(lastIdx);
+					}
+				}
+				else
+				{
+					ColInds[lastIdx] = 0;
+				}
+			}
+			if (ColInds.Count < Tiles.Count)
+				ColInds.AddRange(new short[Tiles.Count - ColInds.Count]);
+			/*ColInds1 = new List<byte>();
 			ColInds2 = new List<byte>();
 			switch (Level.CollisionIndexFormat)
 			{
 				case EngineVersion.S1:
 				case EngineVersion.SCD:
 				case EngineVersion.SCDPC:
+				case EngineVersion.SPA:
 					if (Level.CollisionIndex != null && File.Exists(Level.CollisionIndex))
 						ColInds1.AddRange(Compression.Decompress(Level.CollisionIndex, Level.CollisionIndexCompression));
 					ColInds2 = ColInds1;
@@ -699,23 +758,33 @@ namespace SonicRetro.SonLVL.API
 			if (Level.Angles != null && File.Exists(Level.Angles))
 				Angles = Compression.Decompress(Level.Angles, Level.AngleCompression);
 			else
-				Angles = new byte[256];
+				Angles = new byte[256];*/
 			if (loadGraphics)
 			{
 				BlockBmps = new List<Bitmap[]>();
+				BlockBmpsA = new List<Bitmap>[2];
+				BlockBmpsA[0] = new List<Bitmap>();
+				BlockBmpsA[1] = new List<Bitmap>();
 				BlockBmpBits = new List<BitmapBits[]>();
-				CompBlockBmps = new List<Bitmap>();
-				CompBlockBmpBits = new List<BitmapBits>();
+				BlockColBmps = new List<Bitmap>();
+				BlockColBmpBits = new List<BitmapBits>();
+				//CompBlockBmps = new List<Bitmap>();
+				//CompBlockBmpBits = new List<BitmapBits>();
+				LoadCollisionBitmap(Game.CollisionBitmap);
 				Log("Drawing block bitmaps...");
 				for (int bi = 0; bi < Blocks.Count; bi++)
 				{
 					BlockBmps.Add(new Bitmap[2]);
 					BlockBmpBits.Add(new BitmapBits[2]);
-					CompBlockBmps.Add(null);
-					CompBlockBmpBits.Add(null);
+					BlockColBmps.Add(null);
+					BlockColBmpBits.Add(null);
+					BlockBmpsA[0].Add(null);
+					BlockBmpsA[1].Add(null);
+					//CompBlockBmps.Add(null);
+					//CompBlockBmpBits.Add(null);
 					RedrawBlock(bi, false);
 				}
-				ColBmps = new Bitmap[256];
+				/*ColBmps = new Bitmap[256];
 				ColBmpBits = new BitmapBits[256];
 				for (int ci = 0; ci < 256; ci++)
 					RedrawCol(ci, false);
@@ -735,7 +804,53 @@ namespace SonicRetro.SonLVL.API
 					CompChunkBmps.Add(null);
 					CompChunkBmpBits.Add(null);
 					RedrawChunk(ci);
+				}*/
+			}
+		}
+
+		public static void LoadCollisionBitmap(string bmpFile)
+		{
+			Bitmap collBmp = new Bitmap(bmpFile);
+			int tilesX, tilesY, totalTiles;
+			int ti, tx, ty;
+
+			tilesX = collBmp.Width / 8;
+			tilesY = collBmp.Height / 8;
+			totalTiles = tilesX * tilesY;
+			ColBmps = new Bitmap[totalTiles + 1];
+			ColBmpBits = new BitmapBits[totalTiles + 1];
+			
+			// the first ID is "no collision"
+			ti = 0;
+			ColBmpBits[ti] = new BitmapBits(8, 8);
+			for (int py = 0; py < 8; py++)
+				for (int px = 0; px < 8; px++)
+					ColBmpBits[ti][px, py] = 0;
+			ColBmps[ti] = ColBmpBits[ti].ToBitmap(Color.Transparent, Color.White, Color.LightGray);
+			
+			for (ti = 1; ti <= totalTiles; ti ++)
+			{
+				ty = (ti - 1) / tilesX * 8;
+				tx = (ti - 1) % tilesX * 8;
+				ColBmpBits[ti] = new BitmapBits(8, 8);
+				for (int py = 0; py < 8; py++)
+				{
+					for (int px = 0; px < 8; px++)
+					{
+						Color pixCol = collBmp.GetPixel(tx + px, ty + py);
+						int grey = (pixCol.R + pixCol.G + pixCol.B) / 3;
+						byte collCol;
+
+						if (grey < 0xA0)
+							collCol = 0;	// no collision
+						else if (grey < 0xE0)
+							collCol = 2;	// graphical helper
+						else
+							collCol = 1;	// collision
+						ColBmpBits[ti][px, py] = collCol;
+					}
 				}
+				ColBmps[ti] = ColBmpBits[ti].ToBitmap(Color.Transparent, Color.White, Color.LightGray);
 			}
 		}
 
@@ -744,8 +859,18 @@ namespace SonicRetro.SonLVL.API
 			Log("Saving " + Level.DisplayName + "...");
 			int fileind = -1;
 			List<byte> tmp;
+			int addTempTile = -1;
+			if (Tiles.Count == 0x1BF)
+			{
+				// If there are 0x1C0 collision indices, then simulate the vanilla game
+				// and temporarily add an empty tile for the terminating collision index.
+				byte[] emptyTile = new byte[16];
+				emptyTile.FastFill(0);
+				addTempTile = Tiles.Count;
+				Tiles.Add(emptyTile);
+			}
 			ReadOnlyCollection<ReadOnlyCollection<byte[]>> tilefiles = Tiles.GetFiles();
-			if (Level.TileFormat != EngineVersion.SCDPC)
+			//if (Level.TileFormat != EngineVersion.SCDPC)
 			{
 				foreach (FileInfo tileent in Level.Tiles)
 				{
@@ -756,7 +881,7 @@ namespace SonicRetro.SonLVL.API
 					Compression.Compress(tmp.ToArray(), tileent.Filename, Level.TileCompression);
 				}
 			}
-			else
+			/*else
 			{
 				List<ushort>[] tilepals = new List<ushort>[4];
 				for (int i = 0; i < 4; i++)
@@ -803,7 +928,9 @@ namespace SonicRetro.SonLVL.API
 				}
 				tmp.AddRange(TileArray);
 				Compression.Compress(tmp.ToArray(), Level.Tiles[0].Filename, CompressionType.SZDD);
-			}
+			}*/
+			if (addTempTile >= 0)
+				Tiles.RemoveAt(addTempTile);
 			fileind = -1;
 			ReadOnlyCollection<ReadOnlyCollection<Block>> blockfiles = Blocks.GetFiles();
 			foreach (FileInfo tileent in Level.Blocks)
@@ -818,7 +945,7 @@ namespace SonicRetro.SonLVL.API
 					littleendian = true;
 				Compression.Compress(tmp.ToArray(), tileent.Filename, Level.BlockCompression);
 			}
-			fileind = -1;
+			/*fileind = -1;
 			ReadOnlyCollection<ReadOnlyCollection<Chunk>> chunkfiles = Chunks.GetFiles();
 			foreach (FileInfo tileent in Level.Chunks)
 			{
@@ -840,12 +967,33 @@ namespace SonicRetro.SonLVL.API
 							break;
 					}
 				Compression.Compress(tmp.ToArray(), tileent.Filename, Level.ChunkCompression);
-			}
+			}*/
 			if (LayoutFormat.IsCombinedLayout)
 				((LayoutFormatCombined)LayoutFormat).WriteLayout(Layout, Level.LayoutCompression, Level.Layout);
 			else
 				((LayoutFormatSeparate)LayoutFormat).WriteLayout(Layout, Level.FGLayoutCompression, Level.BGLayoutCompression, Level.FGLayout, Level.BGLayout);
-			if (Level.PaletteFormat != EngineVersion.SCDPC)
+			if (Level.PaletteFormat == EngineVersion.SPA)
+			{
+				for (int palnum = 0; palnum < Level.Palettes.Length; palnum++)
+				{
+					// done by SetPalCol
+					/*for (int pa = 0; pa < 16; pa++)
+					{
+						ushort fgPalID = PalIDsFG.palIDs[pa];
+						ushort bgPalID = PalIDsBG.palIDs[pa];
+						for (int pi = 0; pi < 3; pi++)
+						{
+							PalCollection[fgPalID * 3 + pi] = Palette[palnum][0x10 + pa, 1+pi];
+							PalCollection[bgPalID * 3 + pi] = Palette[palnum][0x00 + pa, 1+pi];
+						}
+					}*/
+					tmp = new List<byte>();
+					for (int pa = 0; pa < PalCollection.Length; pa ++)
+						tmp.AddRange(ByteConverter.GetBytes(PalCollection[pa].NGPCColor));
+					File.WriteAllBytes(Level.GamePalettes, tmp.ToArray());
+				}
+			}
+			/*if (Level.PaletteFormat != EngineVersion.SCDPC)
 			{
 				byte[] paltmp;
 				List<ushort[]> palfiles = new List<ushort[]>();
@@ -863,7 +1011,7 @@ namespace SonicRetro.SonLVL.API
 					}
 					for (int pl = 0; pl < 4; pl++)
 						for (int pi = 0; pi < 16; pi++)
-							palfiles[PalNum[palnum][pl, pi]][PalAddr[palnum][pl, pi]] = Palette[palnum][pl, pi].MDColor;
+							palfiles[PalNum[palnum][pl, pi]][PalAddr[palnum][pl, pi]] = Palette[palnum][pl, pi].NGPCColor;
 					for (byte pn = 0; pn < palent.Collection.Length; pn++)
 					{
 						tmp = new List<byte>();
@@ -896,16 +1044,19 @@ namespace SonicRetro.SonLVL.API
 						File.WriteAllBytes(palent[pn].Filename, palfiles[pn]);
 					palfilenum = (byte)palfiles.Count;
 				}
-			}
+			}*/
 			if (Level.Objects != null)
 			{
-				Objects.Sort();
 				tmp = new List<byte>();
-				for (int oi = 0; oi < Objects.Count; oi++)
-					tmp.AddRange(Objects[oi].GetBytes());
+				if (Level.ObjectFormat != EngineVersion.SPA)
+				{
+					//Objects.Sort();
+					for (int oi = 0; oi < Objects.Count; oi++)
+						tmp.AddRange(Objects[oi].GetBytes());
+				}
 				switch (Level.ObjectFormat)
 				{
-					case EngineVersion.S1:
+					/*case EngineVersion.S1:
 						tmp.AddRange(new byte[] { 0xFF, 0xFF });
 						while (tmp.Count % S1ObjectEntry.Size > 0)
 							tmp.Add(0);
@@ -934,11 +1085,69 @@ namespace SonicRetro.SonLVL.API
 						break;
 					case EngineVersion.Chaotix:
 						tmp.AddRange(new byte[] { 0xFF, 0xFF });
+						break;*/
+					case EngineVersion.SPA:
+						{
+							// ob = Object Block, oba = Object Block Address, oa = Object Address
+							ushort oaBase, oba;
+							int obWidth, obHeight;
+							List<SPAObjectEntry>[,] obLUT;
+							byte oIdxStart;
+
+							obWidth = (Level.LevelWidth + 5) / 6;
+							obHeight = (Level.LevelHeight + 5) / 6;
+							// create Object Block table (sorts all objects into "activity blocks" of 192x192)
+							obLUT = new List<SPAObjectEntry>[obWidth, obHeight];
+							for (int oby = 0; oby < obHeight; oby++)
+								for (int obx = 0; obx < obWidth; obx++)
+									obLUT[obx, oby] = new List<SPAObjectEntry>();
+							for (int i = 0; i < Objects.Count; i++)
+							{
+								int obx = Objects[i].X / 192;
+								int oby = ((SPAObjectEntry)Objects[i]).internalY / 192;
+								if (obx < obWidth && oby >= 0)
+									obLUT[obx, oby].Add((SPAObjectEntry)Objects[i]);
+							}
+							// write Object Block Pointer Table
+							tmp.Add((byte)obWidth);
+							tmp.Add((byte)obHeight);
+							oaBase = oba = (ushort)(obWidth * obHeight * 2);
+							for (int oby = 0; oby < obHeight; oby ++)
+								for (int obx = 0; obx < obWidth; obx ++)
+								{
+									if (obLUT[obx, oby].Count == 0)
+									{
+										tmp.AddRange(ByteConverter.GetBytes((ushort)0));
+									}
+									else
+									{
+										tmp.AddRange(ByteConverter.GetBytes(oba));
+										oba += (ushort)(2 + SPAObjectEntry.Size * obLUT[obx, oby].Count);
+									}
+								}
+							// write Object Blocks themselves
+							oIdxStart = 0;
+							for (int oby = 0; oby < obHeight; oby ++)
+								for (int obx = 0; obx < obWidth; obx ++)
+								{
+									if (obLUT[obx, oby].Count > 0)
+									{
+										tmp.Add(oIdxStart);
+										tmp.Add((byte)obLUT[obx, oby].Count);
+										//obLUT[obx, oby].Sort();
+										for (int i = 0; i < obLUT[obx, oby].Count; i++)
+											tmp.AddRange(obLUT[obx, oby][i].GetBytes());
+										oIdxStart += (byte)obLUT[obx, oby].Count;
+									}
+								}
+						}
+						break;
+					default:
 						break;
 				}
 				Compression.Compress(tmp.ToArray(), Level.Objects, Level.ObjectCompression);
 			}
-			if (Level.Rings != null && RingFormat is RingLayoutFormat)
+			/*if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
 				Rings.Sort();
 				((RingLayoutFormat)RingFormat).WriteLayout(Rings, Level.RingCompression, Level.Rings);
@@ -951,7 +1160,7 @@ namespace SonicRetro.SonLVL.API
 					tmp.AddRange(item.GetBytes());
 				tmp.AddRange(new byte[] { 0, 0, 0xFF, 0xFF, 0, 0 });
 				Compression.Compress(tmp.ToArray(), Level.Bumpers, Level.BumperCompression);
-			}
+			}*/
 			if (Level.StartPositions != null)
 			{
 				int i = 0;
@@ -964,7 +1173,13 @@ namespace SonicRetro.SonLVL.API
 					File.WriteAllBytes(item.Filename, fc);
 				}
 			}
-			switch (Level.CollisionIndexFormat)
+			
+			tmp = new List<byte>();
+			for (int ci = 0; ci < ColInds.Count; ci ++)
+				tmp.AddRange(ByteConverter.GetBytes(ColInds[ci]));
+			tmp.AddRange(ByteConverter.GetBytes((short)-1));
+			Compression.Compress(tmp.ToArray(), Level.CollisionIndex, Level.CollisionIndexCompression);
+			/*switch (Level.CollisionIndexFormat)
 			{
 				case EngineVersion.S1:
 				case EngineVersion.SCD:
@@ -1023,7 +1238,7 @@ namespace SonicRetro.SonLVL.API
 				Compression.Compress(tmp.ToArray(), Level.CollisionArray2, Level.CollisionArrayCompression);
 			}
 			if (Level.Angles != null)
-				Compression.Compress(Angles, Level.Angles, Level.AngleCompression);
+				Compression.Compress(Angles, Level.Angles, Level.AngleCompression);*/
 		}
 
 		public static BitmapBits DrawForeground(Rectangle? section, bool includeObjects, bool includeDebugObjects, bool objectsAboveHighPlane, bool lowPlane, bool highPlane, bool collisionPath1, bool collisionPath2, bool allTimeZones)
@@ -1044,25 +1259,30 @@ namespace SonicRetro.SonLVL.API
 						}
 				xend++;
 				yend++;
-				bounds = new Rectangle(0, 0, xend * Level.ChunkWidth, yend * Level.ChunkHeight);
+				bounds = new Rectangle(0, 0, xend * 32, yend * 32);
 			}
 			BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-			for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min((bounds.Bottom - 1) / Level.ChunkHeight, FGHeight - 1); y++)
-				for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, FGWidth - 1); x++)
+			for (int y = Math.Max(bounds.Y / 32, 0); y <= Math.Min((bounds.Bottom - 1) / 32, FGHeight - 1); y++)
+				for (int x = Math.Max(bounds.X / 32, 0); x <= Math.Min((bounds.Right - 1) / 32, FGWidth - 1); x++)
 				{
-					if (Layout.FGLayout[x, y] < Chunks.Count & lowPlane)
-						LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+					if (Layout.BGLayout[x, y] < Blocks.Count)
+					{
+						if (lowPlane)
+							LevelImg8bpp.DrawBitmapComposited(BlockBmpBits[Layout.BGLayout[x, y]][0], x * 32 - bounds.X, y * 32 - bounds.Y);
+						if (collisionPath1 && ! objectsAboveHighPlane)
+							LevelImg8bpp.DrawBitmapComposited(BlockColBmpBits[Layout.BGLayout[x, y]], x * 32 - bounds.X, y * 32 - bounds.Y);
+					}
 					if (objectsAboveHighPlane)
-						if (Layout.FGLayout[x, y] < Chunks.Count)
-						{
-							if (highPlane)
-								LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-							if (collisionPath1)
-								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-							else if (collisionPath2)
-								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-						}
+					{
+						if (Layout.FGLayout[x, y] < Blocks.Count && highPlane)
+							LevelImg8bpp.DrawBitmapComposited(BlockBmpBits[Layout.FGLayout[x, y]][1], x * 32 - bounds.X, y * 32 - bounds.Y);
+						if (Layout.BGLayout[x, y] < Blocks.Count && collisionPath1)
+							LevelImg8bpp.DrawBitmapComposited(BlockColBmpBits[Layout.BGLayout[x, y]], x * 32 - bounds.X, y * 32 - bounds.Y);
+						if (Layout.FGLayout[x, y] < Blocks.Count && collisionPath2)
+							LevelImg8bpp.DrawBitmapComposited(BlockColBmpBits[Layout.FGLayout[x, y]], x * 32 - bounds.X, y * 32 - bounds.Y);
+					}
 				}
+			// --- end of DrawBackground
 			if (includeObjects)
 			{
 				for (int oi = 0; oi < Objects.Count; oi++)
@@ -1071,26 +1291,24 @@ namespace SonicRetro.SonLVL.API
 					if (!(!includeDebugObjects && GetObjectDefinition(oe.ID).Debug) && ObjectVisible(oe, allTimeZones))
 						LevelImg8bpp.DrawSprite(oe.Sprite, -bounds.X, -bounds.Y);
 				}
-				if (RingFormat is RingLayoutFormat)
+				/*if (Rings != null && RingFormat is RingLayoutFormat)
 					for (int ri = 0; ri < Rings.Count; ri++)
 						LevelImg8bpp.DrawSprite(Rings[ri].Sprite, -bounds.X, -bounds.Y);
 				if (Bumpers != null && includeDebugObjects)
 					foreach (CNZBumperEntry item in Bumpers)
-						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
+						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);*/
 				foreach (StartPositionEntry item in StartPositions)
 					LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
 			}
 			if (!objectsAboveHighPlane)
-				for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min(bounds.Bottom / Level.ChunkHeight, Layout.FGLayout.GetLength(1) - 1); y++)
-					for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min(bounds.Right / Level.ChunkWidth, Layout.FGLayout.GetLength(0) - 1); x++)
-						if (Layout.FGLayout[x, y] < Chunks.Count)
+				for (int y = Math.Max(bounds.Y / 32, 0); y <= Math.Min(bounds.Bottom / 32, Layout.FGLayout.GetLength(1) - 1); y++)
+					for (int x = Math.Max(bounds.X / 32, 0); x <= Math.Min(bounds.Right / 32, Layout.FGLayout.GetLength(0) - 1); x++)
+						if (Layout.FGLayout[x, y] < Blocks.Count)
 						{
 							if (highPlane)
-								LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-							if (collisionPath1)
-								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-							else if (collisionPath2)
-								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+								LevelImg8bpp.DrawBitmapComposited(BlockBmpBits[Layout.FGLayout[x, y]][1], x * 32 - bounds.X, y * 32 - bounds.Y);
+							if (collisionPath2)
+								LevelImg8bpp.DrawBitmapComposited(BlockColBmpBits[Layout.FGLayout[x, y]], x * 32 - bounds.X, y * 32 - bounds.Y);
 						}
 			return LevelImg8bpp;
 		}
@@ -1113,21 +1331,21 @@ namespace SonicRetro.SonLVL.API
 						}
 				xend++;
 				yend++;
-				bounds = new Rectangle(0, 0, xend * Level.ChunkWidth, yend * Level.ChunkHeight);
+				bounds = new Rectangle(0, 0, xend * 32, yend * 32);
 			}
 			BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-			for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min((bounds.Bottom - 1) / Level.ChunkHeight, Layout.BGLayout.GetLength(1) - 1); y++)
-				for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, Layout.BGLayout.GetLength(0) - 1); x++)
-					if (Layout.BGLayout[x, y] < Chunks.Count)
+			for (int y = Math.Max(bounds.Y / 32, 0); y <= Math.Min((bounds.Bottom - 1) / 32, Layout.BGLayout.GetLength(1) - 1); y++)
+				for (int x = Math.Max(bounds.X / 32, 0); x <= Math.Min((bounds.Right - 1) / 32, Layout.BGLayout.GetLength(0) - 1); x++)
+					if (Layout.BGLayout[x, y] < Blocks.Count)
 					{
 						if (lowPlane)
-							LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							LevelImg8bpp.DrawBitmapComposited(BlockBmpBits[Layout.BGLayout[x, y]][0], x * 32 - bounds.X, y * 32 - bounds.Y);
 						if (highPlane)
-							LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							LevelImg8bpp.DrawBitmapComposited(BlockBmpBits[Layout.FGLayout[x, y]][1], x * 32 - bounds.X, y * 32 - bounds.Y);
 						if (collisionPath1)
-							LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							LevelImg8bpp.DrawBitmapComposited(BlockColBmpBits[Layout.BGLayout[x, y]], x * 32 - bounds.X, y * 32 - bounds.Y);
 						else if (collisionPath2)
-							LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							LevelImg8bpp.DrawBitmapComposited(BlockColBmpBits[Layout.FGLayout[x, y]], x * 32 - bounds.X, y * 32 - bounds.Y);
 					}
 			return LevelImg8bpp;
 		}
@@ -1136,7 +1354,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (allTimeZones)
 				return true;
-			if (obj is SCDObjectEntry)
+			/*if (obj is SCDObjectEntry)
 			{
 				SCDObjectEntry scdobj = (SCDObjectEntry)obj;
 				switch (Level.TimeZone)
@@ -1150,7 +1368,7 @@ namespace SonicRetro.SonLVL.API
 					default:
 						return true;
 				}
-			}
+			}*/
 			return true;
 		}
 
@@ -1169,12 +1387,12 @@ namespace SonicRetro.SonLVL.API
 		{
 			foreach (KeyValuePair<string, ObjectData> group in INIObjDefs)
 			{
-				if (group.Value.ArtCompression == CompressionType.Invalid)
-					group.Value.ArtCompression = Game.ObjectArtCompression;
+				//if (group.Value.ArtCompression == CompressionType.Invalid)
+				//	group.Value.ArtCompression = Game.ObjectArtCompression;
 				byte ID;
-				if (group.Key == "Ring" && RingFormat is RingLayoutFormat)
+				/*if (group.Key == "Ring" && RingFormat is RingLayoutFormat)
 					((RingLayoutFormat)RingFormat).Init(group.Value);
-				else if (byte.TryParse(group.Key, System.Globalization.NumberStyles.HexNumber, System.Globalization.NumberFormatInfo.InvariantInfo, out ID))
+				else*/ if (byte.TryParse(group.Key, System.Globalization.NumberStyles.HexNumber, System.Globalization.NumberFormatInfo.InvariantInfo, out ID))
 				{
 					ObjectDefinition def = null;
 					if (group.Value.CodeFile != null)
@@ -1266,7 +1484,7 @@ namespace SonicRetro.SonLVL.API
 								Type basetype;
 								switch (Level.ObjectFormat)
 								{
-									case EngineVersion.S1:
+									/*case EngineVersion.S1:
 										basetype = typeof(S1ObjectEntry);
 										break;
 									case EngineVersion.S2:
@@ -1285,6 +1503,9 @@ namespace SonicRetro.SonLVL.API
 										break;
 									case EngineVersion.Chaotix:
 										basetype = typeof(ChaotixObjectEntry);
+										break;*/
+									case EngineVersion.SPA:
+										basetype = typeof(SPAObjectEntry);
 										break;
 									default:
 										basetype = typeof(ObjectEntry);
@@ -1348,7 +1569,7 @@ namespace SonicRetro.SonLVL.API
 												new CodeObjectCreateExpression(typeof(BitmapBits), new CodeObjectCreateExpression(typeof(Bitmap), new CodePrimitiveExpression(img.filename))),
 												new CodeObjectCreateExpression(typeof(Point), new CodePrimitiveExpression(pnt.X), new CodePrimitiveExpression(pnt.Y)))));
 										}
-										else if (item is XMLDef.ImageFromMappings)
+										/*else if (item is XMLDef.ImageFromMappings)
 										{
 											XMLDef.ImageFromMappings img = (XMLDef.ImageFromMappings)item;
 											method.Statements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("artfiles"), new CodeObjectCreateExpression(typeof(MultiFileIndexer<byte>))));
@@ -1418,7 +1639,7 @@ namespace SonicRetro.SonLVL.API
 											method.Statements.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(thisref, img.id), new CodeMethodInvokeExpression(objhelprefex, "GetSprite", new CodePrimitiveExpression(img.frame))));
 											if (!img.offset.IsEmpty)
 												method.Statements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Offset"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "X"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(img.offset.X)), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Y"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(img.offset.Y)))));
-										}
+										}*/
 									}
 								}
 								members.Add(method);
@@ -1855,14 +2076,14 @@ namespace SonicRetro.SonLVL.API
 									method.Statements.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(typeof(Rectangle), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Offset"), "X")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "X")), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Offset"), "Y")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "Y")), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Image"), "Width"), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Image"), "Height"))));
 								}
 								members.Add(method);
-								prop = new CodeMemberProperty();
+								/*prop = new CodeMemberProperty();
 								prop.Attributes = MemberAttributes.Override | MemberAttributes.Public;
 								prop.Name = "RememberState";
 								prop.Type = new CodeTypeReference(typeof(bool));
 								prop.GetStatements.Add(new CodeMethodReturnStatement(new CodePrimitiveExpression(xdef.RememberState)));
 								prop.HasGet = true;
 								prop.HasSet = false;
-								members.Add(prop);
+								members.Add(prop);*/
 								prop = new CodeMemberProperty();
 								prop.Attributes = MemberAttributes.Override | MemberAttributes.Public;
 								prop.Name = "DefaultSubtype";
@@ -2140,15 +2361,35 @@ namespace SonicRetro.SonLVL.API
 		public static Bitmap TileToBmp4bpp(byte[] file, int index, int palette)
 		{
 			Bitmap bmp = new Bitmap(8, 8, PixelFormat.Format4bppIndexed);
-			if (file != null && index * 32 + 32 <= file.Length)
+			if (file != null && index * 16 + 16 <= file.Length)
 			{
+				// convert 2bpp images into 4bpp
+				byte[] bmpdata = new byte[32];
+				for (int i=0; i < 8; i ++)
+				{
+					ushort val = ByteConverter.ToUInt16(file, index * 16 + i * 2);
+					byte pixval;
+					for (int j = 7; j >= 0; j --, val >>= 2)
+					{
+						if ((val & 0x03) == 0)
+							pixval = 0;
+						else
+							pixval = (byte)(val & 0x03);
+						if ((j & 1) == 0)
+							bmpdata[i * 4 + j / 2] |= (byte)(pixval << 4);
+						else
+							bmpdata[i * 4 + j / 2]  = (byte)(pixval << 0);
+					}
+				}
 				BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, 8, 8), ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
-				System.Runtime.InteropServices.Marshal.Copy(file, index * 32, bmpd.Scan0, 32);
+				//System.Runtime.InteropServices.Marshal.Copy(file, index * 16, bmpd.Scan0, 32);
+				System.Runtime.InteropServices.Marshal.Copy(bmpdata, 0, bmpd.Scan0, 32);
 				bmp.UnlockBits(bmpd);
 			}
 			ColorPalette pal = bmp.Palette;
-			for (int i = 0; i < 16; i++)
-				pal.Entries[i] = PaletteToColor(palette, i, false);
+			pal.Entries[0] = PaletteToColor(palette, 0, false);
+			for (int i = 0; i < 3; i++)
+				pal.Entries[1+i] = PaletteToColor(palette, 1 + i, false);
 			bmp.Palette = pal;
 			return bmp;
 		}
@@ -2156,21 +2397,55 @@ namespace SonicRetro.SonLVL.API
 		public static BitmapBits TileToBmp8bpp(byte[] file, int index, int pal)
 		{
 			BitmapBits bmp;
-			if (file != null && index * 32 + 32 <= file.Length)
+			if (file != null && index * 16 + 16 <= file.Length)
 			{
 				bmp = new BitmapBits(8, 8);
-				for (int i = 0; i < 32; i++)
+				for (int i = 0; i < 8; i++)
 				{
-					bmp.Bits[i * 2] = (byte)((file[i + (index * 32)] >> 4) + (pal * 16));
-					bmp.Bits[(i * 2) + 1] = (byte)((file[i + (index * 32)] & 0xF) + (pal * 16));
-					if (bmp.Bits[i * 2] % 16 == 0) bmp.Bits[i * 2] = 0;
-					if (bmp.Bits[(i * 2) + 1] % 16 == 0) bmp.Bits[(i * 2) + 1] = 0;
+					ushort val = ByteConverter.ToUInt16(file, index * 16 + i * 2);
+					for (int j = 7; j >= 0; j --, val >>= 2)
+					{
+						if ((val & 0x03) == 0)
+							bmp.Bits[i * 8 + j] = 0;
+						else
+							bmp.Bits[i * 8 + j] = (byte)(pal * 3 + (val & 0x03));
+					}
 				}
 			}
 			else
 			{
 				bmp = new BitmapBits(InvalidTile);
-				bmp.IncrementIndexes(pal * 16);
+				bmp.IncrementIndexes(pal * 3);
+			}
+			return bmp;
+		}
+
+		public static BitmapBits TileToBmp8bppLUT(byte[] file, int index, byte[] colorLUT)
+		{
+			BitmapBits bmp;
+			if (file != null && index * 16 + 16 <= file.Length)
+			{
+				bmp = new BitmapBits(8, 8);
+				for (int i = 0; i < 8; i++)
+				{
+					ushort val = ByteConverter.ToUInt16(file, index * 16 + i * 2);
+					for (int j = 7; j >= 0; j--, val >>= 2)
+					{
+						if ((val & 0x03) == 0)
+							bmp.Bits[i * 8 + j] = 0;
+						else
+							bmp.Bits[i * 8 + j] = colorLUT[val & 0x03];
+					}
+				}
+			}
+			else
+			{
+				bmp = new BitmapBits(InvalidTile);
+				for (int i = 0; i < 8 * 8; i++)
+				{
+					if (bmp.Bits[i] != 0)
+						bmp.Bits[i] = colorLUT[bmp.Bits[i]];
+				}
 			}
 			return bmp;
 		}
@@ -2330,7 +2605,7 @@ namespace SonicRetro.SonLVL.API
 							break;
 					}
 				}
-				else if (ln[0].Equals("spritePiece"))
+				/*else if (ln[0].Equals("spritePiece"))
 				{
 					string d = string.Empty;
 					for (int i = 1; i < ln.Length; i++)
@@ -2378,7 +2653,7 @@ namespace SonicRetro.SonLVL.API
 						d += ln[i];
 					string[] dats = d.Split(',');
 					unchecked { result.AddRange(new DPLCEntry((byte)ParseASMNum(dats[0], labels), (ushort)ParseASMNum(dats[1], labels)).GetBytes(EngineVersion.S2)); }
-				}
+				}*/
 				else if (ln[0].Equals("obj1E67Size"))
 					result.AddRange(ByteConverter.GetBytes((short)(LabelSubtract(lastlabel + "_End", lastlabel, labels) - 2)));
 				else
@@ -2547,7 +2822,7 @@ namespace SonicRetro.SonLVL.API
 			return labels;
 		}
 
-		public static byte[] ProcessDPLC(byte[] artfile, DPLCFrame dplc)
+		/*public static byte[] ProcessDPLC(byte[] artfile, DPLCFrame dplc)
 		{
 			List<byte> result = new List<byte>();
 			byte[] tmp;
@@ -2558,17 +2833,17 @@ namespace SonicRetro.SonLVL.API
 				result.AddRange(tmp);
 			}
 			return result.ToArray();
-		}
+		}*/
 
-		public static Sprite[] MapFrameToBmp(byte[] art, MappingsFrame map, int startpal)
+		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, int startpal)
 		{
 			return MapFrameToBmp(art, map, null, startpal);
 		}
 
-		public static Sprite[] MapFrameToBmp(byte[] art, MappingsFrame map, DPLCFrame dplc, int startpal)
+		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, DPLCFrame dplc, int startpal)
 		{
-			if (dplc != null)
-				art = ProcessDPLC(art, dplc);
+			//if (dplc != null)
+			//	art = ProcessDPLC(art, dplc);
 			int left = 0;
 			int right = 0;
 			int top = 0;
@@ -2581,11 +2856,12 @@ namespace SonicRetro.SonLVL.API
 				bottom = Math.Max(map[i].Y + (map[i].Height * 8), bottom);
 			}
 			Point offset = new Point(left, top);
-			Sprite[] spr = new Sprite[] { new Sprite(), new Sprite() };
+			Sprite spr = new Sprite();
 			for (int i = map.TileCount - 1; i >= 0; i--)
 			{
-				int pr = map[i].Tile.Priority ? 1 : 0;
-				spr[pr] = new Sprite(spr[pr], MapTileToBmp(art, map[i], startpal));
+				//int pr = map[i].Tile.Priority ? 1 : 0;
+				//spr[pr] = new Sprite(spr[pr], MapTileToBmp(art, map[i], startpal));
+				spr = new Sprite(spr, MapTileToBmp(art, map[i], startpal));
 			}
 			return spr;
 		}
@@ -2594,57 +2870,116 @@ namespace SonicRetro.SonLVL.API
 		{
 			BitmapBits pcbmp = new BitmapBits(map.Width * 8, map.Height * 8);
 			int ti = 0;
+			byte[] colorLUT = new byte[4];
+			
+			colorLUT[0] = 0;
+			if (startpal >= 0)
+			{
+				for (int i = 0; i < 3; i++)
+					colorLUT[1 + i] = BmpPalColLUT[startpal * 3 + i];
+			}
+			else
+			{
+				startpal = -startpal - 1;	// -1 -> 0, -2 -> 1
+				for (int i = 0; i < 3; i++)
+					colorLUT[1 + i] = (byte)(1 + startpal * 3 + i);
+			}
+			
 			for (int x = 0; x < map.Width; x++)
 			{
 				for (int y = 0; y < map.Height; y++)
 				{
 					pcbmp.DrawBitmapComposited(
-						TileToBmp8bpp(art, map.Tile.Tile + ti, (map.Tile.Palette + startpal) & 3),
+						TileToBmp8bppLUT(art, map.Tile + ti, colorLUT),
 						x * 8, y * 8);
 					ti++;
 				}
 			}
-			pcbmp.Flip(map.Tile.XFlip, map.Tile.YFlip);
+			//pcbmp.Flip(map.Tile.XFlip, map.Tile.YFlip);
 			return new Sprite(pcbmp, new Point(map.X, map.Y));
 		}
 
 		public static Color PaletteToColor(int line, int index, bool acceptTransparent)
 		{
-			if (acceptTransparent && index == 0)
-				return Color.Transparent;
+			if (index == 0)
+			{
+				if (acceptTransparent)
+					return Color.Transparent;
+				else
+					return BGColor.RGBColor;
+			}
 			return Palette[CurPal][line, index].RGBColor;
 		}
 
 		public static void ColorToPalette(int line, int index, Color color)
 		{
-			Palette[CurPal][line, index] = new SonLVLColor(color);
+			SetPalColor(line, index, new SonLVLColor(color));
+		}
+		
+		public static void SetPalColor(int line, int index, SonLVLColor color)
+		{
+			if (line >= 0x20)
+			{
+				Palette[CurPal][line, index] = color;
+				return;
+			}
+			if (index <= 0)
+				return;
+			
+			// changed BG/FG color - refresh all references
+			ushort palCID;
+			int pi = index - 1;
+			palCID = (line >= 0x10) ? PalIDsFG.palIDs[line & 0x0F] : PalIDsBG.palIDs[line & 0x0F];
+			PalCollection[palCID * 3 + pi] = color;
+			
+			for (int pa = 0; pa < 16; pa++)
+			{
+				ushort fgPalID = PalIDsFG.palIDs[pa];
+				ushort bgPalID = PalIDsBG.palIDs[pa];
+				if (PalIDsFG.palIDs[pa] == palCID)
+					Palette[CurPal][0x10 + pa, index] = PalCollection[palCID * 3 + pi];
+				if (PalIDsBG.palIDs[pa] == palCID)
+					Palette[CurPal][0x00 + pa, index] = PalCollection[palCID * 3 + pi];
+			}
 		}
 
 		public static void RedrawBlock(int block, bool drawChunks)
 		{
-			BlockBmpBits[block][0] = new BitmapBits(16, 16);
-			BlockBmpBits[block][1] = new BitmapBits(16, 16);
-			CompBlockBmpBits[block] = new BitmapBits(16, 16);
-			for (int by = 0; by < 2; by++)
+			BlockBmpBits[block][0] = new BitmapBits(32, 32);
+			BlockBmpBits[block][1] = new BitmapBits(32, 32);
+			//CompBlockBmpBits[block] = new BitmapBits(32, 32);
+			BlockColBmpBits[block] = new BitmapBits(32, 32);
+			for (int by = 0; by < 4; by++)
 			{
-				for (int bx = 0; bx < 2; bx++)
+				for (int bx = 0; bx < 4; bx++)
 				{
 					PatternIndex pt = Blocks[block].Tiles[bx, by];
-					int pr = pt.Priority ? 1 : 0;
+					// background and foreground have different palettes
 					BitmapBits tile = TileToBmp8bpp(Tiles[pt.Tile], 0, pt.Palette);
 					tile.Flip(pt.XFlip, pt.YFlip);
-					BlockBmpBits[block][pr].DrawBitmap(
-						tile,
-						bx * 8, by * 8
-						);
+					BlockBmpBits[block][0].DrawBitmap(tile, bx * 8, by * 8);
+					
+					tile = TileToBmp8bpp(Tiles[pt.Tile], 0, 0x10 + pt.Palette);
+					tile.Flip(pt.XFlip, pt.YFlip);
+					BlockBmpBits[block][1].DrawBitmap(tile, bx * 8, by * 8);
+
+					if (ColBmpBits != null && ColInds[pt.Tile] >= 0 && ColInds[pt.Tile] < ColBmpBits.Length)
+						tile = new BitmapBits(ColBmpBits[ColInds[pt.Tile]]);
+					else
+						tile = new BitmapBits(8, 8);
+					tile.Flip(pt.XFlip, pt.YFlip);
+					BlockColBmpBits[block].DrawBitmap(tile, bx * 8, by * 8);
 				}
 			}
-			CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][0], Point.Empty);
-			CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][1], Point.Empty);
+			//CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][0], Point.Empty);
+			//CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][1], Point.Empty);
 			BlockBmps[block][0] = BlockBmpBits[block][0].ToBitmap(BmpPal);
 			BlockBmps[block][1] = BlockBmpBits[block][1].ToBitmap(BmpPal);
-			CompBlockBmps[block] = CompBlockBmpBits[block].ToBitmap(BmpPal);
-			if (drawChunks)
+			BlockBmpsA[0][block] = BlockBmps[block][0];
+			BlockBmpsA[1][block] = BlockBmps[block][1];
+			BlockColBmps[block] = BlockColBmpBits[block].ToBitmap(Color.Transparent, Color.White, Color.Yellow, Color.Black);
+			//CompBlockBmps[block] = CompBlockBmpBits[block].ToBitmap(BmpPal);
+			/*if (drawChunks)
 			{
 				for (int i = 0; i < Chunks.Count; i++)
 				{
@@ -2656,10 +2991,10 @@ namespace SonicRetro.SonLVL.API
 					if (dr)
 						RedrawChunk(i);
 				}
-			}
+			}*/
 		}
 
-		public static void RedrawChunk(int chunk)
+		/*public static void RedrawChunk(int chunk)
 		{
 			ChunkBmpBits[chunk][0] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
 			ChunkBmpBits[chunk][1] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
@@ -2717,7 +3052,7 @@ namespace SonicRetro.SonLVL.API
 			ChunkColBmpBits[chunk][0].IncrementIndexes(ColorWhite - 1);
 			ChunkColBmpBits[chunk][1].IncrementIndexes(ColorWhite - 1);
 			CompChunkBmps[chunk] = CompChunkBmpBits[chunk].ToBitmap(BmpPal);
-		}
+		}*/
 
 		public static ObjectDefinition GetObjectDefinition(byte ID)
 		{
@@ -2733,7 +3068,7 @@ namespace SonicRetro.SonLVL.API
 			ObjectEntry oe;
 			switch (Level.ObjectFormat)
 			{
-				case EngineVersion.S1:
+				/*case EngineVersion.S1:
 					oe = new S1ObjectEntry() { RememberState = def.RememberState };
 					break;
 				case EngineVersion.S2:
@@ -2752,6 +3087,9 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case EngineVersion.Chaotix:
 					oe = new ChaotixObjectEntry();
+					break;*/
+				case EngineVersion.SPA:
+					oe = new SPAObjectEntry();
 					break;
 				default:
 					oe = null;
@@ -2762,10 +3100,43 @@ namespace SonicRetro.SonLVL.API
 			return oe;
 		}
 
+		public static void AddObjPalette(int line)
+		{
+			for (int i=0; i < 3; i++)
+				AddObjPaletteColor(line, i);
+		}
+
+		private static void AddObjPaletteColor(int line, int index)
+		{
+			const byte ibase = 1 + 32 * 3;
+			int pccol = line * 3 + index;
+			if (BmpPalColLUT[pccol] != 0)
+				return;
+			
+			SonLVLColor palcol = PalCollection[pccol];
+			for (byte i = ibase; i < BmpPalColMax; i++)
+			{
+				if (BmpPal.Entries[i].Equals(palcol))
+				{
+					// found color in BMP palette - set reference and return
+					BmpPalColLUT[pccol] = i;
+					return;
+				}
+			}
+			if (BmpPalColMax < ColorFirstGlobal)
+			{
+				BmpPal.Entries[BmpPalColMax] = palcol.RGBColor;
+				BmpPalColLUT[pccol] = BmpPalColMax;
+				BmpPalColMax++;
+			}
+		}
+
 		public static void PaletteChanged()
 		{
-			for (int i = 0; i < 64; i++)
-				BmpPal.Entries[i] = PaletteToColor(i / 16, i % 16, true);
+			BmpPal.Entries[0] = PaletteToColor(0, 0, true);
+			for (int i = 0; i < 32*3; i++)
+				BmpPal.Entries[1+i] = PaletteToColor(i / 3, 1 + i % 3, true);
+			BmpPal.Entries[ColorRed] = Color.Red;
 			BmpPal.Entries[ColorWhite] = Color.White;
 			BmpPal.Entries[ColorYellow] = Color.Yellow;
 			BmpPal.Entries[ColorBlack] = Color.Black;
@@ -2774,7 +3145,7 @@ namespace SonicRetro.SonLVL.API
 				item[0].Palette = BmpPal;
 				item[1].Palette = BmpPal;
 			}
-			foreach (Bitmap item in CompBlockBmps)
+			/*foreach (Bitmap item in CompBlockBmps)
 				item.Palette = BmpPal;
 			foreach (Bitmap[] item in ChunkBmps)
 			{
@@ -2782,26 +3153,26 @@ namespace SonicRetro.SonLVL.API
 				item[1].Palette = BmpPal;
 			}
 			foreach (Bitmap item in CompChunkBmps)
-				item.Palette = BmpPal;
+				item.Palette = BmpPal;*/
 			PaletteChangedEvent();
 		}
 
-		public static void RedrawCol(int block, bool drawChunks)
+		/*public static void RedrawCol(int block, bool drawChunks)
 		{
-			ColBmpBits[block] = new BitmapBits(16, 16);
-			for (int by = 0; by < 16; by++)
+			ColBmpBits[block] = new BitmapBits(32, 32);
+			for (int by = 0; by < 32; by++)
 			{
-				for (int bx = 0; bx < 16; bx++)
+				for (int bx = 0; bx < 32; bx++)
 				{
 					switch (Math.Sign(ColArr1[block][bx]))
 					{
 						case -1:
-							if (16 + ColArr1[block][bx] <= by)
-								ColBmpBits[block].Bits[((15 - by) * 16) + bx] = 1;
+							if (32 + ColArr1[block][bx] <= by)
+								ColBmpBits[block].Bits[((32 - by) * 32) + bx] = 1;
 							break;
 						case 1:
 							if (ColArr1[block][bx] > by)
-								ColBmpBits[block].Bits[((15 - by) * 16) + bx] = 1;
+								ColBmpBits[block].Bits[((32 - by) * 32) + bx] = 1;
 							break;
 					}
 				}
@@ -2820,9 +3191,9 @@ namespace SonicRetro.SonLVL.API
 						RedrawChunk(i);
 				}
 			}
-		}
+		}*/
 
-		public static sbyte[][] GenerateRotatedCollision()
+		/*public static sbyte[][] GenerateRotatedCollision()
 		{
 			sbyte[][] result = new sbyte[256][];
 			for (int i = 0; i < 256; i++)
@@ -2928,7 +3299,7 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			return result;
-		}
+		}*/
 
 		public static byte[] BmpToTile(Bitmap bmp, out int palette)
 		{
@@ -2966,21 +3337,20 @@ namespace SonicRetro.SonLVL.API
 					LoadBitmap8BppIndexed(bmpbits, Bits, stride);
 					break;
 			}
-			int[] palcnt = new int[4];
+			int[] palcnt = new int[16];
 			for (int y = 0; y < 8; y++)
 				for (int x = 0; x < 8; x++)
-					if ((bmpbits[x, y] & 15) > 0)
-						palcnt[bmpbits[x, y] / 16]++;
+					if ((bmpbits[x, y] & 3) > 0)
+						palcnt[bmpbits[x, y] / 4]++;
 			palette = 0;
-			if (palcnt[1] > palcnt[palette])
-				palette = 1;
-			if (palcnt[2] > palcnt[palette])
-				palette = 2;
-			if (palcnt[3] > palcnt[palette])
-				palette = 3;
-			Color[] newpal = new Color[16];
-			for (int i = 0; i < 16; i++)
-				newpal[i] = BmpPal.Entries[(palette * 16) + i];
+			for (int pi = 1; pi < 16; pi ++)
+			{
+				if (palcnt[pi] > palcnt[palette])
+					palette = pi;
+			}
+			Color[] newpal = new Color[4];
+			for (int i = 1; i < 4; i++)
+				newpal[i] = BmpPal.Entries[(palette * 3) + i];
 			switch (bmpd.PixelFormat)
 			{
 				case PixelFormat.Format32bppArgb:
@@ -2989,13 +3359,13 @@ namespace SonicRetro.SonLVL.API
 				case PixelFormat.Format8bppIndexed:
 					for (int y = 0; y < 8; y++)
 						for (int x = 0; x < 8; x++)
-							bmpbits[x, y] = (byte)(bmpbits[x, y] & 15);
+							bmpbits[x, y] = (byte)(bmpbits[x, y] & 3);
 					break;
 			}
 			return bmpbits.ToTile();
 		}
 
-		public static ColInfo[,] GetColMap(Bitmap bmp)
+		/*public static ColInfo[,] GetColMap(Bitmap bmp)
 		{
 			if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
 				bmp = bmp.To32bpp();
@@ -3086,7 +3456,7 @@ namespace SonicRetro.SonLVL.API
 					result[bx, by] = new ColInfo(solid, heightmap, angle);
 				}
 			return result;
-		}
+		}*/
 
 		public static void GetPriMap(Bitmap bmp, bool[,] primap)
 		{
@@ -3205,36 +3575,36 @@ namespace SonicRetro.SonLVL.API
 
 		public static void ResizeFG(int width, int height)
 		{
-			byte[,] newFG = new byte[width, height];
-			bool[,] newFGLoop = Layout.FGLoop != null ? new bool[width, height] : null;
+			ushort[,] newFG = new ushort[width, height];
+			//bool[,] newFGLoop = Layout.FGLoop != null ? new bool[width, height] : null;
 			Size oldsize = FGSize;
 			for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
 				for (int x = 0; x < Math.Min(width, oldsize.Width); x++)
 				{
 					newFG[x, y] = Layout.FGLayout[x, y];
-					if (newFGLoop != null)
-						newFGLoop[x, y] = Layout.FGLoop[x, y];
+					//if (newFGLoop != null)
+					//	newFGLoop[x, y] = Layout.FGLoop[x, y];
 				}
 			Layout.FGLayout = newFG;
-			Layout.FGLoop = newFGLoop;
+			//Layout.FGLoop = newFGLoop;
 		}
 
 		public static void ResizeBG(Size newSize) { ResizeBG(newSize.Width, newSize.Height); }
 
 		public static void ResizeBG(int width, int height)
 		{
-			byte[,] newBG = new byte[width, height];
-			bool[,] newBGLoop = Layout.BGLoop != null ? new bool[width, height] : null;
+			ushort[,] newBG = new ushort[width, height];
+			//bool[,] newBGLoop = Layout.BGLoop != null ? new bool[width, height] : null;
 			Size oldsize = BGSize;
 			for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
 				for (int x = 0; x < Math.Min(width, oldsize.Width); x++)
 				{
 					newBG[x, y] = Layout.BGLayout[x, y];
-					if (newBGLoop != null)
-						newBGLoop[x, y] = Layout.BGLoop[x, y];
+					//if (newBGLoop != null)
+					//	newBGLoop[x, y] = Layout.BGLoop[x, y];
 				}
 			Layout.BGLayout = newBG;
-			Layout.BGLoop = newBGLoop;
+			//Layout.BGLoop = newBGLoop;
 		}
 
 		public static int GetBlockMax()
@@ -3242,11 +3612,16 @@ namespace SonicRetro.SonLVL.API
 			int blockmax = 0x400;
 			switch (Game.EngineVersion)
 			{
-				case EngineVersion.S2:
+				/*case EngineVersion.S2:
 				case EngineVersion.S2NA:
 				case EngineVersion.S3K:
 				case EngineVersion.SKC:
 					blockmax = 0x300;
+					break;*/
+				case EngineVersion.SPA:
+					// Cosmic Casino uses 0x14D8 blocks
+					// The actual limit is 0x10000, though that would be 2 MB of data.
+					blockmax = 0x2000;
 					break;
 			}
 			if (Game.BlockMax.HasValue)
@@ -3254,7 +3629,16 @@ namespace SonicRetro.SonLVL.API
 			return blockmax;
 		}
 
-		public static byte GetColInd1(int index)
+		public static byte GetColInd(int index)
+		{
+			if (index >= ColInds.Count)
+				return 0;
+			if (ColInds[index] < 0)
+				return 0;
+			return (byte)ColInds[index];
+		}
+
+		/*public static byte GetColInd1(int index)
 		{
 			if (index >= ColInds1.Count)
 				return 0;
@@ -3266,20 +3650,21 @@ namespace SonicRetro.SonLVL.API
 			if (index >= ColInds2.Count)
 				return 0;
 			return ColInds2[index];
-		}
+		}*/
 	}
 
 	public class LayoutData
 	{
-		public byte[,] FGLayout;
-		public bool[,] FGLoop;
-		public byte[,] BGLayout;
-		public bool[,] BGLoop;
+		public ushort[,] FGLayout;
+		//public bool[,] FGLoop;
+		public ushort[,] BGLayout;
+		//public bool[,] BGLoop;
 	}
 
 	public enum EngineVersion
 	{
 		Invalid,
+		SPA,
 		S1,
 		S2NA,
 		S2,
@@ -3307,7 +3692,7 @@ namespace SonicRetro.SonLVL.API
 		Macro
 	}
 
-	[Serializable]
+	/*[Serializable]
 	public class ColInfo
 	{
 		public Solidity Solidity { get; private set; }
@@ -3320,5 +3705,5 @@ namespace SonicRetro.SonLVL.API
 			HeightMap = heightMap;
 			Angle = angle;
 		}
-	}
+	}*/
 }

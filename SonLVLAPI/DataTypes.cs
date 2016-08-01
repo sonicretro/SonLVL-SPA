@@ -29,7 +29,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public ushort X32Color
+		/*public ushort X32Color
 		{
 			get
 			{
@@ -71,6 +71,24 @@ namespace SonicRetro.SonLVL.API
 					B = MDColorTable[(value >> 9) & 7];
 				}
 			}
+		}*/
+
+		public ushort NGPCColor
+		{
+			// Color Format: 0x0BGR
+			get
+			{
+				return (ushort)(
+					((R >> 4) << 0) |
+					((G >> 4) << 4) |
+					((B >> 4) << 8));
+			}
+			set
+			{
+				R = (byte)(((value >> 0) & 0x0F) * 0x11);
+				G = (byte)(((value >> 4) & 0x0F) * 0x11);
+				B = (byte)(((value >> 8) & 0x0F) * 0x11);
+			}
 		}
 
 		public SonLVLColor(byte red, byte green, byte blue)
@@ -90,19 +108,20 @@ namespace SonicRetro.SonLVL.API
 		public SonLVLColor(ushort mdcolor)
 			: this()
 		{
-			MDColor = mdcolor;
+			//MDColor = mdcolor;
+			NGPCColor = mdcolor;
 		}
 
-		public SonLVLColor(ushort color, bool x32)
+		/*public SonLVLColor(ushort color, bool x32)
 			: this()
 		{
 			if (x32)
 				X32Color = color;
 			else
 				MDColor = color;
-		}
+		}*/
 
-		private static readonly byte[] MDColorTable = { 0, 0x24, 0x49, 0x6D, 0x92, 0xB6, 0xDB, 0xFF };
+		/*private static readonly byte[] MDColorTable = { 0, 0x24, 0x49, 0x6D, 0x92, 0xB6, 0xDB, 0xFF };
 
 		private static int RGBToMD(byte RGB)
 		{
@@ -120,23 +139,20 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			return result;
-		}
+		}*/
 
 		public static SonLVLColor[] Load(byte[] file, int address, int length, EngineVersion game)
 		{
 			SonLVLColor[] palfile = new SonLVLColor[length];
-			if (game != EngineVersion.SCDPC)
-				for (int pi = 0; pi < length; pi++)
-					palfile[pi] = new SonLVLColor(ByteConverter.ToUInt16(file, address + (pi * 2)), game == EngineVersion.Chaotix);
-			else
-				for (int pi = 0; pi < length; pi++)
-					palfile[pi] = new SonLVLColor(file[address + (pi * 4)], file[address + (pi * 4) + 1], file[address + (pi * 4) + 2]);
+			for (int pi = 0; pi < length; pi++)
+				palfile[pi] = new SonLVLColor(ByteConverter.ToUInt16(file, address + (pi * 2)));
 			return palfile;
 		}
 
 		public static SonLVLColor[] Load(byte[] file, EngineVersion game)
 		{
-			return Load(file, 0, file.Length / (game == EngineVersion.SCDPC ? 4 : 2), game);
+			//return Load(file, 0, file.Length / (game == EngineVersion.SCDPC ? 4 : 2), game);
+			return Load(file, 0, file.Length / 2, game);
 		}
 
 		public static SonLVLColor[] Load(string filename, EngineVersion game)
@@ -146,10 +162,47 @@ namespace SonicRetro.SonLVL.API
 		}
 	}
 
+	public class PaletteIDList
+	{
+		public List<ushort> palIDs;
+		
+		public PaletteIDList() { }
+
+		public static PaletteIDList Load(byte[] file, int address, int length, EngineVersion game)
+		{
+			PaletteIDList palfile = new PaletteIDList();
+			palfile.palIDs = new List<ushort>();
+			for (int pi = 0; pi < length; pi++)
+			{
+				ushort palID = ByteConverter.ToUInt16(file, address + (pi * 2));
+				if (palID == 0xFFFF)
+					break;	// break on last color
+				palfile.palIDs.Add(palID);
+			}
+			return palfile;
+		}
+
+		public static PaletteIDList Load(byte[] file, EngineVersion game)
+		{
+			return Load(file, 0, file.Length / 2, game);
+		}
+
+		public static PaletteIDList Load(string filename, EngineVersion game)
+		{
+			byte[] file = File.ReadAllBytes(filename);
+			return Load(file, game);
+		}
+
+		/*public SonLVLColor GetColor(int index, SonLVLColor[] colcollection)
+		{
+			return colcollection[palIDs[index]];
+		}*/
+	}
+
 	[Serializable]
 	public class PatternIndex
 	{
-		public bool Priority { get; set; }
+		//public bool Priority { get; set; }
 		private byte _pal;
 		public byte Palette
 		{
@@ -159,9 +212,10 @@ namespace SonicRetro.SonLVL.API
 			}
 			set
 			{
-				_pal = (byte)(value & 0x3);
+				_pal = (byte)(value & 0x0F);
 			}
 		}
+		private byte _bwpal;	// black&white palette
 		public bool XFlip { get; set; }
 		public bool YFlip { get; set; }
 		private ushort _ind;
@@ -175,7 +229,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			set
 			{
-				_ind = (ushort)(value & 0x7FF);
+				_ind = (ushort)(value & 0x1FF);
 			}
 		}
 
@@ -189,7 +243,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			set
 			{
-				_ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x7FF);
+				_ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x1FF);
 			}
 		}
 
@@ -200,20 +254,22 @@ namespace SonicRetro.SonLVL.API
 		public PatternIndex(byte[] file, int address)
 		{
 			ushort val = ByteConverter.ToUInt16(file, address);
-			Priority = (val & 0x8000) == 0x8000;
-			Palette = (byte)((val >> 13) & 0x3);
-			YFlip = (val & 0x1000) == 0x1000;
-			XFlip = (val & 0x800) == 0x800;
-			_ind = (ushort)(val & 0x7FF);
+			//Priority = (val & 0x8000) == 0x8000;
+			Palette = (byte)((val >> 9) & 0x0F);
+			_bwpal = (byte)((val >> 13) & 0x01);
+			YFlip = (val & 0x4000) != 0;
+			XFlip = (val & 0x8000) != 0;
+			_ind = (ushort)(val & 0x1FF);
 		}
 
 		public byte[] GetBytes()
 		{
 			ushort val = _ind;
-			if (XFlip) val |= 0x800;
-			if (YFlip) val |= 0x1000;
-			val |= (ushort)(Palette << 13);
-			if (Priority) val |= 0x8000;
+			if (XFlip) val |= 0x8000;
+			if (YFlip) val |= 0x4000;
+			val |= (ushort)(_bwpal << 13);
+			val |= (ushort)(Palette << 9);
+			//if (Priority) val |= 0x8000;
 			return ByteConverter.GetBytes(val);
 		}
 
@@ -221,7 +277,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (!(obj is PatternIndex)) return false;
 			PatternIndex other = (PatternIndex)obj;
-			if (Priority != other.Priority) return false;
+			//if (Priority != other.Priority) return false;
 			if (Palette != other.Palette) return false;
 			if (XFlip != other.XFlip) return false;
 			if (YFlip != other.YFlip) return false;
@@ -259,29 +315,29 @@ namespace SonicRetro.SonLVL.API
 	{
 		public PatternIndex[,] Tiles { get; set; }
 
-		public static int Size { get { return PatternIndex.Size * 4; } }
+		public static int Size { get { return PatternIndex.Size * 0x10; } }
 
 		public Block()
 		{
-			Tiles = new PatternIndex[2, 2];
-			for (int y = 0; y < 2; y++)
-				for (int x = 0; x < 2; x++)
+			Tiles = new PatternIndex[4, 4];
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 4; x++)
 					Tiles[x, y] = new PatternIndex();
 		}
 
 		public Block(byte[] file, int address)
 		{
-			Tiles = new PatternIndex[2, 2];
-			for (int y = 0; y < 2; y++)
-				for (int x = 0; x < 2; x++)
-					Tiles[x, y] = new PatternIndex(file, address + ((x + (y * 2)) * PatternIndex.Size));
+			Tiles = new PatternIndex[4, 4];
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 4; x++)
+					Tiles[x, y] = new PatternIndex(file, address + ((x + (y * 4)) * PatternIndex.Size));
 		}
 
 		public byte[] GetBytes()
 		{
 			List<byte> val = new List<byte>();
-			for (int y = 0; y < 2; y++)
-				for (int x = 0; x < 2; x++)
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 4; x++)
 					val.AddRange(Tiles[x, y].GetBytes());
 			return val.ToArray();
 		}
@@ -290,8 +346,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (!(obj is Block)) return false;
 			Block other = (Block)obj;
-			for (int y = 0; y < 2; y++)
-				for (int x = 0; x < 2; x++)
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 4; x++)
 					if (Tiles[x, y] != other.Tiles[x, y]) return false;
 			return true;
 		}
@@ -305,8 +361,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			Block result = (Block)MemberwiseClone();
 			result.Tiles = (PatternIndex[,])Tiles.Clone();
-			for (int y = 0; y < 2; y++)
-				for (int x = 0; x < 2; x++)
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 4; x++)
 					result.Tiles[x, y] = Tiles[x, y].Clone();
 			return result;
 		}
@@ -317,10 +373,10 @@ namespace SonicRetro.SonLVL.API
 			if (horizontal)
 				if (vertical)
 				{
-					for (int y = 0; y < 2; y++)
-						for (int x = 0; x < 2; x++)
+					for (int y = 0; y < 4; y++)
+						for (int x = 0; x < 4; x++)
 						{
-							PatternIndex tile = Tiles[1 - x, 1 - y].Clone();
+							PatternIndex tile = Tiles[3 - x, 3 - y].Clone();
 							tile.XFlip = !tile.XFlip;
 							tile.YFlip = !tile.YFlip;
 							result.Tiles[x, y] = tile;
@@ -328,20 +384,20 @@ namespace SonicRetro.SonLVL.API
 				}
 				else
 				{
-					for (int y = 0; y < 2; y++)
-						for (int x = 0; x < 2; x++)
+					for (int y = 0; y < 4; y++)
+						for (int x = 0; x < 4; x++)
 						{
-							PatternIndex tile = Tiles[1 - x, y].Clone();
+							PatternIndex tile = Tiles[3 - x, y].Clone();
 							tile.XFlip = !tile.XFlip;
 							result.Tiles[x, y] = tile;
 						}
 				}
 			else if (vertical)
 			{
-				for (int y = 0; y < 2; y++)
-					for (int x = 0; x < 2; x++)
+				for (int y = 0; y < 4; y++)
+					for (int x = 0; x < 4; x++)
 					{
-						PatternIndex tile = Tiles[x, 1 - y].Clone();
+						PatternIndex tile = Tiles[x, 3 - y].Clone();
 						tile.YFlip = !tile.YFlip;
 						result.Tiles[x, y] = tile;
 					}
@@ -358,7 +414,7 @@ namespace SonicRetro.SonLVL.API
 		AllSolid = 3
 	}
 
-	[Serializable]
+	/*[Serializable]
 	public abstract class ChunkBlock
 	{
 		protected byte _so1;
@@ -431,89 +487,31 @@ namespace SonicRetro.SonLVL.API
 	}
 
 	[Serializable]
-	public class S2ChunkBlock : ChunkBlock
+	public class SPAChunkBlock : ChunkBlock
 	{
-		private byte _so2;
-		public Solidity Solid2
-		{
-			get
-			{
-				return (Solidity)_so2;
-			}
-			set
-			{
-				_so2 = (byte)(value & Solidity.AllSolid);
-			}
-		}
+		public SPAChunkBlock() { }
 
-		public S2ChunkBlock() { }
-
-		public S2ChunkBlock(byte[] file, int address)
+		public SPAChunkBlock(byte[] file, int address)
 		{
 			ushort val = ByteConverter.ToUInt16(file, address);
-			_so2 = (byte)((val >> 14) & 0x3);
-			_so1 = (byte)((val >> 12) & 0x3);
-			YFlip = (val & 0x800) == 0x800;
-			XFlip = (val & 0x400) == 0x400;
-			_ind = (ushort)(val & 0x3FF);
+			YFlip = (val & 0x4000) != 0;
+			XFlip = (val & 0x8000) != 0;
+			_palid = (val & 0x3E00) >> 9;
+			_ind = (ushort)(val & 0x1FF);
 		}
 
 		public override byte[] GetBytes()
 		{
 			ushort val = _ind;
-			if (XFlip) val |= 0x400;
-			if (YFlip) val |= 0x800;
-			val |= (ushort)(_so1 << 12);
-			val |= (ushort)(_so2 << 14);
+			if (XFlip) val |= 0x8000;
+			if (YFlip) val |= 0x4000;
+			val |= (ushort)(_palid << 9);
 			return ByteConverter.GetBytes(val);
 		}
 
 		public override bool Equals(object obj)
 		{
-			if (!(obj is S2ChunkBlock)) return false;
-			if (!base.Equals(obj)) return false;
-			S2ChunkBlock other = (S2ChunkBlock)obj;
-			if (Solid2 != other.Solid2) return false;
-			return true;
-		}
-
-		public override int GetHashCode()
-		{
-			return base.GetHashCode();
-		}
-
-		public new S2ChunkBlock Clone()
-		{
-			return (S2ChunkBlock)MemberwiseClone();
-		}
-	}
-
-	[Serializable]
-	public class S1ChunkBlock : ChunkBlock
-	{
-		public S1ChunkBlock() { }
-
-		public S1ChunkBlock(byte[] file, int address)
-		{
-			ushort val = ByteConverter.ToUInt16(file, address);
-			_so1 = (byte)((val >> 13) & 0x3);
-			YFlip = (val & 0x1000) == 0x1000;
-			XFlip = (val & 0x800) == 0x800;
-			_ind = (ushort)(val & 0x3FF);
-		}
-
-		public override byte[] GetBytes()
-		{
-			ushort val = _ind;
-			if (XFlip) val |= 0x800;
-			if (YFlip) val |= 0x1000;
-			val |= (ushort)(_so1 << 13);
-			return ByteConverter.GetBytes(val);
-		}
-
-		public override bool Equals(object obj)
-		{
-			if (!(obj is S1ChunkBlock)) return false;
+			if (!(obj is SPAChunkBlock)) return false;
 			return base.Equals(obj);
 		}
 
@@ -522,9 +520,9 @@ namespace SonicRetro.SonLVL.API
 			return base.GetHashCode();
 		}
 
-		public new S1ChunkBlock Clone()
+		public new SPAChunkBlock Clone()
 		{
-			return (S1ChunkBlock)MemberwiseClone();
+			return (SPAChunkBlock)MemberwiseClone();
 		}
 	}
 
@@ -544,20 +542,10 @@ namespace SonicRetro.SonLVL.API
 			Blocks = new ChunkBlock[width, height];
 			switch (LevelData.Level.ChunkFormat)
 			{
-				case EngineVersion.S1:
-				case EngineVersion.SCD:
-				case EngineVersion.SCDPC:
+				case EngineVersion.SPA:
 					for (int y = 0; y < height; y++)
 						for (int x = 0; x < width; x++)
-							Blocks[x, y] = new S1ChunkBlock();
-					break;
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					for (int y = 0; y < height; y++)
-						for (int x = 0; x < width; x++)
-							Blocks[x, y] = new S2ChunkBlock();
+							Blocks[x, y] = new SPAChunkBlock();
 					break;
 			}
 		}
@@ -569,20 +557,10 @@ namespace SonicRetro.SonLVL.API
 			Blocks = new ChunkBlock[width, height];
 			switch (LevelData.Level.ChunkFormat)
 			{
-				case EngineVersion.S1:
-				case EngineVersion.SCD:
-				case EngineVersion.SCDPC:
+				case EngineVersion.SPA:
 					for (int y = 0; y < height; y++)
 						for (int x = 0; x < width; x++)
-							Blocks[x, y] = new S1ChunkBlock(file, address + ((x + (y * width)) * ChunkBlock.Size));
-					break;
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					for (int y = 0; y < height; y++)
-						for (int x = 0; x < width; x++)
-							Blocks[x, y] = new S2ChunkBlock(file, address + ((x + (y * width)) * ChunkBlock.Size));
+							Blocks[x, y] = new SPAChunkBlock(file, address + ((x + (y * width)) * ChunkBlock.Size));
 					break;
 			}
 		}
@@ -658,7 +636,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			return result;
 		}
-	}
+	}*/
 
 	[TypeConverter(typeof(PositionConverter))]
 	[Serializable]
@@ -1016,7 +994,7 @@ namespace SonicRetro.SonLVL.API
 		}
 	}
 
-	[DefaultProperty("ID")]
+	/*[DefaultProperty("ID")]
 	[Serializable]
 	public class S2ObjectEntry : ObjectEntry
 	{
@@ -1376,7 +1354,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static int Size { get { return 8; } }
 
-		public ChaotixObjectEntry() { pos = new Position(this); isLoaded = true; }
+		public ChaotixObjectEntry() { pos = new Position(this); isLoaded = true; }*/
 
 		/* Format: 
 		8 bytes per entry:
@@ -1387,7 +1365,7 @@ namespace SonicRetro.SonLVL.API
 			subtype (byte)
 		*/
 
-		public ChaotixObjectEntry(byte[] file, int address)
+		/*public ChaotixObjectEntry(byte[] file, int address)
 		{
 			byte[] bytes = new byte[Size];
 			Array.Copy(file, address, bytes, 0, Size);
@@ -1423,7 +1401,7 @@ namespace SonicRetro.SonLVL.API
 			XFlip = (val & 0x2000) == 0x2000;
 			fullSubType = (ushort)(val & 0x1FFF);
 		}
-	}
+	}*/
 
 	[Serializable]
 	public abstract class RingEntry : Entry, IComparable<RingEntry>
@@ -1506,7 +1484,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override void UpdateSprite()
 		{
-			Sprite = LevelData.unkobj.GetSprite(new S2ObjectEntry() { X = X, Y = Y });
+			//Sprite = LevelData.unkobj.GetSprite(new S2ObjectEntry() { X = X, Y = Y });
 		}
 
 		public override string Name
@@ -1559,8 +1537,9 @@ namespace SonicRetro.SonLVL.API
 		public short Y { get; set; }
 		public byte Width { get; set; }
 		public byte Height { get; set; }
-		public PatternIndex Tile { get; set; }
-		public PatternIndex Tile2 { get; set; }
+		public ushort Tile { get; set; }
+		//public PatternIndex Tile { get; set; }
+		//public PatternIndex Tile2 { get; set; }
 		public short X { get; set; }
 
 		public static int Size(EngineVersion version)
@@ -1573,25 +1552,37 @@ namespace SonicRetro.SonLVL.API
 				case EngineVersion.S2:
 				case EngineVersion.S2NA:
 					return 8;
+				case EngineVersion.SPA:
+					return 0;	// variable length
 				default:
 					return 6;
 			}
 		}
 
-		public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri)
+		public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile)
 		{
 			X = xpos;
 			Y = ypos;
 			Width = width;
 			Height = height;
-			Tile = new PatternIndex() { Tile = tile, XFlip = xflip, YFlip = yflip, Palette = pal, Priority = pri };
-			Tile2 = new PatternIndex() { Tile = (ushort)(tile >> 1), XFlip = xflip, YFlip = yflip, Palette = pal, Priority = pri };
+			Tile = tile;
 		}
 
-		public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri, ushort tile2, bool xflip2, bool yflip2, byte pal2, bool pri2)
-			: this(xpos, ypos, width, height, tile, xflip, yflip, pal, pri)
+		/*public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri)
 		{
-			Tile2 = new PatternIndex() { Tile = tile2, XFlip = xflip2, YFlip = yflip2, Palette = pal2, Priority = pri2 };
+			X = xpos;
+			Y = ypos;
+			Width = width;
+			Height = height;
+			Tile = tile;
+			//Tile = new PatternIndex() { Tile = tile, XFlip = xflip, YFlip = yflip, Palette = pal, Priority = pri };
+			//Tile2 = new PatternIndex() { Tile = (ushort)(tile >> 1), XFlip = xflip, YFlip = yflip, Palette = pal, Priority = pri };
+		}*/
+
+		public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri, ushort tile2, bool xflip2, bool yflip2, byte pal2, bool pri2)
+			: this(xpos, ypos, width, height, tile/*, xflip, yflip, pal, pri*/)
+		{
+			//Tile2 = new PatternIndex() { Tile = tile2, XFlip = xflip2, YFlip = yflip2, Palette = pal2, /*Priority = pri2*/ };
 		}
 
 		public MappingsTile(byte[] file, int address, EngineVersion version)
@@ -1599,9 +1590,10 @@ namespace SonicRetro.SonLVL.API
 			Y = unchecked((sbyte)file[address]);
 			Width = (byte)(((file[address + 1] & 0xC) >> 2) + 1);
 			Height = (byte)((file[address + 1] & 0x3) + 1);
-			Tile = new PatternIndex(file, address + 2);
-			Tile2 = new PatternIndex(file, address + 2);
-			Tile2.Tile = (ushort)(Tile2.Tile >> 1);
+			Tile = ByteConverter.ToUInt16(file, address + 2);
+			//Tile = new PatternIndex(file, address + 2);
+			//Tile2 = new PatternIndex(file, address + 2);
+			//Tile2.Tile = (ushort)(Tile2.Tile >> 1);
 			switch (version)
 			{
 				case EngineVersion.S1:
@@ -1610,7 +1602,7 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case EngineVersion.S2:
 				case EngineVersion.S2NA:
-					Tile2 = new PatternIndex(file, address + 4);
+					//Tile2 = new PatternIndex(file, address + 4);
 					X = ByteConverter.ToInt16(file, address + 6);
 					break;
 				case EngineVersion.S3K:
@@ -1625,7 +1617,8 @@ namespace SonicRetro.SonLVL.API
 			List<byte> result = new List<byte>(Size(version));
 			result.Add(unchecked((byte)((sbyte)Y)));
 			result.Add((byte)((((Width - 1) & 3) << 2) | ((Height - 1) & 3)));
-			result.AddRange(Tile.GetBytes());
+			result.AddRange(ByteConverter.GetBytes(Tile));
+			//result.AddRange(Tile.GetBytes());
 			switch (version)
 			{
 				case EngineVersion.S1:
@@ -1634,7 +1627,7 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case EngineVersion.S2:
 				case EngineVersion.S2NA:
-					result.AddRange(Tile2.GetBytes());
+					//result.AddRange(Tile2.GetBytes());
 					goto case EngineVersion.S3K;
 				case EngineVersion.S3K:
 				case EngineVersion.SKC:
@@ -1653,7 +1646,7 @@ namespace SonicRetro.SonLVL.API
 			if (Width != other.Width) return false;
 			if (Height != other.Height) return false;
 			if (Tile != other.Tile) return false;
-			if (Tile2 != other.Tile2) return false;
+			//if (Tile2 != other.Tile2) return false;
 			return true;
 		}
 
@@ -1709,6 +1702,7 @@ namespace SonicRetro.SonLVL.API
 		}
 
 		public MappingsFrame(byte[] file, int address, EngineVersion version, string name)
+			: this(file, address, version, name, 0, 0)
 		{
 			Name = name;
 			int tileCount;
@@ -1718,6 +1712,8 @@ namespace SonicRetro.SonLVL.API
 				case EngineVersion.SCD:
 					tileCount = file[address++];
 					break;
+				case EngineVersion.SPA:
+					return;
 				default:
 					tileCount = ByteConverter.ToUInt16(file, address);
 					address += 2;
@@ -1728,6 +1724,47 @@ namespace SonicRetro.SonLVL.API
 				Tiles.Add(new MappingsTile(file, (i * MappingsTile.Size(version)) + address, version));
 		}
 
+		public MappingsFrame(byte[] file, int address, EngineVersion version, string name, sbyte x, sbyte y)
+		{
+			if (version != EngineVersion.SPA)
+				return;
+			int tileCount;
+			
+			Name = name;
+			
+			tileCount = ByteConverter.ToUInt16(file, address);
+			Tiles = new List<MappingsTile>(tileCount);
+			address += 2;
+			for (int tileNum = 0; tileNum < tileCount; )
+			{
+				ushort tileID;
+				ushort yTiles;
+				sbyte tileX, tileY;
+
+				tileID = ByteConverter.ToUInt16(file, address);
+				address += 2;
+				if (tileID != 0xFFFF)
+				{
+					// single tile
+					yTiles = 1;
+				}
+				else
+				{
+					// multiple vertical tiles
+					yTiles = ByteConverter.ToUInt16(file, address);
+					address += 2;
+					tileID = ByteConverter.ToUInt16(file, address);
+					address += 2;
+				}
+				tileX = (sbyte)file[address];	address ++;
+				tileY = (sbyte)file[address];	address ++;
+				tileX += x;
+				tileY += y;
+				Tiles.Add(new MappingsTile(tileX, tileY, 1, (byte)yTiles, tileID));
+				tileNum += yTiles;
+			}
+		}
+
 		public static void ToASM(string file, NamedList<MappingsFrame> frames, EngineVersion version, bool macros)
 		{
 			ToASM(file, frames.Name, frames, version, macros);
@@ -1735,7 +1772,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static void ToASM(string file, string name, IList<MappingsFrame> frames, EngineVersion version, bool macros)
 		{
-			using (FileStream stream = new FileStream(file, FileMode.Create, FileAccess.Write))
+			/*using (FileStream stream = new FileStream(file, FileMode.Create, FileAccess.Write))
 			using (StreamWriter writer = new StreamWriter(stream, Encoding.ASCII))
 			{
 				if (macros)
@@ -1765,14 +1802,14 @@ namespace SonicRetro.SonLVL.API
 								writer.Write(", " + (tile.Tile.XFlip ? "1" : "0"));
 								writer.Write(", " + (tile.Tile.YFlip ? "1" : "0"));
 								writer.Write(", " + tile.Tile.Palette.ToHex68k());
-								writer.Write(", " + (tile.Tile.Priority ? "1" : "0"));
+								//writer.Write(", " + (tile.Tile.Priority ? "1" : "0"));
 								if (s2p)
 								{
 									writer.Write(", " + tile.Tile2.Tile.ToHex68k());
 									writer.Write(", " + (tile.Tile2.XFlip ? "1" : "0"));
 									writer.Write(", " + (tile.Tile2.YFlip ? "1" : "0"));
 									writer.Write(", " + tile.Tile2.Palette.ToHex68k());
-									writer.Write(", " + (tile.Tile2.Priority ? "1" : "0"));
+									//writer.Write(", " + (tile.Tile2.Priority ? "1" : "0"));
 								}
 								writer.WriteLine();
 							}
@@ -1825,7 +1862,7 @@ namespace SonicRetro.SonLVL.API
 				}
 				writer.WriteLine("\teven");
 				writer.Close();
-			}
+			}*/
 
 		}
 
@@ -1893,7 +1930,7 @@ namespace SonicRetro.SonLVL.API
 		}
 	}
 
-	public class DPLCEntry
+	/*public class DPLCEntry
 	{
 		public byte TileCount { get; set; }
 		public ushort TileNum { get; set; }
@@ -2163,24 +2200,30 @@ namespace SonicRetro.SonLVL.API
 				result.AddRange(tile.GetBytes(version));
 			return result.ToArray();
 		}
+	}*/
+	public class DPLCFrame
+	{
+		public DPLCFrame()
+		{
+		}
 	}
 
 	public class Animation
 	{
 		public string Name { get; set; }
 
-		public byte Speed { get; set; }
+		public List<byte> Speed { get; set; }
 
 		public List<byte> Frames { get; set; }
 		public byte this[int index] { get { return Frames[index]; } set { Frames[index] = value; } }
 
 		public byte EndType { get; set; }
 
-		public byte? ExtraParam { get; set; }
+		public byte ExtraParam { get; set; }
 
 		public int Count { get { return Frames.Count; } }
 
-		public int Size { get { return Count + 2 + (ExtraParam.HasValue ? 1 : 0); } }
+		public int Size { get { return 2 * (Count + 1); } }
 
 		public static NamedList<Animation> LoadASM(string file) { return LoadASM(file, EngineVersion.S2); }
 
@@ -2222,19 +2265,16 @@ namespace SonicRetro.SonLVL.API
 		{
 			Name = name;
 			Frames = new List<byte>();
-			Speed = file[address++];
-			while (address < file.Length && file[address] < 0xF0)
-				Frames.Add(file[address++]);
-			if (address < file.Length)
-				EndType = file[address++];
-			switch (EndType)
+			Speed = new List<byte>();
+			while (address + 1 < file.Length && file[address + 1] < 0xF0)
 			{
-				case 0xFE:
-					ExtraParam = file[address++];
-					break;
-				case 0xFD:
-					ExtraParam = file[address++];
-					break;
+				Frames.Add(file[address++]);
+				Speed.Add(file[address++]);
+			}
+			if (address + 1 < file.Length)
+			{
+				ExtraParam = file[address++];
+				EndType = file[address++];
 			}
 		}
 
@@ -2316,11 +2356,13 @@ namespace SonicRetro.SonLVL.API
 		public byte[] GetBytes()
 		{
 			List<byte> result = new List<byte>(Size);
-			result.Add(Speed);
-			result.AddRange(Frames);
+			for (int i = 0; i < Frames.Count; i++)
+			{
+				result.Add(Speed[i]);
+				result.Add(Frames[i]);
+			}
+			result.Add(ExtraParam);
 			result.Add(EndType);
-			if (ExtraParam.HasValue)
-				result.Add(ExtraParam.Value);
 			return result.ToArray();
 		}
 	}
@@ -2351,6 +2393,19 @@ namespace SonicRetro.SonLVL.API
 		{
 			Image = new BitmapBits(sprite.Image);
 			Offset = sprite.Offset;
+		}
+
+		public Sprite(Sprite sprite, int x, int y, bool xflip, bool yflip)
+		{
+			Image = new BitmapBits(sprite.Image);
+			Image.Flip(xflip, yflip);
+			Offset = sprite.Offset;
+			X += x;
+			Y += y;
+			if (xflip)
+				X = -X - Image.Width;
+			if (yflip)
+				Y = -Y - Image.Height;
 		}
 
 		public Sprite(params Sprite[] sprites)
@@ -2448,6 +2503,110 @@ namespace SonicRetro.SonLVL.API
 			if (result.Count % 4 != 0)
 				result.AddRange(new byte[4 - (result.Count % 4)]);
 			File.WriteAllBytes(filename, result.ToArray());
+		}
+	}
+
+	[DefaultProperty("ID")]
+	[Serializable]
+	public class SPAObjectEntry : ObjectEntry, IComparable<SPAObjectEntry>
+	{
+		/*[DefaultValue(false)]
+		[Description("If true, the object will stay destroyed after it leaves the screen.")]
+		[DisplayName("Remember State")]
+		public virtual bool RememberState { get; set; }*/
+
+		public override string _ID
+		{
+			get
+			{
+				return ID.ToString("X2");
+			}
+			set
+			{
+				ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
+			}
+		}
+
+		public override byte ID
+		{
+			get
+			{
+				return base.ID;
+			}
+			set
+			{
+				base.ID = (byte)(value & 0x7F);
+			}
+		}
+
+		public ushort internalY
+		{
+			// Actually the formula is (LevelHeigh - 1 - value),
+			// but this causes the grid to go wrong.
+			// So I make up for the -1 in the object code.
+			get
+			{
+				return (ushort)(LevelData.FGHeight * 32 - Y);
+			}
+			set
+			{
+				Y = (ushort)(LevelData.FGHeight * 32 - value);
+			}
+		}
+		
+		public bool Difficulty { get; set; }
+		
+		public byte Param1 { get; set; }
+		public byte Param2 { get; set; }
+		public byte Param3 { get; set; }
+		
+		public static int Size { get { return 10; } }
+
+		public SPAObjectEntry() { pos = new Position(this); isLoaded = true; }
+
+		public SPAObjectEntry(byte[] file, int address)
+		{
+			byte[] bytes = new byte[Size];
+			Array.Copy(file, address, bytes, 0, Size);
+			FromBytes(bytes);
+			pos = new Position(this);
+			isLoaded = true;
+		}
+
+		public override byte[] GetBytes()
+		{
+			List<byte> ret = new List<byte>();
+			ret.Add(ID);
+			ret.Add(Difficulty ? (byte)1 : (byte)0);
+			ret.AddRange(ByteConverter.GetBytes(X));
+			ret.AddRange(ByteConverter.GetBytes(internalY));
+			ret.Add(SubType);
+			ret.Add(Param1);
+			ret.Add(Param2);
+			ret.Add(Param3);
+			return ret.ToArray();
+		}
+
+		public override void FromBytes(byte[] bytes)
+		{
+			ID = bytes[0];
+			if (bytes[1] > 1)
+				throw new System.ArgumentException("Found object with invalid Difficulty type!", "SPAObjectEntry");
+			Difficulty = (bytes[1] == 1);
+			X = ByteConverter.ToUInt16(bytes, 2);
+			internalY = ByteConverter.ToUInt16(bytes, 4);
+			SubType = bytes[6];
+			Param1 = bytes[7];
+			Param2 = bytes[8];
+			Param3 = bytes[9];
+		}
+
+		int IComparable<SPAObjectEntry>.CompareTo(SPAObjectEntry other)
+		{
+			int c = ID.CompareTo(other.ID);
+			if (c == 0) c = X.CompareTo(other.X);
+			if (c == 0) c = internalY.CompareTo(other.internalY);
+			return c;
 		}
 	}
 }

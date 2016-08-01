@@ -8,6 +8,8 @@ namespace SonicRetro.SonLVL
 {
 	public partial class FindChunksDialog : Form
 	{
+		public int BlockBmpMode;
+		
 		public FindChunksDialog()
 		{
 			InitializeComponent();
@@ -23,10 +25,10 @@ namespace SonicRetro.SonLVL
 		{
 			if (Visible)
 			{
-				tileList1.Images = new List<Bitmap>(LevelData.CompChunkBmps);
-				tileList1.ImageWidth = LevelData.Level.ChunkWidth;
-				tileList1.ImageHeight = LevelData.Level.ChunkHeight;
-				chunkSelect.Maximum = LevelData.Chunks.Count;
+				tileList1.Images = new List<Bitmap>(LevelData.BlockBmpsA[BlockBmpMode]);
+				tileList1.ImageWidth = 32;
+				tileList1.ImageHeight = 32;
+				chunkSelect.Maximum = LevelData.Blocks.Count;
 				tileList1.SelectedIndex = (int)chunkSelect.Value;
 			}
 		}

@@ -23,7 +23,7 @@ namespace SonicRetro.SonLVL
 		Animation animation;
 		Color[] palette;
 
-		public void ChangeAnimation(byte[] art, MappingsFrame[] mappings, DPLCFrame[] dplcs, Animation animation, Color[] palette)
+		/*public void ChangeAnimation(byte[] art, MappingsFrame[] mappings, DPLCFrame[] dplcs, Animation animation, Color[] palette)
 		{
 			sprites = new List<Sprite>(mappings.Length);
 			for (int i = 0; i < mappings.Length; i++)
@@ -35,11 +35,20 @@ namespace SonicRetro.SonLVL
 			}
 			this.animation = animation;
 			this.palette = palette;
+		}*/
+
+		public void ChangeAnimation(byte[] art, List<SpriteInfo[]> spritelist, Animation animation, Color[] palette)
+		{
+			this.sprites = new List<Sprite>();
+			for (int i = 0; i < spritelist.Count; i++)
+				this.sprites.Add(ObjectDefinition.LoadSpriteData(art, 0x00, -1, -2, spritelist[i]));
+			this.animation = animation;
+			this.palette = palette;
 		}
 
 		void anitimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
 		{
-			if (delayframes++ >= (animation.Speed < 0xFD ? animation.Speed : 4))
+			if (delayframes++ >= animation.Speed[curframe])
 			{
 				if (curframe >= animation.Count - 1)
 				{
@@ -50,7 +59,7 @@ namespace SonicRetro.SonLVL
 							curframe = 0;
 							break;
 						case 0xFE:
-							curframe = animation.Count - animation.ExtraParam.Value;
+							curframe = animation.Count - animation.ExtraParam;
 							break;
 						default:
 							curframe = 0;

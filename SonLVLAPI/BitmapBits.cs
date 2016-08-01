@@ -464,12 +464,18 @@ namespace SonicRetro.SonLVL.API
 		public static BitmapBits FromTile(byte[] art, int index)
 		{
 			BitmapBits bmp = new BitmapBits(8, 8);
-			if (index * 32 + 32 <= art.Length)
+			if (index * 16 + 16 <= art.Length)
 			{
-				for (int i = 0; i < 32; i++)
+				for (int i = 0; i < 8; i++)
 				{
-					bmp.Bits[i * 2] = (byte)(art[i + (index * 32)] >> 4);
-					bmp.Bits[(i * 2) + 1] = (byte)(art[i + (index * 32)] & 0xF);
+					ushort val = ByteConverter.ToUInt16(art, index * 16 + i * 2);
+					for (int j = 7; j >= 0; j --, val >>= 2)
+					{
+						if ((val & 0x03) == 0)
+							bmp.Bits[i * 8 + j] = 0;
+						else
+							bmp.Bits[i * 8 + j] = (byte)(val & 0x03);
+					}
 				}
 			}
 			return bmp;
@@ -479,8 +485,15 @@ namespace SonicRetro.SonLVL.API
 		{
 			List<byte> res = new List<byte>();
 			for (int y = 0; y < 8; y++)
-				for (int x = 0; x < 8; x += 2)
-					res.Add((byte)(((this[x, y] & 0xF) << 4) | (this[x + 1, y] & 0xF)));
+			{
+				ushort val = 0;
+				for (int x = 0; x < 8; x ++)
+				{
+					val <<= 2;
+					val |= (ushort)(this[x, y] & 0x03);
+				}
+				res.AddRange(ByteConverter.GetBytes(val));
+			}
 			return res.ToArray();
 		}
 

@@ -8,7 +8,7 @@ namespace SonicRetro.SonLVL.API
 	[System.Diagnostics.DebuggerNonUserCode]
 	public class Compression
 	{
-		private static class Comper
+		/*private static class Comper
 		{
 			[DllImport("comper", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
 			private static extern int compress_comper(byte[] src, int src_len, out IntPtr dst);
@@ -50,7 +50,7 @@ namespace SonicRetro.SonLVL.API
 				free_buffer(dst);
 				return result;
 			}
-		}
+		}*/
 
 		public static byte[] Decompress(string file, CompressionType cmp)
 		{
@@ -62,7 +62,7 @@ namespace SonicRetro.SonLVL.API
 					case CompressionType.Uncompressed:
 						ret = File.ReadAllBytes(file);
 						break;
-					case CompressionType.Kosinski:
+					/*case CompressionType.Kosinski:
 						ret = Kosinski.Decompress(file);
 						break;
 					case CompressionType.KosinskiM:
@@ -79,7 +79,7 @@ namespace SonicRetro.SonLVL.API
 						break;
 					case CompressionType.Comper:
 						ret = Comper.Decompress(file);
-						break;
+						break;*/
 					default:
 						throw new ArgumentOutOfRangeException("cmp", "Invalid compression type " + cmp + "!");
 				}
@@ -101,7 +101,7 @@ namespace SonicRetro.SonLVL.API
 					case CompressionType.Uncompressed:
 						File.WriteAllBytes(destination, file);
 						break;
-					case CompressionType.Kosinski:
+					/*case CompressionType.Kosinski:
 						using (MemoryStream input = new MemoryStream(file))
 						{
 							using (FileStream output = File.Create(destination))
@@ -136,7 +136,7 @@ namespace SonicRetro.SonLVL.API
 						break;
 					case CompressionType.Comper:
 						Comper.Compress(file, destination);
-						break;
+						break;*/
 					default:
 						throw new ArgumentOutOfRangeException("cmp", "Invalid compression type " + cmp + "!");
 				}

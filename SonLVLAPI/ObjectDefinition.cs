@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 
 namespace SonicRetro.SonLVL.API
@@ -18,7 +19,7 @@ namespace SonicRetro.SonLVL.API
 		[IniName("name")]
 		[DefaultValue("Unknown")]
 		public string Name;
-		[IniName("art")]
+		/*[IniName("art")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public FileInfo[] Art;
 		[IniName("artcmp")]
@@ -48,16 +49,28 @@ namespace SonicRetro.SonLVL.API
 		[IniName("frame")]
 		public int Frame;
 		[IniName("pal")]
-		public int Palette;
-		[IniName("image")]
-		public string Image;
+		public int Palette;*/
 		[IniName("sprite")]
 		[DefaultValue(-1)]
 		public int Sprite;
 		[IniName("offset")]
 		public Size Offset;
-		[IniName("rememberstate")]
-		public bool RememberState;
+		[IniName("flags")]
+		[DefaultValue((byte)0x10)]
+		public byte Flags;
+		[IniName("pal1")]
+		[DefaultValue((short)-1)]
+		public short Palette1;
+		[IniName("pal2")]
+		[DefaultValue((short)-1)]
+		public short Palette2;
+		[IniName("sprites")]
+		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+		public SpriteInfo[] Sprites { get; set; }
+		[IniName("image")]
+		public string Image;
+		//[IniName("rememberstate")]
+		//public bool RememberState;
 		[IniName("defaultsubtype")]
 		[TypeConverter(typeof(ByteHexConverter))]
 		public byte DefaultSubtype;
@@ -72,12 +85,52 @@ namespace SonicRetro.SonLVL.API
 		public ObjectData()
 		{
 			Sprite = -1;
+			Flags = 0x10;
+			Palette1 = Palette2 = -1;
 		}
 
 		public void Init()
 		{
-			if (DPLCVersion == EngineVersion.Invalid)
-				DPLCVersion = MapVersion;
+			//if (DPLCVersion == EngineVersion.Invalid)
+			//	DPLCVersion = MapVersion;
+		}
+	}
+
+	[TypeConverter(typeof(StringConverter<SpriteInfo>))]
+	public class SpriteInfo
+	{
+		public string Filename;
+		public byte Flags = 0x00;
+		public int PosX = 0, PosY = 0;
+
+		public SpriteInfo(string data)
+		{
+			string[] split = data.Split(':');
+			Filename = split[0];
+			if (split.Length > 1)
+				Flags = byte.Parse(split[1], NumberStyles.HexNumber);
+			if (split.Length > 2)
+				PosX = int.Parse(split[2], NumberStyles.Integer);
+			if (split.Length > 3)
+				PosY = int.Parse(split[3], NumberStyles.Integer);
+		}
+
+		public SpriteInfo(XMLDef.SpriteFile sprFile)
+		{
+			Filename = sprFile.filename;
+			Flags = sprFile.flags;
+			PosX = sprFile.X;
+			PosY = sprFile.Y;
+		}
+
+		public override string ToString()
+		{
+			if (PosX != 0 || PosY != 0)
+				return Filename + ":" + Flags.ToString("X2") + ":" + PosX.ToString() + ":" + PosY.ToString();
+			else if (Flags != 0x00)
+				return Filename + ":" + Flags.ToString("X2");
+			else
+				return Filename;
 		}
 	}
 
@@ -88,13 +141,43 @@ namespace SonicRetro.SonLVL.API
 		public abstract string SubtypeName(byte subtype);
 		public abstract Sprite SubtypeImage(byte subtype);
 		public abstract string Name { get; }
-		public virtual bool RememberState { get { return false; } }
+		//public virtual bool RememberState { get { return false; } }
 		public virtual byte DefaultSubtype { get { return 0; } }
 		public abstract Sprite Image { get; }
 		public abstract Sprite GetSprite(ObjectEntry obj);
 		public abstract Rectangle GetBounds(ObjectEntry obj, Point camera);
 		public virtual bool Debug { get { return false; } }
 		public virtual PropertySpec[] CustomProperties { get { return new PropertySpec[0]; } }
+		
+		public static Sprite LoadSpriteData(byte[] art, byte flags, short pal1, short pal2, SpriteInfo[] Sprites)
+		{
+			Sprite spr = new Sprite();
+			EngineVersion mapVer;
+
+			mapVer = LevelData.Game.MappingsVersion;
+			if (LevelData.Game.MappingsVersion == EngineVersion.Invalid)
+				mapVer = LevelData.Game.EngineVersion;
+			if (pal1 >= 0)
+				LevelData.AddObjPalette(pal1);
+			if (pal2 >= 0)
+				LevelData.AddObjPalette(pal2);
+			foreach (SpriteInfo sprinf in Sprites)
+			{
+				//byte[] sprfile = ObjectHelper.OpenArtFile(sprinf.Filename, CompressionType.Uncompressed);
+				byte[] sprfile = Compression.Decompress(sprinf.Filename, CompressionType.Uncompressed);
+				byte sprFlags = (byte)(flags ^ sprinf.Flags);	// combine object and sprite mirror flags
+				bool xflip = (sprFlags & 0x80) != 0;
+				bool yflip = (sprFlags & 0x40) != 0;
+				int pal = (sprinf.Flags & 0x01) == 0 ? pal1 : pal2;
+				MappingsFrame mapfrm = new MappingsFrame(sprfile, 0, mapVer, "");
+				
+				Sprite tmpspr = new Sprite(LevelData.MapFrameToBmp(art, mapfrm, pal),
+					sprinf.PosX, sprinf.PosY, xflip, yflip);
+				spr = new Sprite(tmpspr, spr);
+			}
+			spr.Offset.Y--;	// make up for incorrectly mirrored level Y position
+			return spr;
+		}
 	}
 
 	/// <summary>
@@ -470,7 +553,7 @@ namespace SonicRetro.SonLVL.API
 	{
 		private Sprite spr;
 		private string name;
-		private bool rememberstate;
+		//private bool rememberstate;
 		private byte defsub;
 		private List<byte> subtypes = new List<byte>();
 		bool debug = false;
@@ -480,11 +563,12 @@ namespace SonicRetro.SonLVL.API
 			name = data.Name ?? "Unknown";
 			try
 			{
-				if (data.Art != null && data.Art.Length > 0)
+				/*if (data.Art != null && data.Art.Length > 0)
 				{
 					MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
 					foreach (FileInfo file in data.Art)
-						art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : data.ArtCompression)), file.Offset);
+						//art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : data.ArtCompression)), file.Offset);
+						art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression == CompressionType.Invalid ? CompressionType.Uncompressed : data.ArtCompression)), file.Offset);
 					byte[] artfile = art.ToArray();
 					if (data.MapFile != null)
 					{
@@ -515,7 +599,7 @@ namespace SonicRetro.SonLVL.API
 					if (data.Offset != Size.Empty)
 						spr.Offset = spr.Offset + data.Offset;
 				}
-				else if (data.Image != null)
+				else*/ if (data.Image != null)
 				{
 					BitmapBits img = new BitmapBits(data.Image);
 					spr = new Sprite(img, new Point(data.Offset));
@@ -523,6 +607,10 @@ namespace SonicRetro.SonLVL.API
 				}
 				else if (data.Sprite > -1)
 					spr = ObjectHelper.GetSprite(data.Sprite);
+				else if (data.Sprites != null)
+				{
+					spr = LoadSpriteData(LevelData.SpriteTiles, 0x10, data.Palette1, data.Palette2, data.Sprites);
+				}
 				else
 				{
 					spr = ObjectHelper.UnknownObject;
@@ -535,7 +623,7 @@ namespace SonicRetro.SonLVL.API
 				spr = ObjectHelper.UnknownObject;
 				debug = true;
 			}
-			rememberstate = data.RememberState;
+			//rememberstate = data.RememberState;
 			defsub = data.DefaultSubtype;
 			debug = debug | data.Debug;
 			if (data.Subtypes != null)
@@ -550,7 +638,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override string Name { get { return name; } }
 
-		public override bool RememberState { get { return rememberstate; } }
+		//public override bool RememberState { get { return rememberstate; } }
 
 		public override byte DefaultSubtype { get { return defsub; } }
 
@@ -719,13 +807,14 @@ namespace SonicRetro.SonLVL.API
 						XMLDef.ImageFromBitmap bmpimg = (XMLDef.ImageFromBitmap)item;
 						sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.offset.ToPoint());
 					}
-					else if (item is XMLDef.ImageFromMappings)
+					/*else if (item is XMLDef.ImageFromMappings)
 					{
 						XMLDef.ImageFromMappings mapimg = (XMLDef.ImageFromMappings)item;
 						MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
 						foreach (XMLDef.ArtFile artfile in mapimg.ArtFiles)
 							art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
-								artfile.compression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : artfile.compression)),
+								//artfile.compression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : artfile.compression)),
+								artfile.compression == CompressionType.Invalid ? CompressionType.Uncompressed : artfile.compression)),
 								artfile.offsetSpecified ? artfile.offset : -1);
 						XMLDef.MapFile map = mapimg.MapFile;
 						switch (map.type)
@@ -739,7 +828,7 @@ namespace SonicRetro.SonLVL.API
 										File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, map.version);
 								break;
 							case XMLDef.MapFileType.ASM:
-								if (string.IsNullOrEmpty(map.label))
+								/*if (string.IsNullOrEmpty(map.label))
 								{
 									if (string.IsNullOrEmpty(map.dplcfile))
 										sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
@@ -768,6 +857,14 @@ namespace SonicRetro.SonLVL.API
 						sprite = ObjectHelper.GetSprite(sprimg.frame);
 						if (!sprimg.offset.IsEmpty)
 							sprite.Offset = new Point(sprite.X + sprimg.offset.X, sprite.Y + sprimg.offset.Y);
+					}*/
+					else if (item is XMLDef.ImageFromSprites)
+					{
+						XMLDef.ImageFromSprites sprImg = (XMLDef.ImageFromSprites)item;
+						SpriteInfo[] sprInfo = new SpriteInfo[sprImg.SpriteFile.Length];
+						for (int i = 0; i < sprInfo.Length; i++)
+							sprInfo[i] = new SpriteInfo(sprImg.SpriteFile[i]);
+						sprite = LoadSpriteData(LevelData.SpriteTiles, sprImg.Attributes.flags, sprImg.Attributes.pal1, sprImg.Attributes.pal2, sprInfo);
 					}
 					images.Add(item.id, sprite);
 				}
@@ -1068,7 +1165,7 @@ namespace SonicRetro.SonLVL.API
 						Type basetype;
 						switch (LevelData.Level.ObjectFormat)
 						{
-							case EngineVersion.S1:
+							/*case EngineVersion.S1:
 								basetype = typeof(S1ObjectEntry);
 								break;
 							case EngineVersion.S2:
@@ -1087,6 +1184,9 @@ namespace SonicRetro.SonLVL.API
 								break;
 							case EngineVersion.Chaotix:
 								basetype = typeof(ChaotixObjectEntry);
+								break;*/
+							case EngineVersion.SPA:
+								basetype = typeof(SPAObjectEntry);
 								break;
 							default:
 								basetype = typeof(ObjectEntry);
@@ -1188,10 +1288,10 @@ namespace SonicRetro.SonLVL.API
 			get { return xmldef.Debug; }
 		}
 
-		public override bool RememberState
+		/*public override bool RememberState
 		{
 			get { return xmldef.RememberState; }
-		}
+		}*/
 
 		public override byte DefaultSubtype
 		{
@@ -1221,7 +1321,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			try
 			{
-				if (data.Art != null)
+				/*if (data.Art != null)
 				{
 					MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
 					foreach (FileInfo file in data.Art)
@@ -1256,7 +1356,7 @@ namespace SonicRetro.SonLVL.API
 					if (data.Offset != Size.Empty)
 						spr.Offset = spr.Offset + data.Offset;
 				}
-				else if (data.Image != null)
+				else*/ if (data.Image != null)
 				{
 					BitmapBits img = new BitmapBits(data.Image);
 					spr = new Sprite(img, new Point(data.Offset));

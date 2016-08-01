@@ -16,7 +16,7 @@ namespace SonicRetro.SonLVL.API
 		/// The default compression used for layout files.
 		/// </summary>
 		public virtual CompressionType DefaultCompression { get { return CompressionType.Uncompressed; } }
-		public virtual bool HasLoopFlag { get { return false; } }
+		//public virtual bool HasLoopFlag { get { return false; } }
 		public virtual bool IsResizable { get { return false; } }
 		/// <summary>
 		/// The maximum (or only) size of a level layout.
@@ -56,13 +56,13 @@ namespace SonicRetro.SonLVL.API
 			else
 			{
 				LevelData.Log("Layout file \"" + filename + "\" not found.");
-				layout.FGLayout = new byte[DefaultSize.Width, DefaultSize.Height];
-				layout.BGLayout = new byte[DefaultSize.Width, DefaultSize.Height];
-				if (HasLoopFlag)
+				layout.FGLayout = new ushort[DefaultSize.Width, DefaultSize.Height];
+				layout.BGLayout = new ushort[DefaultSize.Width, DefaultSize.Height];
+				/*if (HasLoopFlag)
 				{
 					layout.FGLoop = new bool[DefaultSize.Width, DefaultSize.Height];
 					layout.BGLoop = new bool[DefaultSize.Width, DefaultSize.Height];
-				}
+				}*/
 			}
 		}
 
@@ -117,9 +117,9 @@ namespace SonicRetro.SonLVL.API
 			else
 			{
 				LevelData.Log("FG layout file \"" + filename + "\" not found.");
-				layout.FGLayout = new byte[DefaultSize.Width, DefaultSize.Height];
-				if (HasLoopFlag)
-					layout.FGLoop = new bool[DefaultSize.Width, DefaultSize.Height];
+				layout.FGLayout = new ushort[DefaultSize.Width, DefaultSize.Height];
+				//if (HasLoopFlag)
+				//	layout.FGLoop = new bool[DefaultSize.Width, DefaultSize.Height];
 			}
 		}
 
@@ -130,9 +130,9 @@ namespace SonicRetro.SonLVL.API
 			else
 			{
 				LevelData.Log("BG layout file \"" + filename + "\" not found.");
-				layout.BGLayout = new byte[DefaultSize.Width, DefaultSize.Height];
-				if (HasLoopFlag)
-					layout.BGLoop = new bool[DefaultSize.Width, DefaultSize.Height];
+				layout.BGLayout = new ushort[DefaultSize.Width, DefaultSize.Height];
+				//if (HasLoopFlag)
+				//	layout.BGLoop = new bool[DefaultSize.Width, DefaultSize.Height];
 			}
 		}
 

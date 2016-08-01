@@ -38,27 +38,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\SonicRetro.KensSharp.Common.dll</HintPath>
     </Reference>
-    <Reference Include="SonicRetro.KensSharp.Enigma, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\SonicRetro.KensSharp.Enigma.dll</HintPath>
-    </Reference>
-    <Reference Include="SonicRetro.KensSharp.Kosinski, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\SonicRetro.KensSharp.Kosinski.dll</HintPath>
-    </Reference>
-    <Reference Include="SonicRetro.KensSharp.Nemesis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\SonicRetro.KensSharp.Nemesis.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="SZDDComp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\SZDDComp.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitmapBits.cs" />
@@ -106,6 +90,7 @@
     <Compile Include="S3K\Ring.cs" />
     <Compile Include="SCDPC\Layout.cs" />
     <Compile Include="SKC\Layout.cs" />
+    <Compile Include="SPA\Layout.cs" />
     <Compile Include="TileFormat.cs" />
     <Compile Include="TileList.cs">
       <SubType>UserControl</SubType>
@@ -148,6 +133,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\UnknownImg3K.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\UnknownImgSPA.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

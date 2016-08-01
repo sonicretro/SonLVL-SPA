@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace SonicRetro.SonLVL.API.S2
 {
-	public class Ring : RingLayoutFormat
+	/*public class Ring : RingLayoutFormat
 	{
 		Sprite spr;
 		int spacing = 24;
@@ -206,5 +206,5 @@ namespace SonicRetro.SonLVL.API.S2
 		{
 			get { return ((RingLayoutFormat)LevelData.RingFormat).Name; }
 		}
-	}
+	}*/
 }

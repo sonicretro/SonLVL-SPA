@@ -85,4 +85,47 @@ namespace SonicRetro.SonLVL.API
 				return objects.Count(a => a.ID == ObjectID);
 		}
 	}
+	
+	public class RingBGFormat : RingFormat
+	{
+		public override Entry CreateRing()
+		{
+			return null;
+		}
+
+		public int CountRings(LayoutData layout, MultiFileIndexer<Block> Blocks, IEnumerable<ObjectEntry> objects)
+		{
+			int count = 0;
+			int[] blkRings = new int[Blocks.Count];
+
+			for (int blk = 0; blk < Blocks.Count; blk++)
+			{
+				blkRings[blk] = 0;
+				for (int ty = 0; ty < 4; ty ++)
+					for (int tx = 0; tx < 4; tx ++)
+					{
+						if (Blocks[blk].Tiles[tx, ty].Tile == 0x0001)
+							blkRings[blk]++;
+					}
+			}
+			for (int x = 0; x < layout.BGLayout.GetUpperBound(0); x ++)
+			{
+				for (int y = 0; y < layout.BGLayout.GetUpperBound(1); y ++)
+				{
+					count += blkRings[layout.BGLayout[x, y]];
+					count += blkRings[layout.FGLayout[x, y]];
+				}
+			}
+
+			if (objects != null)
+			{
+				// TODO: make this not hardcoded
+				// Sky Chase Ring
+				count += objects.Count(a => a.ID == 0x67);
+				// Ring Item
+				count += objects.Count(a => a.ID == 0x0C && a.SubType == 0x02) * 10;
+			}
+			return count;
+		}
+	}
 }

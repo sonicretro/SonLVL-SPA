@@ -32,7 +32,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void UnderwaterPaletteDialog_Load(object sender, EventArgs e)
 		{
-			palnum = LevelData.CurPal;
+			/*palnum = LevelData.CurPal;
 			LevelData.CurPal = 0;
 			Bitmap bmp = new Bitmap(256, 64);
 			Graphics gfx = Graphics.FromImage(bmp);
@@ -52,7 +52,7 @@ namespace SonicRetro.SonLVL.GUI
 			for (int i = 1; i < LevelData.Palette.Count; i++)
 				paletteIndex.Items.Add(LevelData.PalName[i]);
 			paletteIndex.EndUpdate();
-			paletteIndex.SelectedIndex = 0;
+			paletteIndex.SelectedIndex = 0;*/
 		}
 
 		private void panel1_Click(object sender, EventArgs e)
@@ -73,7 +73,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			LevelData.CurPal = 0;
+			/*LevelData.CurPal = 0;
 			Bitmap bmp = new Bitmap(256, 64);
 			Graphics gfx = Graphics.FromImage(bmp);
 			for (int l = 0; l < 4; l++)
@@ -110,7 +110,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			}
 			pictureBox2.Image = bmp;
-			LevelData.CurPal = palnum;
+			LevelData.CurPal = palnum;*/
 		}
 
 		private void paletteIndex_SelectedIndexChanged(object sender, EventArgs e)

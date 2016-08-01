@@ -120,7 +120,7 @@ namespace SonicRetro.SonLVL
 			this.Name = "FindChunksDialog";
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
-			this.Text = "FindChunksDialog";
+			this.Text = "FindBlocksDialog";
 			this.VisibleChanged += new System.EventHandler(this.FindChunksDialog_VisibleChanged);
 			this.panel1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.chunkSelect)).EndInit();

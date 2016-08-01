@@ -151,6 +151,16 @@ namespace SonicRetro.SonLVL.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon ngpmon {
+            get {
+                object obj = ResourceManager.GetObject("ngpmon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap paste {
@@ -246,6 +256,16 @@ namespace SonicRetro.SonLVL.Properties {
         internal static System.Drawing.Bitmap UnknownImg3K {
             get {
                 object obj = ResourceManager.GetObject("UnknownImg3K", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap UnknownImgSPA {
+            get {
+                object obj = ResourceManager.GetObject("UnknownImgSPA", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
