@@ -220,7 +220,8 @@ namespace SonicRetro.SonLVL.API
 		public bool YFlip { get; set; }
 		private ushort _ind;
 
-		[Browsable(false)]
+		[Editor(typeof(TileEditor), typeof(System.Drawing.Design.UITypeEditor))]
+		[TypeConverter(typeof(UInt16HexConverter))]
 		public ushort Tile
 		{
 			get
@@ -230,20 +231,6 @@ namespace SonicRetro.SonLVL.API
 			set
 			{
 				_ind = (ushort)(value & 0x1FF);
-			}
-		}
-
-		[DisplayName("Tile")]
-		[Editor(typeof(TileEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public string _Tile
-		{
-			get
-			{
-				return _ind.ToString("X4");
-			}
-			set
-			{
-				_ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x1FF);
 			}
 		}
 
@@ -372,7 +359,6 @@ namespace SonicRetro.SonLVL.API
 			Block result = Clone();
 			if (horizontal)
 				if (vertical)
-				{
 					for (int y = 0; y < 4; y++)
 						for (int x = 0; x < 4; x++)
 						{
@@ -381,9 +367,7 @@ namespace SonicRetro.SonLVL.API
 							tile.YFlip = !tile.YFlip;
 							result.Tiles[x, y] = tile;
 						}
-				}
 				else
-				{
 					for (int y = 0; y < 4; y++)
 						for (int x = 0; x < 4; x++)
 						{
@@ -391,9 +375,7 @@ namespace SonicRetro.SonLVL.API
 							tile.XFlip = !tile.XFlip;
 							result.Tiles[x, y] = tile;
 						}
-				}
 			else if (vertical)
-			{
 				for (int y = 0; y < 4; y++)
 					for (int x = 0; x < 4; x++)
 					{
@@ -401,9 +383,53 @@ namespace SonicRetro.SonLVL.API
 						tile.YFlip = !tile.YFlip;
 						result.Tiles[x, y] = tile;
 					}
-			}
 			return result;
 		}
+
+		/*public bool IsInterlacedCompatible
+		{
+			get
+			{
+				for (int x = 0; x < 2; x++)
+				{
+					PatternIndex tile = Tiles[x, 0];
+					PatternIndex tile2 = Tiles[x, 1];
+					if (tile.YFlip && tile.Tile % 2 == 0)
+						return false;
+					else if (tile.Tile % 2 == 1)
+						return false;
+					if (tile2.Tile != (tile.Tile ^ 1))
+						return false;
+					if (tile2.Palette != tile.Palette)
+						return false;
+					if (tile2.Priority != tile.Priority)
+						return false;
+					if (tile2.XFlip != tile.XFlip)
+						return false;
+					if (tile2.YFlip != tile.YFlip)
+						return false;
+				}
+				return true;
+			}
+		}
+
+		public void MakeInterlacedCompatible()
+		{
+			for (int x = 0; x < 2; x++)
+			{
+				PatternIndex tile = Tiles[x, 0];
+				PatternIndex tile2 = Tiles[x, 1];
+				if (tile.YFlip)
+					tile.Tile |= 1;
+				else
+					tile.Tile &= unchecked((ushort)~1);
+				tile2.Tile = (ushort)(tile.Tile ^ 1);
+				tile2.Palette = tile.Palette;
+				tile2.Priority = tile.Priority;
+				tile2.XFlip = tile.XFlip;
+				tile2.YFlip = tile.YFlip;
+			}
+		}*/
 	}
 
 	public enum Solidity : byte
@@ -433,7 +459,8 @@ namespace SonicRetro.SonLVL.API
 		public bool XFlip { get; set; }
 		public bool YFlip { get; set; }
 		protected ushort _ind;
-		[Browsable(false)]
+		[Editor(typeof(BlockEditor), typeof(System.Drawing.Design.UITypeEditor))]
+		[TypeConverter(typeof(UInt16HexConverter))]
 		public ushort Block
 		{
 			get
@@ -443,20 +470,6 @@ namespace SonicRetro.SonLVL.API
 			set
 			{
 				_ind = (ushort)(value & 0x3FF);
-			}
-		}
-
-		[DisplayName("Block")]
-		[Editor(typeof(BlockEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public string _Block
-		{
-			get
-			{
-				return _ind.ToString("X4");
-			}
-			set
-			{
-				_ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x3FF);
 			}
 		}
 
@@ -645,17 +658,12 @@ namespace SonicRetro.SonLVL.API
 		[NonSerialized]
 		private Entry ent;
 		private ushort x, y;
-		[Browsable(false)]
-		public ushort X { get { if (ent != null) x = ent.X; return x; } set { x = value; if (ent != null) ent.X = value; } }
-		[Browsable(false)]
-		public ushort Y { get { if (ent != null) y = ent.Y; return y; } set { y = value; if (ent != null) ent.Y = value; } }
-
-		[DisplayName("X")]
 		[Description("The horizontal component of the position.")]
-		public string XHex { get { return X.ToString("X4"); } set { X = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber); } }
-		[DisplayName("Y")]
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public ushort X { get { if (ent != null) x = ent.X; return x; } set { x = value; if (ent != null) ent.X = value; } }
 		[Description("The vertical component of the position.")]
-		public string YHex { get { return Y.ToString("X4"); } set { Y = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber); } }
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public ushort Y { get { if (ent != null) y = ent.Y; return y; } set { y = value; if (ent != null) ent.Y = value; } }
 
 		public Position() { }
 
@@ -849,40 +857,16 @@ namespace SonicRetro.SonLVL.API
 		[Description("Flips the object horizontally.")]
 		[DisplayName("X Flip")]
 		public virtual bool XFlip { get; set; }
-		[Browsable(false)]
-		public virtual byte ID { get; set; }
-		[DefaultValue("00")]
+		[DefaultValue(0)]
 		[Description("The ID number of the object.")]
-		[DisplayName("ID")]
 		[Editor(typeof(IDEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public virtual string _ID
-		{
-			get
-			{
-				return ID.ToString("X2");
-			}
-			set
-			{
-				ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
-		[Browsable(false)]
-		public virtual byte SubType { get; set; }
-		[DefaultValue("00")]
+		[TypeConverter(typeof(ByteHexConverter))]
+		public virtual byte ID { get; set; }
+		[DefaultValue(0)]
 		[Description("The subtype of the object.")]
-		[DisplayName("Subtype")]
 		[Editor(typeof(SubTypeEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public virtual string _SubType
-		{
-			get
-			{
-				return SubType.ToString("X2");
-			}
-			set
-			{
-				SubType = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
+		[TypeConverter(typeof(ByteHexConverter))]
+		public virtual byte SubType { get; set; }
 
 		protected bool isLoaded = false;
 
@@ -994,414 +978,14 @@ namespace SonicRetro.SonLVL.API
 		}
 	}
 
-	/*[DefaultProperty("ID")]
 	[Serializable]
-	public class S2ObjectEntry : ObjectEntry
+	public abstract class RememberStateObjectEntry : ObjectEntry
 	{
 		[DefaultValue(false)]
 		[Description("If true, the object will stay destroyed after it leaves the screen.")]
 		[DisplayName("Remember State")]
-		public virtual bool RememberState { get; set; }
-
-		[DefaultValue(false)]
-		[DisplayName("Long Distance")]
-		public bool LongDistance { get; set; }
-
-		public static int Size { get { return 6; } }
-
-		public S2ObjectEntry() { pos = new Position(this); isLoaded = true; }
-
-		public S2ObjectEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-			isLoaded = true;
-		}
-
-		public override byte[] GetBytes()
-		{
-			List<byte> ret = new List<byte>();
-			ret.AddRange(ByteConverter.GetBytes(X));
-			ushort val = (ushort)(Y & 0xFFF);
-			if (LongDistance) val |= 0x1000;
-			if (XFlip) val |= 0x2000;
-			if (YFlip) val |= 0x4000;
-			if (RememberState) val |= 0x8000;
-			ret.AddRange(ByteConverter.GetBytes(val));
-			ret.Add(ID);
-			ret.Add(SubType);
-			return ret.ToArray();
-		}
-
-		public override void FromBytes(byte[] bytes)
-		{
-			X = ByteConverter.ToUInt16(bytes, 0);
-			ushort val = ByteConverter.ToUInt16(bytes, 2);
-			RememberState = (val & 0x8000) == 0x8000;
-			YFlip = (val & 0x4000) == 0x4000;
-			XFlip = (val & 0x2000) == 0x2000;
-			LongDistance = (val & 0x1000) == 0x1000;
-			Y = (ushort)(val & 0xFFF);
-			ID = bytes[4];
-			SubType = bytes[5];
-		}
+		public bool RememberState { get; set; }
 	}
-
-	[DefaultProperty("ID")]
-	[Serializable]
-	public class S2NAObjectEntry : S2ObjectEntry
-	{
-		public S2NAObjectEntry() { pos = new Position(this); isLoaded = true; }
-
-		public S2NAObjectEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-			isLoaded = true;
-		}
-
-		public override byte ID
-		{
-			get
-			{
-				return base.ID;
-			}
-			set
-			{
-				base.ID = (byte)(value & 0x7F);
-			}
-		}
-
-		public override byte[] GetBytes()
-		{
-			List<byte> ret = new List<byte>();
-			ret.AddRange(ByteConverter.GetBytes(X));
-			ushort val = (ushort)(Y & 0xFFF);
-			if (LongDistance) val |= 0x2000;
-			if (XFlip) val |= 0x4000;
-			if (YFlip) val |= 0x8000;
-			ret.AddRange(ByteConverter.GetBytes(val));
-			ret.Add((byte)(ID | (RememberState ? 0x80 : 0)));
-			ret.Add(SubType);
-			return ret.ToArray();
-		}
-
-		public override void FromBytes(byte[] bytes)
-		{
-			X = ByteConverter.ToUInt16(bytes, 0);
-			ushort val = ByteConverter.ToUInt16(bytes, 2);
-			YFlip = (val & 0x8000) == 0x8000;
-			XFlip = (val & 0x4000) == 0x4000;
-			LongDistance = (val & 0x2000) == 0x2000;
-			Y = (ushort)(val & 0xFFF);
-			ID = bytes[4];
-			RememberState = (bytes[4] & 0x80) == 0x80;
-			SubType = bytes[5];
-		}
-	}
-
-	[DefaultProperty("ID")]
-	[Serializable]
-	public class S1ObjectEntry : ObjectEntry
-	{
-		[DefaultValue(false)]
-		[Description("If true, the object will stay destroyed after it leaves the screen.")]
-		[DisplayName("Remember State")]
-		public virtual bool RememberState { get; set; }
-
-		public override string _ID
-		{
-			get
-			{
-				return ID.ToString("X2");
-			}
-			set
-			{
-				ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
-
-		public override byte ID
-		{
-			get
-			{
-				return base.ID;
-			}
-			set
-			{
-				base.ID = (byte)(value & 0x7F);
-			}
-		}
-
-		public static int Size { get { return 6; } }
-
-		public S1ObjectEntry() { pos = new Position(this); isLoaded = true; }
-
-		public S1ObjectEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-			isLoaded = true;
-		}
-
-		public override byte[] GetBytes()
-		{
-			List<byte> ret = new List<byte>();
-			ret.AddRange(ByteConverter.GetBytes(X));
-			ushort val = (ushort)(Y & 0xFFF);
-			if (XFlip) val |= 0x4000;
-			if (YFlip) val |= 0x8000;
-			ret.AddRange(ByteConverter.GetBytes(val));
-			ret.Add((byte)(ID | (RememberState ? 0x80 : 0)));
-			ret.Add(SubType);
-			return ret.ToArray();
-		}
-
-		public override void FromBytes(byte[] bytes)
-		{
-			X = ByteConverter.ToUInt16(bytes, 0);
-			ushort val = ByteConverter.ToUInt16(bytes, 2);
-			YFlip = (val & 0x8000) == 0x8000;
-			XFlip = (val & 0x4000) == 0x4000;
-			Y = (ushort)(val & 0xFFF);
-			ID = bytes[4];
-			RememberState = (bytes[4] & 0x80) == 0x80;
-			SubType = bytes[5];
-		}
-	}
-
-	[DefaultProperty("ID")]
-	[Serializable]
-	public class S3KObjectEntry : ObjectEntry
-	{
-		[DefaultValue(false)]
-		[Description("If true, the object will be loaded when it is in horizontal range of the screen, regardless of its Y position.")]
-		[DisplayName("Make object manager ignore Y position")]
-		public virtual bool SomeFlag { get; set; }
-
-		public static int Size { get { return 6; } }
-
-		public S3KObjectEntry() { pos = new Position(this); isLoaded = true; }
-
-		public S3KObjectEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-			isLoaded = true;
-		}
-
-		public override byte[] GetBytes()
-		{
-			List<byte> ret = new List<byte>();
-			ret.AddRange(ByteConverter.GetBytes(X));
-			ushort val = (ushort)(Y & 0xFFF);
-			if (XFlip) val |= 0x2000;
-			if (YFlip) val |= 0x4000;
-			if (SomeFlag) val |= 0x8000;
-			ret.AddRange(ByteConverter.GetBytes(val));
-			ret.Add(ID);
-			ret.Add(SubType);
-			return ret.ToArray();
-		}
-
-		public override void FromBytes(byte[] bytes)
-		{
-			X = ByteConverter.ToUInt16(bytes, 0);
-			ushort val = ByteConverter.ToUInt16(bytes, 2);
-			SomeFlag = (val & 0x8000) == 0x8000;
-			YFlip = (val & 0x4000) == 0x4000;
-			XFlip = (val & 0x2000) == 0x2000;
-			Y = (ushort)(val & 0xFFF);
-			ID = bytes[4];
-			SubType = bytes[5];
-		}
-	}
-
-	[DefaultProperty("ID")]
-	[Serializable]
-	public class SCDObjectEntry : ObjectEntry
-	{
-		[DefaultValue(false)]
-		[Description("If true, the object will stay destroyed after it leaves the screen.")]
-		[DisplayName("Remember State")]
-		public virtual bool RememberState { get; set; }
-
-		[Description("If true, the object should be loaded in the Present time zone.")]
-		[DisplayName("Show in Present")]
-		public virtual bool ShowPresent { get; set; }
-		[Description("If true, the object should be loaded in the Past time zone.")]
-		[DisplayName("Show in Past")]
-		public virtual bool ShowPast { get; set; }
-		[Description("If true, the object should be loaded in the Future time zone.")]
-		[DisplayName("Show in Future")]
-		public virtual bool ShowFuture { get; set; }
-
-		public override byte ID
-		{
-			get
-			{
-				return base.ID;
-			}
-			set
-			{
-				base.ID = (byte)(value & 0x7F);
-			}
-		}
-
-		[Browsable(false)]
-		public byte SubType2 { get; set; }
-
-		[DisplayName("SubType2")]
-		public string _SubType2
-		{
-			get { return SubType2.ToString("X2"); }
-			set { SubType2 = byte.Parse(value, System.Globalization.NumberStyles.HexNumber); }
-		}
-
-		public static int Size { get { return 8; } }
-
-		public SCDObjectEntry() { pos = new Position(this); isLoaded = true; }
-
-		public SCDObjectEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-			isLoaded = true;
-		}
-
-		public override byte[] GetBytes()
-		{
-			List<byte> ret = new List<byte>();
-			ret.AddRange(ByteConverter.GetBytes(X));
-			ushort val = (ushort)(Y & 0xFFF);
-			if (XFlip) val |= 0x4000;
-			if (YFlip) val |= 0x8000;
-			ret.AddRange(ByteConverter.GetBytes(val));
-			ret.Add((byte)(ID | (RememberState ? 0x80 : 0)));
-			ret.Add(SubType);
-			byte b = 0;
-			if (ShowPresent) b |= 0x40;
-			if (ShowPast) b |= 0x20;
-			if (ShowFuture) b |= 0x80;
-			ret.Add(b);
-			ret.Add(SubType2);
-			return ret.ToArray();
-		}
-
-		public override void FromBytes(byte[] bytes)
-		{
-			X = ByteConverter.ToUInt16(bytes, 0);
-			ushort val = ByteConverter.ToUInt16(bytes, 2);
-			YFlip = (val & 0x8000) == 0x8000;
-			XFlip = (val & 0x4000) == 0x4000;
-			Y = (ushort)(val & 0xFFF);
-			ID = bytes[4];
-			RememberState = (bytes[4] & 0x80) == 0x80;
-			SubType = bytes[5];
-			ShowPresent = (bytes[6] & 0x40) == 0x40;
-			ShowPast = (bytes[6] & 0x20) == 0x20;
-			ShowFuture = (bytes[6] & 0x80) == 0x80;
-			SubType2 = bytes[7];
-		}
-	}
-
-	[DefaultProperty("ID")]
-	[Serializable]
-	public class ChaotixObjectEntry : ObjectEntry
-	{
-		public override byte SubType
-		{
-			get
-			{
-				return (byte)fullSubType;
-			}
-			set
-			{
-				fullSubType = value;
-			}
-		}
-
-		private ushort fullSubType;
-		public ushort FullSubType
-		{
-			get { return fullSubType; }
-			set { fullSubType = (ushort)(value & 0x1FFF); }
-		}
-
-		[DefaultValue("00")]
-		[Description("The subtype of the object.")]
-		[DisplayName("Subtype")]
-		[Editor(typeof(SubTypeEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public override string _SubType
-		{
-			get { return FullSubType.ToString("X4"); }
-			set { FullSubType = byte.Parse(value, System.Globalization.NumberStyles.HexNumber); }
-		}
-		[DefaultValue(false)]
-		[Description("If true, the object will be loaded when it is in horizontal range of the screen, regardless of its Y position.")]
-		[DisplayName("Make object manager ignore Y position")]
-		public virtual bool SomeFlag { get; set; }
-
-		public static int Size { get { return 8; } }
-
-		public ChaotixObjectEntry() { pos = new Position(this); isLoaded = true; }*/
-
-		/* Format: 
-		8 bytes per entry:
-			x_pos (word)
-			y_pos (word)
-			4*ID (word)
-			secondary subtype (byte), highest 3 bits are No-Y-Check, Y-Flip, X-Flip
-			subtype (byte)
-		*/
-
-		/*public ChaotixObjectEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-			isLoaded = true;
-		}
-
-		public override byte[] GetBytes()
-		{
-			List<byte> ret = new List<byte>();
-			ret.AddRange(ByteConverter.GetBytes(X));
-			ret.AddRange(ByteConverter.GetBytes(Y));
-			ret.AddRange(ByteConverter.GetBytes((ushort)(ID << 2)));
-			ushort val = fullSubType;
-			if (XFlip) val |= 0x2000;
-			if (YFlip) val |= 0x4000;
-			if (SomeFlag) val |= 0x8000;
-			ret.AddRange(ByteConverter.GetBytes(val));
-			return ret.ToArray();
-		}
-
-		public override void FromBytes(byte[] bytes)
-		{
-			X = ByteConverter.ToUInt16(bytes, 0);
-			Y = ByteConverter.ToUInt16(bytes, 2);
-			ID = (byte)(ByteConverter.ToUInt16(bytes, 4) >> 2);
-
-			ushort val = ByteConverter.ToUInt16(bytes, 6);
-
-			SomeFlag = (val & 0x8000) == 0x8000;
-			YFlip = (val & 0x4000) == 0x4000;
-			XFlip = (val & 0x2000) == 0x2000;
-			fullSubType = (ushort)(val & 0x1FFF);
-		}
-	}*/
 
 	[Serializable]
 	public abstract class RingEntry : Entry, IComparable<RingEntry>
@@ -1429,23 +1013,10 @@ namespace SonicRetro.SonLVL.API
 	[Serializable]
 	public class CNZBumperEntry : Entry, IComparable<CNZBumperEntry>
 	{
-		[Browsable(false)]
-		public ushort ID { get; set; }
-
-		[DefaultValue("0000")]
+		[DefaultValue(0)]
 		[Description("The type of bumper.")]
-		[DisplayName("ID")]
-		public string _ID
-		{
-			get
-			{
-				return ID.ToString("X4");
-			}
-			set
-			{
-				ID = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public ushort ID { get; set; }
 
 		public static int Size { get { return 6; } }
 
@@ -1484,7 +1055,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override void UpdateSprite()
 		{
-			//Sprite = LevelData.unkobj.GetSprite(new S2ObjectEntry() { X = X, Y = Y });
+			//Sprite = LevelData.unkobj.GetSprite(new SonicRetro.SonLVL.API.S2.S2ObjectEntry() { X = X, Y = Y });
 		}
 
 		public override string Name
@@ -1779,14 +1350,17 @@ namespace SonicRetro.SonLVL.API
 				{
 					writer.WriteLine(name + ":\tmappingsTable");
 					foreach (MappingsFrame frame in frames)
-						writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						if (frame.TileCount > 0)
+							writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						else
+							writer.WriteLine("\tmappingsTableEntry.w\t" + name);
 					writer.WriteLine();
 					List<string> writtenFrames = new List<string>();
 					unchecked
 					{
 						foreach (MappingsFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if (frame.TileCount == 0 || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.WriteLine(frame.Name + ":\tspriteHeader");
 							for (int i = 0; i < frame.TileCount; i++)
@@ -1823,13 +1397,13 @@ namespace SonicRetro.SonLVL.API
 					List<string> writtenFrames = new List<string>();
 					writer.WriteLine(name + ":");
 					foreach (MappingsFrame frame in frames)
-						writer.WriteLine("\tdc.w\t" + frame.Name + "-" + name);
+						writer.WriteLine("\tdc.w\t" + (frame.TileCount > 0 ? frame.Name : name) + "-" + name);
 					writer.WriteLine();
 					unchecked
 					{
 						foreach (MappingsFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if (frame.TileCount == 0 || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.WriteLine(frame.Name + ":\tdc." + (version == EngineVersion.S1 || version == EngineVersion.SCD ? "b " + ((byte)frame.TileCount).ToHex68k() : "w " + ((ushort)frame.TileCount).ToHex68k()));
 							for (int i = 0; i < frame.TileCount; i++)
@@ -2061,6 +1635,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static void ToASM(string file, string name, IList<DPLCFrame> frames, EngineVersion version, bool macros, bool s3kp)
 		{
+			if (s3kp) version = EngineVersion.S2;
 			using (FileStream stream = new FileStream(file, FileMode.Create, FileAccess.Write))
 			using (StreamWriter writer = new StreamWriter(stream, Encoding.ASCII))
 			{
@@ -2068,7 +1643,10 @@ namespace SonicRetro.SonLVL.API
 				{
 					writer.WriteLine(name + ":\tmappingsTable");
 					foreach (DPLCFrame frame in frames)
-						writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						if (version == EngineVersion.S3K || version == EngineVersion.SKC || frame.Count > 0)
+							writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						else
+							writer.WriteLine("\tmappingsTableEntry.w\t" + name);
 					writer.WriteLine();
 					List<string> writtenFrames = new List<string>();
 					string dplcHeader = s3kp ? "s3kPlayerDplcHeader" : "dplcHeader";
@@ -2077,7 +1655,7 @@ namespace SonicRetro.SonLVL.API
 					{
 						foreach (DPLCFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if ((version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0) || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.WriteLine(frame.Name + ":\t" + dplcHeader);
 							for (int i = 0; i < frame.Count; i++)
@@ -2095,17 +1673,19 @@ namespace SonicRetro.SonLVL.API
 				}
 				else
 				{
-					if (s3kp) version = EngineVersion.S2;
 					List<string> writtenFrames = new List<string>();
 					writer.WriteLine(name + ":");
 					foreach (DPLCFrame frame in frames)
-						writer.WriteLine("\tdc.w\t" + frame.Name + "-" + name);
+						if (version == EngineVersion.S3K || version == EngineVersion.SKC || frame.Count > 0)
+							writer.WriteLine("\tdc.w\t" + frame.Name + "-" + name);
+						else
+							writer.WriteLine("\tdc.w\t" + name + "-" + name);
 					writer.WriteLine();
 					unchecked
 					{
 						foreach (DPLCFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if ((version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0) || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.Write(frame.Name + ":\tdc.");
 							switch (version)
@@ -2155,7 +1735,7 @@ namespace SonicRetro.SonLVL.API
 			List<short> offs = new List<short>(dplcs.Count);
 			List<byte> mapbytes = new List<byte>();
 			for (int i = 0; i < dplcs.Count; i++)
-				if (i == 0 & dplcs[i].Count == 0 & version != EngineVersion.S3K & version != EngineVersion.SKC)
+				if (i == 0 && dplcs[i].Count == 0 && version != EngineVersion.S3K && version != EngineVersion.SKC)
 					offs.Add(0);
 				else
 				{
@@ -2415,11 +1995,12 @@ namespace SonicRetro.SonLVL.API
 
 		public Sprite(IEnumerable<Sprite> sprites)
 		{
+			List<Sprite> sprlst = new List<Sprite>(sprites);
 			int left = 0;
 			int right = 0;
 			int top = 0;
 			int bottom = 0;
-			foreach (Sprite spr in sprites)
+			foreach (Sprite spr in sprlst)
 				if (spr.Image != null)
 				{
 					left = Math.Min(spr.Left, left);
@@ -2429,9 +2010,21 @@ namespace SonicRetro.SonLVL.API
 				}
 			Offset = new Point(left, top);
 			Image = new BitmapBits(right - left, bottom - top);
-			foreach (Sprite spr in sprites)
-				if (spr.Image != null)
-					Image.DrawBitmapComposited(spr.Image, new Point(spr.X - left, spr.Y - top));
+			for (int i = 0; i < sprlst.Count; i++)
+				if (sprlst[i].Image != null)
+				{
+					bool comp = false;
+					for (int j = 0; j < i; j++)
+						if (sprlst[j].Image != null && sprlst[i].Bounds.IntersectsWith(sprlst[j].Bounds))
+						{
+							comp = true;
+							break;
+						}
+					if (comp)
+						Image.DrawBitmapComposited(sprlst[i].Image, new Point(sprlst[i].X - left, sprlst[i].Y - top));
+					else
+						Image.DrawBitmap(sprlst[i].Image, new Point(sprlst[i].X - left, sprlst[i].Y - top));
+				}
 		}
 
 		public static Sprite LoadChaotixSprite(string filename) { return LoadChaotixSprite(File.ReadAllBytes(filename), 0); }
@@ -2503,110 +2096,6 @@ namespace SonicRetro.SonLVL.API
 			if (result.Count % 4 != 0)
 				result.AddRange(new byte[4 - (result.Count % 4)]);
 			File.WriteAllBytes(filename, result.ToArray());
-		}
-	}
-
-	[DefaultProperty("ID")]
-	[Serializable]
-	public class SPAObjectEntry : ObjectEntry, IComparable<SPAObjectEntry>
-	{
-		/*[DefaultValue(false)]
-		[Description("If true, the object will stay destroyed after it leaves the screen.")]
-		[DisplayName("Remember State")]
-		public virtual bool RememberState { get; set; }*/
-
-		public override string _ID
-		{
-			get
-			{
-				return ID.ToString("X2");
-			}
-			set
-			{
-				ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
-
-		public override byte ID
-		{
-			get
-			{
-				return base.ID;
-			}
-			set
-			{
-				base.ID = (byte)(value & 0x7F);
-			}
-		}
-
-		public ushort internalY
-		{
-			// Actually the formula is (LevelHeigh - 1 - value),
-			// but this causes the grid to go wrong.
-			// So I make up for the -1 in the object code.
-			get
-			{
-				return (ushort)(LevelData.FGHeight * 32 - Y);
-			}
-			set
-			{
-				Y = (ushort)(LevelData.FGHeight * 32 - value);
-			}
-		}
-		
-		public bool Difficulty { get; set; }
-		
-		public byte Param1 { get; set; }
-		public byte Param2 { get; set; }
-		public byte Param3 { get; set; }
-		
-		public static int Size { get { return 10; } }
-
-		public SPAObjectEntry() { pos = new Position(this); isLoaded = true; }
-
-		public SPAObjectEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-			isLoaded = true;
-		}
-
-		public override byte[] GetBytes()
-		{
-			List<byte> ret = new List<byte>();
-			ret.Add(ID);
-			ret.Add(Difficulty ? (byte)1 : (byte)0);
-			ret.AddRange(ByteConverter.GetBytes(X));
-			ret.AddRange(ByteConverter.GetBytes(internalY));
-			ret.Add(SubType);
-			ret.Add(Param1);
-			ret.Add(Param2);
-			ret.Add(Param3);
-			return ret.ToArray();
-		}
-
-		public override void FromBytes(byte[] bytes)
-		{
-			ID = bytes[0];
-			if (bytes[1] > 1)
-				throw new System.ArgumentException("Found object with invalid Difficulty type!", "SPAObjectEntry");
-			Difficulty = (bytes[1] == 1);
-			X = ByteConverter.ToUInt16(bytes, 2);
-			internalY = ByteConverter.ToUInt16(bytes, 4);
-			SubType = bytes[6];
-			Param1 = bytes[7];
-			Param2 = bytes[8];
-			Param3 = bytes[9];
-		}
-
-		int IComparable<SPAObjectEntry>.CompareTo(SPAObjectEntry other)
-		{
-			int c = ID.CompareTo(other.ID);
-			if (c == 0) c = X.CompareTo(other.X);
-			if (c == 0) c = internalY.CompareTo(other.internalY);
-			return c;
 		}
 	}
 }

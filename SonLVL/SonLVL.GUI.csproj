@@ -64,6 +64,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -81,6 +82,30 @@
     </Compile>
     <Compile Include="ChunkBlockEditor.Designer.cs">
       <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PatternIndexSearchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PatternIndexSearchControl.Designer.cs">
+      <DependentUpon>PatternIndexSearchControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceBlockTilesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceBlockTilesDialog.Designer.cs">
+      <DependentUpon>ReplaceBlockTilesDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceChunkBlocksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceChunkBlocksDialog.Designer.cs">
+      <DependentUpon>ReplaceChunkBlocksDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ChunkBlockSearchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ChunkBlockSearchControl.Designer.cs">
+      <DependentUpon>ChunkBlockSearchControl.cs</DependentUpon>
     </Compile>
     <Compile Include="CollisionSelector.cs">
       <SubType>Form</SubType>
@@ -155,11 +180,20 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="NumericUpDownMulti.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PatternIndexEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="PatternIndexEditor.Designer.cs">
       <DependentUpon>PatternIndexEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceChunksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceChunksDialog.Designer.cs">
+      <DependentUpon>ReplaceChunksDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ResizeLevelDialog.cs">
       <SubType>Form</SubType>
@@ -182,6 +216,12 @@
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="StatisticsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatisticsDialog.Designer.cs">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="TileRemappingDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -199,6 +239,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ChunkBlockEditor.resx">
       <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChunkBlockSearchControl.resx">
+      <DependentUpon>ChunkBlockSearchControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CollisionSelector.resx">
       <DependentUpon>CollisionSelector.cs</DependentUpon>
@@ -240,6 +283,18 @@
     <EmbeddedResource Include="PatternIndexEditor.resx">
       <DependentUpon>PatternIndexEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PatternIndexSearchControl.resx">
+      <DependentUpon>PatternIndexSearchControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceBlockTilesDialog.resx">
+      <DependentUpon>ReplaceBlockTilesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceChunkBlocksDialog.resx">
+      <DependentUpon>ReplaceChunkBlocksDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceChunksDialog.resx">
+      <DependentUpon>ReplaceChunksDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ResizeLevelDialog.resx">
       <DependentUpon>ResizeLevelDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -258,6 +313,9 @@
     </Compile>
     <EmbeddedResource Include="AlternatePaletteDialog.resx">
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StatisticsDialog.resx">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TileRemappingDialog.resx">
       <DependentUpon>TileRemappingDialog.cs</DependentUpon>

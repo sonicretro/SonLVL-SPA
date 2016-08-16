@@ -50,6 +50,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ByteConverter.cs" />
+    <Compile Include="Chaotix\Object.cs" />
     <Compile Include="Compression.cs" />
     <Compile Include="DataTypes.cs" />
     <Compile Include="Extensions.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="ObjectIDEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ObjectLayoutFormat.cs" />
     <Compile Include="ObjectSubTypeEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -82,16 +84,21 @@
     </Compile>
     <Compile Include="RingFormat.cs" />
     <Compile Include="S1\Layout.cs" />
+    <Compile Include="S1\Object.cs" />
     <Compile Include="S1\Ring.cs" />
     <Compile Include="S2NA\Layout.cs" />
+    <Compile Include="S2NA\Object.cs" />
     <Compile Include="S2\Layout.cs" />
+    <Compile Include="S2\Object.cs" />
     <Compile Include="S2\Ring.cs" />
     <Compile Include="S3K\Layout.cs" />
+    <Compile Include="S3K\Object.cs" />
     <Compile Include="S3K\Ring.cs" />
     <Compile Include="SCDPC\Layout.cs" />
+    <Compile Include="SCD\Object.cs" />
     <Compile Include="SKC\Layout.cs" />
     <Compile Include="SPA\Layout.cs" />
-    <Compile Include="TileFormat.cs" />
+    <Compile Include="SPA\Object.cs" />
     <Compile Include="TileList.cs">
       <SubType>UserControl</SubType>
     </Compile>

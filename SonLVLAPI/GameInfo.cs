@@ -66,6 +66,18 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion ObjectFormat { get; set; }
 		[IniName("objectcmp")]
 		public CompressionType ObjectCompression { get; set; }
+		[IniName("objectcodefile")]
+		public string ObjectCodeFile { get; set; }
+		[IniName("objectcodetype")]
+		public string ObjectCodeType { get; set; }
+		/*[IniName("ringfmt")]
+		public EngineVersion RingFormat { get; set; }
+		[IniName("ringcmp")]
+		public CompressionType RingCompression { get; set; }
+		[IniName("ringcodefile")]
+		public string RingCodeFile { get; set; }
+		[IniName("ringcodetype")]
+		public string RingCodeType { get; set; }*/
 		[IniName("colindfmt")]
 		public EngineVersion CollisionIndexFormat { get; set; }
 		[IniName("colindcmp")]
@@ -82,10 +94,16 @@ namespace SonicRetro.SonLVL.API
 		public CompressionType CollisionArrayCompression { get; set; }
 		[IniName("colarr1")]
 		public string CollisionArray1 { get; set; }
+		[IniName("colarr2")]
+		public string CollisionArray2 { get; set; }
 		[IniName("anglefmt")]
 		public EngineVersion AngleFormat { get; set; }
 		[IniName("anglecmp")]
-		public CompressionType AngleCompression { get; set; }*/
+		public CompressionType AngleCompression { get; set; }
+		[IniName("angles")]
+		public string Angles { get; set; }
+		[IniName("2pcompat")]
+		public bool TwoPlayerCompatible { get; set; }*/
 		[IniName("buildscr")]
 		public string BuildScript { get; set; }
 		[IniName("romfile")]
@@ -286,22 +304,26 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion ObjectFormat { get; set; }
 		[IniName("objectcmp")]
 		public CompressionType ObjectCompression { get; set; }
+		[IniName("objectcodefile")]
+		public string ObjectCodeFile { get; set; }
+		[IniName("objectcodetype")]
+		public string ObjectCodeType { get; set; }
 		[IniName("objects")]
 		public string Objects { get; set; }
-//		[IniName("ringfmt")]
-//		public EngineVersion RingFormat { get; set; }
-//		[IniName("ringcmp")]
-//		public CompressionType RingCompression { get; set; }
-//		[IniName("ringcodefile")]
-//		public string RingCodeFile { get; set; }
-//		[IniName("ringcodetype")]
-//		public string RingCodeType { get; set; }
-//		[IniName("rings")]
-//		public string Rings { get; set; }
-//		[IniName("bumpercmp")]
-//		public CompressionType BumperCompression { get; set; }
-//		[IniName("bumpers")]
-//		public string Bumpers { get; set; }
+		/*[IniName("ringfmt")]
+		public EngineVersion RingFormat { get; set; }
+		[IniName("ringcmp")]
+		public CompressionType RingCompression { get; set; }
+		[IniName("ringcodefile")]
+		public string RingCodeFile { get; set; }
+		[IniName("ringcodetype")]
+		public string RingCodeType { get; set; }
+		[IniName("rings")]
+		public string Rings { get; set; }
+		[IniName("bumpercmp")]
+		public CompressionType BumperCompression { get; set; }
+		[IniName("bumpers")]
+		public string Bumpers { get; set; }*/
 		[IniName("startpos")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public StartPositionInfo[] StartPositions { get; set; }
@@ -330,12 +352,14 @@ namespace SonicRetro.SonLVL.API
 		[IniName("anglecmp")]
 		public CompressionType AngleCompression { get; set; }
 		[IniName("angles")]
-		public string Angles { get; set; }*/
+		public string Angles { get; set; }
 		[IniName("timezone")]
 		public TimeZone TimeZone { get; set; }
 		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
 		[IniName("loopchunks")]
 		public List<byte> LoopChunks { get; set; }
+		[IniName("2pcompat")]
+		public bool TwoPlayerCompatible { get; set; }*/
 		[IniName("sprtiles")]
 		public string Sprites { get; set; }
 		[IniName("palettes")]

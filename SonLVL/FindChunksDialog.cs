@@ -23,14 +23,15 @@ namespace SonicRetro.SonLVL
 
 		private void FindChunksDialog_VisibleChanged(object sender, EventArgs e)
 		{
-			if (Visible)
+			/*if (Visible)
 			{
-				tileList1.Images = new List<Bitmap>(LevelData.BlockBmpsA[BlockBmpMode]);
-				tileList1.ImageWidth = 32;
-				tileList1.ImageHeight = 32;
-				chunkSelect.Maximum = LevelData.Blocks.Count;
+				//tileList1.Images = new List<Bitmap>(LevelData.BlockBmpsA[BlockBmpMode]);
+				tileList1.Images = LevelData.CompChunkBmps;
+				tileList1.ImageWidth = LevelData.Level.ChunkWidth;
+				tileList1.ImageHeight = LevelData.Level.ChunkHeight;
+				chunkSelect.Maximum = LevelData.Chunks.Count;
 				tileList1.SelectedIndex = (int)chunkSelect.Value;
-			}
+			}*/
 		}
 	}
 }

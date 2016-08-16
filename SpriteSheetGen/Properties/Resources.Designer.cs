@@ -61,96 +61,6 @@ namespace SpriteSheetGen.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}: option &apos;&apos;{1}&apos;&apos; is ambiguous.
-        /// </summary>
-        internal static string getoptAmbigious {
-            get {
-                return ResourceManager.GetString("getoptAmbigious", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: option &apos;&apos;--{1}&apos;&apos; doesn&apos;t allow an argument.
-        /// </summary>
-        internal static string getoptArguments1 {
-            get {
-                return ResourceManager.GetString("getoptArguments1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: option &apos;&apos;{1}{2}&apos;&apos; doesn&apos;t allow an argument.
-        /// </summary>
-        internal static string getoptArguments2 {
-            get {
-                return ResourceManager.GetString("getoptArguments2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: illegal option -- {1}.
-        /// </summary>
-        internal static string getoptIllegal {
-            get {
-                return ResourceManager.GetString("getoptIllegal", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: invalid option -- {1}.
-        /// </summary>
-        internal static string getoptInvalid {
-            get {
-                return ResourceManager.GetString("getoptInvalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid value {0} for parameter &apos;has_arg&apos; .
-        /// </summary>
-        internal static string getoptInvalidValue {
-            get {
-                return ResourceManager.GetString("getoptInvalidValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: option &apos;&apos;{1}&apos;&apos; requires an argument.
-        /// </summary>
-        internal static string getoptRequires {
-            get {
-                return ResourceManager.GetString("getoptRequires", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: option requires an argument -- {1}.
-        /// </summary>
-        internal static string getoptRequires2 {
-            get {
-                return ResourceManager.GetString("getoptRequires2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: unrecognized option &apos;&apos;--{1}&apos;&apos;.
-        /// </summary>
-        internal static string getoptUnrecognized {
-            get {
-                return ResourceManager.GetString("getoptUnrecognized", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: unrecognized option &apos;&apos;{1}{2}&apos;&apos;.
-        /// </summary>
-        internal static string getoptUnrecognized2 {
-            get {
-                return ResourceManager.GetString("getoptUnrecognized2", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Usage: spritesheetgen [options] input output
         ///
         ///Input is an INI file containing art, mappings, palette, etc like SonLVL.
@@ -163,7 +73,7 @@ namespace SpriteSheetGen.Properties {
         ///    -c, --columns=number    Number of columns per row. Default 8.
         ///    -w, --width=number      Width of the image. As many sprites will be
         ///                            placed in each row as possible.
-        ///    -b, --background=c [rest of string was truncated]&quot;;.
+        ///    -g, --grid         [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string HelpText {
             get {

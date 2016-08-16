@@ -38,21 +38,26 @@ namespace SonicRetro.SonLVL.API
 			else return new Bitmap(bmp);
 		}
 
-		public static Color FindNearestMatch(this Color col, params Color[] palette)
+		public static Color FindNearestMatch(this Color col, out int distance, params Color[] palette)
 		{
+			if (Array.IndexOf(palette, col) != -1)
+			{
+				distance = 0;
+				return col;
+			}
 			Color nearest_color = Color.Empty;
-			double distance = 250000;
+			distance = int.MaxValue;
 			foreach (Color o in palette)
 			{
-				double dbl_test_red = Math.Pow(o.R - col.R, 2.0);
-				double dbl_test_green = Math.Pow(o.G - col.G, 2.0);
-				double dbl_test_blue = Math.Pow(o.B - col.B, 2.0);
-				double temp = dbl_test_blue + dbl_test_green + dbl_test_red;
-				if (temp == 0.0)
-				{
-					nearest_color = o;
-					break;
-				}
+				int test_red = o.R - col.R;
+				test_red *= test_red;
+				int test_green = o.G - col.G;
+				test_green *= test_green;
+				int test_blue = o.B - col.B;
+				test_blue *= test_blue;
+				int temp = test_blue +  test_green +  test_red;
+				if (temp == 0)
+					return o;
 				else if (temp < distance)
 				{
 					distance = temp;
@@ -60,6 +65,12 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			return nearest_color;
+		}
+
+		public static Color FindNearestMatch(this Color col, params Color[] palette)
+		{
+			int distance;
+			return FindNearestMatch(col, out distance, palette);
 		}
 
 		/// <summary>
@@ -307,6 +318,122 @@ namespace SonicRetro.SonLVL.API
 			fixed (char* fp1 = arr1, fp2 = arr2)
 				return FastArrayEqualInternal(fp1, fp2, arr1.Length * 2);
 		}
+
+		private static unsafe bool FastArrayEqualInternal(void* fp1, ulong value, int length)
+		{
+			ulong* lp1 = (ulong*)fp1;
+			int longlen = length / 8;
+			for (int i = 0; i < longlen; i++)
+				if (*lp1++ != value) return false;
+			if ((length & 7) != 0)
+			{
+				byte* bp1 = (byte*)lp1;
+				if ((length & 4) == 4)
+					if (*(uint*)bp1 != (uint)value)
+						return false;
+					else
+						bp1 += 4;
+				if ((length & 2) == 2)
+					if (*(ushort*)bp1 != (ushort)value)
+						return false;
+					else
+						bp1 += 2;
+				if ((length & 1) == 1)
+					return *bp1 == (byte)value;
+			}
+			return true;
+		}
+
+		public static unsafe bool FastArrayEqual(this byte[] arr1, byte value, int startIndex, int length)
+		{
+			if (startIndex < 0 || startIndex >= arr1.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length <= 0 || startIndex + length > arr1.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (byte* fp1 = arr1)
+				return FastArrayEqualInternal(&fp1[startIndex], longval, length);
+		}
+
+		public static bool FastArrayEqual(this byte[] arr1, byte value) { return FastArrayEqual(arr1, value, 0, arr1.Length); }
+
+		public static unsafe bool FastArrayEqual(this sbyte[] arr1, sbyte value, int startIndex, int length)
+		{
+			if (startIndex < 0 || startIndex >= arr1.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length <= 0 || startIndex + length > arr1.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)(byte)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (sbyte* fp1 = arr1)
+				return FastArrayEqualInternal(&fp1[startIndex], longval, length);
+		}
+
+		public static bool FastArrayEqual(this sbyte[] arr1, sbyte value) { return FastArrayEqual(arr1, value, 0, arr1.Length); }
+
+		public static unsafe bool FastArrayEqual(this ushort[] arr1, ushort value, int startIndex, int length)
+		{
+			if (startIndex < 0 || startIndex >= arr1.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length <= 0 || startIndex + length > arr1.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (ushort* fp1 = arr1)
+				return FastArrayEqualInternal(&fp1[startIndex], longval, length * 2);
+		}
+
+		public static bool FastArrayEqual(this ushort[] arr1, ushort value) { return FastArrayEqual(arr1, value, 0, arr1.Length); }
+
+		public static unsafe bool FastArrayEqual(this short[] arr1, short value, int startIndex, int length)
+		{
+			if (startIndex < 0 || startIndex >= arr1.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length <= 0 || startIndex + length > arr1.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)(ushort)value;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (short* fp1 = arr1)
+				return FastArrayEqualInternal(&fp1[startIndex], longval, length * 2);
+		}
+
+		public static bool FastArrayEqual(this short[] arr1, short value) { return FastArrayEqual(arr1, value, 0, arr1.Length); }
+
+		public static unsafe bool FastArrayEqual(this uint[] arr1, uint value, int startIndex, int length)
+		{
+			if (startIndex < 0 || startIndex >= arr1.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length <= 0 || startIndex + length > arr1.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 32;
+			fixed (uint* fp1 = arr1)
+				return FastArrayEqualInternal(&fp1[startIndex], longval, length * 4);
+		}
+
+		public static bool FastArrayEqual(this uint[] arr1, uint value) { return FastArrayEqual(arr1, value, 0, arr1.Length); }
+
+		public static unsafe bool FastArrayEqual(this int[] arr1, int value, int startIndex, int length)
+		{
+			if (startIndex < 0 || startIndex >= arr1.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length <= 0 || startIndex + length > arr1.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)(uint)value;
+			longval |= longval << 32;
+			fixed (int* fp1 = arr1)
+				return FastArrayEqualInternal(&fp1[startIndex], longval, length * 4);
+		}
+
+		public static bool FastArrayEqual(this int[] arr1, int value) { return FastArrayEqual(arr1, value, 0, arr1.Length); }
+
+		public static unsafe bool FastArrayEqual(this char[] arr1, char value, int startIndex, int length)
+		{
+			if (startIndex < 0 || startIndex >= arr1.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length <= 0 || startIndex + length > arr1.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (char* fp1 = arr1)
+				return FastArrayEqualInternal(&fp1[startIndex], longval, length * 2);
+		}
+
+		public static bool FastArrayEqual(this char[] arr1, char value) { return FastArrayEqual(arr1, value, 0, arr1.Length); }
 
 		public static bool ListEqual<T>(this IList<T> lst1, IList<T> lst2)
 		{

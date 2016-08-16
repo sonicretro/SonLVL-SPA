@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+using ChaotixObjectEntry = SonicRetro.SonLVL.API.Chaotix.ChaotixObjectEntry;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -144,9 +145,16 @@ namespace SonicRetro.SonLVL.API
 			if (edSvc != null)
 			{
 				// Display an angle selection control and retrieve the value.
-				SubTypeControl SubTypeControl = new SubTypeControl(((ObjectEntry)context.Instance).ID, byte.Parse((string)value, System.Globalization.NumberStyles.HexNumber), edSvc);
+				byte sub;
+				if (context.Instance is ChaotixObjectEntry)
+					sub = (byte)(ushort)value;
+				else
+					sub = (byte)value;
+				SubTypeControl SubTypeControl = new SubTypeControl(((ObjectEntry)context.Instance).ID, sub, edSvc);
 				edSvc.DropDownControl(SubTypeControl);
-				return SubTypeControl.value.ToString("X2");
+				if (context.Instance is ChaotixObjectEntry)
+					return (ushort)SubTypeControl.value;
+				return SubTypeControl.value;
 			}
 			return value;
 		}
@@ -161,8 +169,12 @@ namespace SonicRetro.SonLVL.API
 			if (!(e.Context.Instance is ObjectEntry)) return;
 			if (e.Value == null) return;
 			if (!LevelData.ObjTypes.ContainsKey(((ObjectEntry)e.Context.Instance).ID)) return;
-			byte val = byte.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
-			e.Graphics.DrawImage(LevelData.ObjTypes[((ObjectEntry)e.Context.Instance).ID].SubtypeImage(val).Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
+			byte sub;
+			if (e.Context.Instance is ChaotixObjectEntry)
+				sub = (byte)(ushort)e.Value;
+			else
+				sub = (byte)e.Value;
+			e.Graphics.DrawImage(LevelData.ObjTypes[((ObjectEntry)e.Context.Instance).ID].SubtypeImage(sub).Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
 		}
 
 		public override bool IsDropDownResizable { get { return true; } }

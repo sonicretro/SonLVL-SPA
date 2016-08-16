@@ -1,10 +1,13 @@
 using System;
+using System.CodeDom;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -894,12 +897,11 @@ namespace SonicRetro.SonLVL.API
 			{
 				List<PropertySpec> custprops = new List<PropertySpec>(xmldef.Properties.Items.Length);
 				Dictionary<string, PropertyInfo> propinf = new Dictionary<string, PropertyInfo>(xmldef.Properties.Items.Length);
-				foreach (XMLDef.Property item in xmldef.Properties.Items)
+				foreach (XMLDef.BitsProperty property in xmldef.Properties.Items.OfType<XMLDef.BitsProperty>())
 				{
-					XMLDef.BitsProperty property = (XMLDef.BitsProperty)item;
 					int mask = 0;
 					for (int i = 0; i < property.length; i++)
-						mask += (int)Math.Pow(2, property.startbit + i);
+						mask |= 1 << (property.startbit + i);
 					Func<ObjectEntry, object> getMethod;
 					Action<ObjectEntry, object> setMethod;
 					if (enums.ContainsKey(property.type))
@@ -925,6 +927,118 @@ namespace SonicRetro.SonLVL.API
 						custprops.Add(new PropertySpec(property.displayname ?? property.name, type, "Extended", property.description, null, getMethod, setMethod));
 						propinf.Add(property.name, new PropertyInfo(type, getMethod, setMethod));
 					}
+				}
+				if (xmldef.Properties.Items.Any(a => a is XMLDef.CustomProperty))
+				{
+					Type functype = null;
+					string fulltypename = xmldef.Namespace + "." + xmldef.TypeName;
+					string dllfile = Path.Combine("dllcache", fulltypename + ".dll");
+					DateTime modDate = DateTime.MinValue;
+					if (File.Exists(dllfile))
+						modDate = File.GetLastWriteTime(dllfile);
+					if (modDate >= File.GetLastWriteTime(data.XMLFile) && modDate > File.GetLastWriteTime(System.Windows.Forms.Application.ExecutablePath))
+					{
+						LevelData.Log("Loading type from cached assembly \"" + dllfile + "\"...");
+						functype = System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(fulltypename);
+					}
+					else
+					{
+						LevelData.Log("Building code file...");
+						CodeDomProvider pr = null;
+						switch (xmldef.Language.ToLowerInvariant())
+						{
+							case "cs":
+								pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+								break;
+							case "vb":
+								pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+								break;
+#if false
+								case "js":
+									pr = new Microsoft.JScript.JScriptCodeProvider();
+									break;
+#endif
+						}
+						List<CodeTypeMember> members = new List<CodeTypeMember>();
+						CodeMemberMethod method = new CodeMemberMethod();
+						Type basetype = LevelData.ObjectFormat.ObjectType;
+						foreach (XMLDef.CustomProperty item in xmldef.Properties.Items.OfType<XMLDef.CustomProperty>())
+						{
+							method = new CodeMemberMethod();
+							method.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+							method.Name = "Get" + item.name;
+							method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(ObjectEntry), "_obj"));
+							method.ReturnType = new CodeTypeReference(typeof(object));
+							method.Statements.Add(new CodeVariableDeclarationStatement(basetype, "obj", new CodeCastExpression(basetype, new CodeArgumentReferenceExpression("_obj"))));
+							method.Statements.Add(new CodeSnippetStatement(((XMLDef.CustomProperty)item).get));
+							members.Add(method);
+							method = new CodeMemberMethod();
+							method.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+							method.Name = "Set" + item.name;
+							method.Parameters.AddRange(new CodeParameterDeclarationExpression[] { new CodeParameterDeclarationExpression(typeof(ObjectEntry), "_obj"), new CodeParameterDeclarationExpression(typeof(object), "_val") });
+							method.ReturnType = new CodeTypeReference(typeof(void));
+							method.Statements.Add(new CodeVariableDeclarationStatement(basetype, "obj", new CodeCastExpression(basetype, new CodeArgumentReferenceExpression("_obj"))));
+							if (enums.ContainsKey(item.type))
+								method.Statements.Add(new CodeVariableDeclarationStatement(typeof(int), "value", new CodeCastExpression(typeof(int), new CodeArgumentReferenceExpression("_val"))));
+							else
+								method.Statements.Add(new CodeVariableDeclarationStatement(LevelData.ExpandTypeName(item.type), "value", new CodeCastExpression(LevelData.ExpandTypeName(item.type), new CodeArgumentReferenceExpression("_val"))));
+							method.Statements.Add(new CodeSnippetStatement(((XMLDef.CustomProperty)item).set));
+							members.Add(method);
+						}
+						CodeTypeDeclaration ctd = new CodeTypeDeclaration(xmldef.TypeName);
+						ctd.Attributes = MemberAttributes.Public | MemberAttributes.Static;
+						ctd.IsClass = true;
+						ctd.Members.AddRange(members.ToArray());
+						CodeNamespace cn = new CodeNamespace(xmldef.Namespace);
+						cn.Types.Add(ctd);
+						cn.Imports.Add(new CodeNamespaceImport(typeof(LevelData).Namespace));
+						CodeCompileUnit ccu = new CodeCompileUnit();
+						ccu.Namespaces.Add(cn);
+						ccu.ReferencedAssemblies.AddRange(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
+						LevelData.Log("Compiling code file...");
+						if (pr != null)
+						{
+#if DEBUG
+							using (StreamWriter sw = new StreamWriter(Path.Combine("dllcache", xmldef.Namespace + "." + xmldef.TypeName + "." + pr.FileExtension)))
+								pr.GenerateCodeFromCompileUnit(ccu, sw, new CodeGeneratorOptions() { BlankLinesBetweenMembers = true, BracingStyle = "C", VerbatimOrder = true });
+#endif
+							CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
+							para.GenerateExecutable = false;
+							para.GenerateInMemory = false;
+							para.IncludeDebugInformation = true;
+							para.OutputAssembly = Path.Combine(Environment.CurrentDirectory, dllfile);
+							CompilerResults res = pr.CompileAssemblyFromDom(para, ccu);
+							if (res.Errors.HasErrors)
+							{
+								LevelData.Log("Compile failed.", "Errors:");
+								foreach (CompilerError item in res.Errors)
+									LevelData.Log(item.ToString());
+								LevelData.Log(string.Empty);
+							}
+							else
+							{
+								LevelData.Log("Compile succeeded.");
+								functype = res.CompiledAssembly.GetType(fulltypename);
+							}
+						}
+					}
+					if (functype != null)
+						foreach (XMLDef.CustomProperty property in xmldef.Properties.Items.OfType<XMLDef.CustomProperty>())
+						{
+							Func<ObjectEntry, object> getMethod = (Func<ObjectEntry, object>)Delegate.CreateDelegate(typeof(Func<ObjectEntry, object>), functype.GetMethod("Get" + property.name));
+							Action<ObjectEntry, object> setMethod = (Action<ObjectEntry, object>)Delegate.CreateDelegate(typeof(Action<ObjectEntry, object>), functype.GetMethod("Set" + property.name));
+							if (enums.ContainsKey(property.type))
+							{
+								custprops.Add(new PropertySpec(property.displayname ?? property.name, typeof(int), "Extended", property.description, null, typeof(EnumConverter), enums[property.type], getMethod, setMethod));
+								propinf.Add(property.name, new PropertyInfo(typeof(int), enums[property.type], getMethod, setMethod));
+							}
+							else
+							{
+								Type type = Type.GetType(LevelData.ExpandTypeName(property.type));
+								custprops.Add(new PropertySpec(property.displayname ?? property.name, type, "Extended", property.description, null, getMethod, setMethod));
+								propinf.Add(property.name, new PropertyInfo(type, getMethod, setMethod));
+							}
+						}
 				}
 				customProperties = custprops.ToArray();
 				propertyInfo = propinf;
@@ -985,8 +1099,10 @@ namespace SonicRetro.SonLVL.API
 				if (item.subtype == subtype)
 					if (item.Images != null)
 						return ReadImageRefs(item.Images);
-					else
+					else if (item.image != null)
 						return images[item.image];
+					else
+						return unkobj;
 			return unkobj;
 		}
 
@@ -1162,37 +1278,7 @@ namespace SonicRetro.SonLVL.API
 					}
 					else
 					{
-						Type basetype;
-						switch (LevelData.Level.ObjectFormat)
-						{
-							/*case EngineVersion.S1:
-								basetype = typeof(S1ObjectEntry);
-								break;
-							case EngineVersion.S2:
-								basetype = typeof(S2ObjectEntry);
-								break;
-							case EngineVersion.S2NA:
-								basetype = typeof(S2NAObjectEntry);
-								break;
-							case EngineVersion.S3K:
-							case EngineVersion.SKC:
-								basetype = typeof(S3KObjectEntry);
-								break;
-							case EngineVersion.SCD:
-							case EngineVersion.SCDPC:
-								basetype = typeof(SCDObjectEntry);
-								break;
-							case EngineVersion.Chaotix:
-								basetype = typeof(ChaotixObjectEntry);
-								break;*/
-							case EngineVersion.SPA:
-								basetype = typeof(SPAObjectEntry);
-								break;
-							default:
-								basetype = typeof(ObjectEntry);
-								break;
-						}
-						System.Reflection.PropertyInfo prop = basetype.GetProperty(cond.property);
+						System.Reflection.PropertyInfo prop = LevelData.ObjectFormat.ObjectType.GetProperty(cond.property);
 						object value = prop.GetValue(obj, null);
 						if (!object.Equals(value, prop.PropertyType.InvokeMember("Parse", System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static, null, null, new[] { cond.value })))
 							return false;
