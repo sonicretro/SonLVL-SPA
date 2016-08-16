@@ -20,9 +20,9 @@ namespace SonicRetro.SonLVL
 
 		public event EventHandler PropertyValueChanged = delegate { };
 
-		/*bool initializing;
+		bool initializing;
 
-		private ChunkBlock[] selectedObjects;
+		/*private ChunkBlock[] selectedObjects;
 		[Browsable(false)]
 		public ChunkBlock[] SelectedObjects
 		{
@@ -66,75 +66,66 @@ namespace SonicRetro.SonLVL
 						block.Minimum = -1;
 						block.Value = -1;
 					}
-					blockList.Images = LevelData.CompBlockBmps;
-					blockList.ChangeSize();
-					blockList.SelectedIndex = block.Value >= LevelData.Blocks.Count ? -1 : (int)block.Value;
 				}
 				initializing = false;
 			}
-		}*/
+		}
 
 		private void xFlip_CheckedChanged(object sender, EventArgs e)
 		{
-			/*if (!initializing && xFlip.CheckState != CheckState.Indeterminate)
+			if (!initializing && xFlip.CheckState != CheckState.Indeterminate)
 			{
 				foreach (ChunkBlock item in selectedObjects)
 					item.XFlip = xFlip.Checked;
 				PropertyValueChanged(xFlip, EventArgs.Empty);
-			}*/
+			}
 		}
 
 		private void yFlip_CheckedChanged(object sender, EventArgs e)
 		{
-			/*if (!initializing && yFlip.CheckState != CheckState.Indeterminate)
+			if (!initializing && yFlip.CheckState != CheckState.Indeterminate)
 			{
 				foreach (ChunkBlock item in selectedObjects)
 					item.YFlip = yFlip.Checked;
 				PropertyValueChanged(yFlip, EventArgs.Empty);
-			}*/
+			}
 		}
 
 		private void solidity1_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			/*if (!initializing && solidity1.SelectedIndex > -1)
+			if (!initializing && solidity1.SelectedIndex > -1)
 			{
 				foreach (ChunkBlock item in selectedObjects)
 					item.Solid1 = (Solidity)solidity1.SelectedIndex;
 				PropertyValueChanged(solidity1, EventArgs.Empty);
-			}*/
+			}
 		}
 
 		private void solidity2_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			/*if (!initializing && solidity2.SelectedIndex > -1)
+			if (!initializing && solidity2.SelectedIndex > -1)
 			{
 				foreach (ChunkBlock item in selectedObjects)
 					((S2ChunkBlock)item).Solid2 = (Solidity)solidity2.SelectedIndex;
 				PropertyValueChanged(solidity2, EventArgs.Empty);
-			}*/
+			}
 		}
 
 		private void block_ValueChanged(object sender, EventArgs e)
 		{
-			/*if (!initializing && block.Value > -1)
+			if (!initializing && block.Value > -1)
 			{
 				block.Minimum = 0;
 				foreach (ChunkBlock item in selectedObjects)
 					item.Block = (ushort)block.Value;
 				PropertyValueChanged(block, EventArgs.Empty);
-				initializing = true;
-				blockList.SelectedIndex = block.Value >= LevelData.Blocks.Count ? -1 : (int)block.Value;
-				initializing = false;
-			}*/
-		}
-
-		private void blockList_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			/*if (!initializing && blockList.SelectedIndex > -1)
-			{
-				block.Maximum = Math.Max(LevelData.GetBlockMax(), LevelData.Blocks.Count) - 1;
-				block.Value = blockList.SelectedIndex;
-			}*/
-		}
+			}
+		}*/
+		
+		private void xFlip_CheckedChanged(object sender, EventArgs e) {}
+		private void yFlip_CheckedChanged(object sender, EventArgs e) {}
+		private void solidity1_SelectedIndexChanged(object sender, EventArgs e) {}
+		private void solidity2_SelectedIndexChanged(object sender, EventArgs e) {}
+		private void block_ValueChanged(object sender, EventArgs e) {}
 	}
 }
