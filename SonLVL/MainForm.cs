@@ -66,7 +66,7 @@ namespace SonicRetro.SonLVL.GUI
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			curpal = new Color[4];
 			for (int i = 0; i < 4; i++)
-				curpal[i] = LevelData.PaletteToColor(SelectedColor.Line, i, false);
+				curpal[i] = LevelData.PaletteToColor(SelectedColor.Palette, i, false);
 			PalettePanel.Invalidate();
 			TilePicture.Invalidate();
 			RefreshTileSelector();
@@ -618,6 +618,7 @@ namespace SonicRetro.SonLVL.GUI
 				curpal = new Color[4];
 				for (int i = 0; i < 4; i++)
 					curpal[i] = LevelData.PaletteToColor(0, i, false);
+				PalettePanel.Size = SelectedColor.GetPalPanelSize(32);
 				/*switch (LevelData.Level.ChunkFormat)
 				{
 					case EngineVersion.S1:
@@ -854,7 +855,7 @@ namespace SonicRetro.SonLVL.GUI
 					TileSelector.Images.Add(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, i, SelectedColor.Y));
 			else*/
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Line));
+					TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Palette));
 		}
 
 		private Bitmap MakeLayoutSectionImage(LayoutSection sec)
@@ -3640,7 +3641,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		int SelectedBlock, SelectedTile;
 		Rectangle /*SelectedChunkBlock,*/ SelectedBlockTile;
-		public PalPoint SelectedColor = new PalPoint(0, 0, 4, 8, 20);
+		PalPoint SelectedColor = new PalPoint(0, 0, 4, 8, 20);
 		PatternIndex copiedBlockTile = new PatternIndex();
 		//ChunkBlock copiedChunkBlock;
 
@@ -4123,18 +4124,18 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			PalPoint pp = SelectedColor;
-			e.Graphics.Clear(Color.Black);
+			e.Graphics.Clear(PalettePanel.BackColor);
 			for (int line = 0; line < 32; line++)
 			{
-				pp.Line = line;
+				pp.Palette = line;
 				for (int col = 0; col < 4; col++)
 				{
 					pp.Color = col;
-					e.Graphics.FillRectangle(new SolidBrush(LevelData.PaletteToColor(line, col, false)), pp.Xs, pp.Ys, 20, 20);
-					e.Graphics.DrawRectangle(Pens.White, pp.Xs, pp.Ys, 19, 19);
+					e.Graphics.FillRectangle(new SolidBrush(LevelData.PaletteToColor(line, col, false)), pp.Xs, pp.Ys, pp.ScaleX, pp.ScaleY);
+					e.Graphics.DrawRectangle(Pens.White, pp.Xs, pp.Ys, pp.ScaleX - 1, pp.ScaleY - 1);
 				}
 			}
-			e.Graphics.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.Xs, SelectedColor.Ys, 20, 20);
+			e.Graphics.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.Xs, SelectedColor.Ys, SelectedColor.ScaleX, SelectedColor.ScaleY);
 		}
 
 		int[] cols;
@@ -4142,7 +4143,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			SelectedColor.SetScaledXY(e.X, e.Y);
-			int line = SelectedColor.Line;
+			int line = SelectedColor.Palette;
 			int index = SelectedColor.Color;
 			if (index == 0)
 				return;	// transparent colour - can't be changed
@@ -4194,7 +4195,7 @@ namespace SonicRetro.SonLVL.GUI
 				newCol = new SonLVLColor((byte)colorRed.Value, (byte)colorGreen.Value, (byte)colorBlue.Value);
 			else*/
 				newCol = new SonLVLColor((ushort)((int)colorRed.Value | (int)colorGreen.Value << 4 | (int)colorBlue.Value << 8));
-			LevelData.SetPalColor(SelectedColor.Line, SelectedColor.Color, newCol);
+			LevelData.SetPalColor(SelectedColor.Palette, SelectedColor.Color, newCol);
 			PalettePanel.Invalidate();
 			LevelData.PaletteChanged();
 			ChunkSelector.Invalidate();
@@ -4253,9 +4254,9 @@ namespace SonicRetro.SonLVL.GUI
 		private void PalettePanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			int oldline = SelectedColor.Line;
+			int oldline = SelectedColor.Palette;
 			SelectedColor.SetScaledXY(e.X, e.Y);
-			bool newpal = oldline != SelectedColor.Line;
+			bool newpal = oldline != SelectedColor.Palette;
 			if (e.Button == System.Windows.Forms.MouseButtons.Right)
 				paletteContextMenuStrip.Show(PalettePanel, e.Location);
 			PalettePanel.Invalidate();
@@ -4263,7 +4264,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				curpal = new Color[4];
 				for (int i = 0; i < 4; i++)
-					curpal[i] = LevelData.PaletteToColor(SelectedColor.Line, i, false);
+					curpal[i] = LevelData.PaletteToColor(SelectedColor.Palette, i, false);
 			}
 			TilePicture.Invalidate();
 			RefreshTileSelector();
@@ -4271,13 +4272,13 @@ namespace SonicRetro.SonLVL.GUI
 			loaded = false;
 			/*if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
 			{
-				colorRed.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Line, SelectedColor.Color].R;
-				colorGreen.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Line, SelectedColor.Color].G;
-				colorBlue.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Line, SelectedColor.Color].B;
+				colorRed.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Palette, SelectedColor.Color].R;
+				colorGreen.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Palette, SelectedColor.Color].G;
+				colorBlue.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Palette, SelectedColor.Color].B;
 			}
 			else*/
 			{
-				ushort md = LevelData.Palette[LevelData.CurPal][SelectedColor.Line, SelectedColor.Color].NGPCColor;
+				ushort md = LevelData.Palette[LevelData.CurPal][SelectedColor.Palette, SelectedColor.Color].NGPCColor;
 				colorRed.Value = (md >> 0) & 0xF;
 				colorGreen.Value = (md >> 4) & 0xF;
 				colorBlue.Value = (md >> 8) & 0xF;
@@ -4294,7 +4295,7 @@ namespace SonicRetro.SonLVL.GUI
 				a.RestoreDirectory = true;
 				if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
-					int l = SelectedColor.Line;
+					int l = SelectedColor.Palette;
 					int x = SelectedColor.Color;
 					switch (System.IO.Path.GetExtension(a.FileName))
 					{
@@ -4399,7 +4400,7 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					copiedBlockTile = copiedBlockTile.Clone();
 					copiedBlockTile.Tile = (ushort)SelectedTile;
-					copiedBlockTile.Palette = (byte)SelectedColor.Y;
+					copiedBlockTile.Palette = (byte)SelectedColor.Palette;
 				}
 			}
 			else
@@ -4418,7 +4419,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				gfx.SetOptions();
 				BitmapBits tbmp = new BitmapBits(tile);
-				tbmp.IncrementIndexes(SelectedColor.Line * 3);
+				tbmp.IncrementIndexes(SelectedColor.Palette * 3);
 				if (path1ToolStripMenuItem.Checked || path2ToolStripMenuItem.Checked)
 				{
 					BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd(SelectedTile)]);
@@ -4482,7 +4483,7 @@ namespace SonicRetro.SonLVL.GUI
 			/*if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 			else*/
-				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Line);
+				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette);
 			TileSelector.Invalidate();
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 		}
@@ -4758,7 +4759,7 @@ namespace SonicRetro.SonLVL.GUI
 			/*if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images.Insert(SelectedTile / 2, LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y));
 			else*/
-				TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Line));
+				TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette));
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 				/*if (LevelData.Level.TwoPlayerCompatible)
@@ -5251,7 +5252,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.GetPriMap(pribmp, priority);
 				Application.DoEvents();
 			}
-			byte? forcepal = (bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed) ? (byte)SelectedColor.Line : (byte?)null;
+			byte? forcepal = (bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed) ? (byte)SelectedColor.Palette : (byte?)null;
 			List<byte[]> tiles = new List<byte[]>(LevelData.Tiles.Count);
 			/*if (LevelData.Level.TwoPlayerCompatible)
 				for (int i = 0; i < LevelData.Tiles.Count; i += 2)
@@ -5550,7 +5551,7 @@ namespace SonicRetro.SonLVL.GUI
 					BitmapBits bmp = new BitmapBits(8, 8);
 					bmp.Bits.FastFill(0x20);
 					//bmp.DrawBitmapComposited(LevelData.CompBlockBmpBits[SelectedBlock], 0, 0);
-					BitmapBits ctile = LevelData.TileToBmp8bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Line);
+					BitmapBits ctile = LevelData.TileToBmp8bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette);
 					bmp.DrawBitmapComposited(ctile, 0, 0);
 					BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[SelectedCol]);
 					tmp.IncrementIndexes(LevelData.ColorWhite - 1);
@@ -5669,7 +5670,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (dr)
 					LevelData.RedrawBlock(i, true);
 			}
-			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Line);
+			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			TilePicture.Invalidate();
 		}
@@ -8343,7 +8344,7 @@ namespace SonicRetro.SonLVL.GUI
 			/*if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 			else*/
-				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Line);
+				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			DrawTilePicture();
 			TileSelector.Invalidate();
@@ -8377,7 +8378,7 @@ namespace SonicRetro.SonLVL.GUI
 			/*if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 			else*/
-				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Line);
+				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			DrawTilePicture();
 			TileSelector.Invalidate();
@@ -8547,7 +8548,7 @@ namespace SonicRetro.SonLVL.GUI
 					/*if (LevelData.Level.TwoPlayerCompatible)
 						TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 					else*/
-						TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Line);
+						TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette);
 					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 					break;
 			}
@@ -10053,6 +10054,13 @@ namespace SonicRetro.SonLVL.GUI
 		// palette size
 		public int ColsPerPal { get; set; }
 		public int PalsPerLine { get; set; }
+		public int ColsPerLine
+		{
+			get
+			{
+				return ColsPerPal * PalsPerLine;
+			}
+		}
 		
 		// current palette color
 		public int Color
@@ -10067,7 +10075,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 		// current palette line
-		public int Line
+		public int Palette
 		{
 			get
 			{
@@ -10078,6 +10086,14 @@ namespace SonicRetro.SonLVL.GUI
 				X = (value % PalsPerLine) * ColsPerPal + (X % ColsPerPal);
 				Y = value / PalsPerLine;
 			}
+		}
+
+		public Size GetPalPanelSize(int pals)
+		{
+			PalPoint pp = this;
+			pp.Palette = pals - 1; pp.Y++;
+			pp.X = pp.ColsPerLine;
+			return new Size(pp.Xs, pp.Ys);
 		}
 	}
 }
