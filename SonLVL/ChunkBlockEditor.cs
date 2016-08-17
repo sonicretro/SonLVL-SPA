@@ -20,9 +20,9 @@ namespace SonicRetro.SonLVL
 
 		public event EventHandler PropertyValueChanged = delegate { };
 
-		bool initializing;
+		/*bool initializing;
 
-		/*private ChunkBlock[] selectedObjects;
+		private ChunkBlock[] selectedObjects;
 		[Browsable(false)]
 		public ChunkBlock[] SelectedObjects
 		{

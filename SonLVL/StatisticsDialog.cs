@@ -16,7 +16,7 @@ namespace SonicRetro.SonLVL
 			InitializeComponent();
 			listView1.ListViewItemSorter = new ListViewColumnSorter();
 			listView2.ListViewItemSorter = new ListViewColumnSorter();
-			listView3.ListViewItemSorter = new ListViewColumnSorter();
+			//listView3.ListViewItemSorter = new ListViewColumnSorter();
 			listView4.ListViewItemSorter = new ListViewColumnSorter();
 			listView5.ListViewItemSorter = new ListViewColumnSorter();
 		}
@@ -42,8 +42,8 @@ namespace SonicRetro.SonLVL
 			listView1.Sort();
 			listView1.EndUpdate();
 			counts.Clear();
-			//for (int i = 0; i < LevelData.Chunks.Count; i++)
-			//	counts.Add(i, 0);
+			for (int i = 0; i < LevelData.Blocks.Count; i++)
+				counts.Add(i, 0);
 			for (int y = 0; y < LevelData.FGHeight; y++)
 				for (int x = 0; x < LevelData.FGWidth; x++)
 					if (counts.ContainsKey(LevelData.Layout.FGLayout[x, y]))
@@ -59,23 +59,23 @@ namespace SonicRetro.SonLVL
 			listView2.BeginUpdate();
 			foreach (KeyValuePair<int, int> item in counts)
 			{
-				ListViewItem lvi = new ListViewItem(item.Key.ToString("X2"));
+				ListViewItem lvi = new ListViewItem(item.Key.ToString("X3"));
 				lvi.SubItems[0].Tag = item.Key;
 				lvi.SubItems.Add(new ListViewItem.ListViewSubItem(lvi, item.Value.ToString()) { Tag = item.Value });
 				listView2.Items.Add(lvi);
 			}
 			listView2.Sort();
 			listView2.EndUpdate();
-			counts.Clear();
+			/*counts.Clear();
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 				counts.Add(i, 0);
-			/*for (int i = 0; i < LevelData.Chunks.Count; i++)
+			for (int i = 0; i < LevelData.Chunks.Count; i++)
 				for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 					for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 						if (counts.ContainsKey(LevelData.Chunks[i].Blocks[x, y].Block))
 							counts[LevelData.Chunks[i].Blocks[x, y].Block]++;
 						else
-							counts.Add(LevelData.Chunks[i].Blocks[x, y].Block, 1);*/
+							counts.Add(LevelData.Chunks[i].Blocks[x, y].Block, 1);
 			listView3.BeginUpdate();
 			foreach (KeyValuePair<int, int> item in counts)
 			{
@@ -85,13 +85,13 @@ namespace SonicRetro.SonLVL
 				listView3.Items.Add(lvi);
 			}
 			listView3.Sort();
-			listView3.EndUpdate();
+			listView3.EndUpdate();*/
 			counts.Clear();
 			for (int i = 0; i < LevelData.Tiles.Count; i++)
 				counts.Add(i, 0);
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
-				for (int y = 0; y < 2; y++)
-					for (int x = 0; x < 2; x++)
+				for (int y = 0; y < 4; y++)
+					for (int x = 0; x < 4; x++)
 						if (counts.ContainsKey(LevelData.Blocks[i].Tiles[x, y].Tile))
 							counts[LevelData.Blocks[i].Tiles[x, y].Tile]++;
 						else
@@ -112,7 +112,7 @@ namespace SonicRetro.SonLVL
 				return;
 			}
 			counts.Clear();
-			for (int i = 0; i < 256; i++)
+			for (int i = 0; i < LevelData.ColBmpBits.Length; i++)
 				counts.Add(i, 0);
 			for (int i = 0; i < LevelData.ColInds.Count; i++)
 			{
@@ -131,7 +131,7 @@ namespace SonicRetro.SonLVL
 			listView5.BeginUpdate();
 			foreach (KeyValuePair<int, int> item in counts)
 			{
-				ListViewItem lvi = new ListViewItem(item.Key.ToString("X2"));
+				ListViewItem lvi = new ListViewItem(item.Key.ToString("D2"));
 				lvi.SubItems[0].Tag = item.Key;
 				lvi.SubItems.Add(new ListViewItem.ListViewSubItem(lvi, item.Value.ToString()) { Tag = item.Value });
 				listView5.Items.Add(lvi);

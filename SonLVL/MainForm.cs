@@ -837,7 +837,7 @@ namespace SonicRetro.SonLVL.GUI
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 1C0";
 			deleteUnusedTilesToolStripButton.Enabled = deleteUnusedBlocksToolStripButton.Enabled = /*deleteUnusedChunksToolStripButton.Enabled =*/
 				removeDuplicateTilesToolStripButton.Enabled = removeDuplicateBlocksToolStripButton.Enabled = /*removeDuplicateChunksToolStripButton.Enabled =*/
-				replaceBlockTilesToolStripButton.Enabled = replaceChunkBlocksToolStripButton.Enabled = replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
+				replaceBlockTilesToolStripButton.Enabled = /*replaceChunkBlocksToolStripButton.Enabled =*/ replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
 				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
 #if !DEBUG
 			loadingAnimation1.Hide();
@@ -3350,9 +3350,9 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private void addRingToolStripMenuItem_Click(object sender, EventArgs e)
+		/*private void addRingToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			/*double gs = 1 << ObjGrid;
+			double gs = 1 << ObjGrid;
 			Entry ent = LevelData.RingFormat.CreateRing();
 			ent.X = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
 			ent.Y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
@@ -3371,8 +3371,8 @@ namespace SonicRetro.SonLVL.GUI
 			SelectedItems.Add(ent);
 			SelectedObjectChanged();
 			AddUndo(new ObjectAddedUndoAction(ent));
-			DrawLevel();*/
-		}
+			DrawLevel();
+		}*/
 
 		private void addGroupOfObjectsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -3439,9 +3439,9 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private void addGroupOfRingsToolStripMenuItem_Click(object sender, EventArgs e)
+		/*private void addGroupOfRingsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			/*using (AddGroupDialog dlg = new AddGroupDialog())
+			using (AddGroupDialog dlg = new AddGroupDialog())
 			{
 				dlg.Text = "Add Group of Rings";
 				dlg.XDist.Value = 24;
@@ -3486,8 +3486,8 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Rings.Sort();
 					DrawLevel();
 				}
-			}*/
-		}
+			}
+		}*/
 
 		private void cutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -3525,10 +3525,10 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				if (item is ObjectEntry)
 					selitems.Add(item);
-				else if (item is RingEntry)
+				/*else if (item is RingEntry)
 					selitems.Add(item);
 				else if (item is CNZBumperEntry)
-					selitems.Add(item);
+					selitems.Add(item);*/
 			}
 			if (selitems.Count == 0) return;
 			Clipboard.SetData(typeof(List<Entry>).AssemblyQualifiedName, selitems);
@@ -3629,7 +3629,7 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 				case Tab.Art:
 					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
-					panel10.Controls.Add(ChunkSelector);
+					//panel10.Controls.Add(ChunkSelector);
 					ChunkSelector.AllowDrop = true;
 					break;
 				default:
@@ -5804,9 +5804,9 @@ namespace SonicRetro.SonLVL.GUI
 			SelectedObjectChanged();
 		}
 
-		private void selectAllRingsToolStripMenuItem_Click(object sender, EventArgs e)
+		/*private void selectAllRingsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			/*List<Entry> items = new List<Entry>();
+			List<Entry> items = new List<Entry>();
 			if (LevelData.RingFormat is RingLayoutFormat)
 				items.AddRange(LevelData.Rings.Cast<Entry>());
 			else if (LevelData.RingFormat is RingBGFormat)
@@ -5814,8 +5814,8 @@ namespace SonicRetro.SonLVL.GUI
 			else
 				items.AddRange(LevelData.Objects.Where(a => a.ID == ((RingObjectFormat)LevelData.RingFormat).ObjectID).Cast<Entry>());
 			SelectedItems = items;
-			SelectedObjectChanged();*/
-		}
+			SelectedObjectChanged();
+		}*/
 
 		private void fgDrawToolStripButton_Click(object sender, EventArgs e)
 		{
@@ -6868,8 +6868,8 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (item is ObjectEntry)
 				return LevelData.GetObjectDefinition(((ObjectEntry)item).ID).GetBounds((ObjectEntry)item, Point.Empty);
-			else if (item is RingEntry)
-				return ((RingLayoutFormat)LevelData.RingFormat).GetBounds((RingEntry)item, Point.Empty);
+			/*else if (item is RingEntry)
+				return ((RingLayoutFormat)LevelData.RingFormat).GetBounds((RingEntry)item, Point.Empty);*/
 			else if (item is StartPositionEntry)
 				return LevelData.StartPosDefs[LevelData.StartPositions.IndexOf((StartPositionEntry)item)].GetBounds((StartPositionEntry)item, Point.Empty);
 			else
@@ -9001,10 +9001,10 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private void calculateAngleButton_Click(object sender, EventArgs e)
+		/*private void calculateAngleButton_Click(object sender, EventArgs e)
 		{
-			//ColAngle.Value = LevelData.GetColMap(LevelData.ColBmps[SelectedCol])[0, 0].Angle; // super lazy
-		}
+			ColAngle.Value = LevelData.GetColMap(LevelData.ColBmps[SelectedCol])[0, 0].Angle; // super lazy
+		}*/
 
 		private void CollisionSelector_MouseDown(object sender, MouseEventArgs e)
 		{
