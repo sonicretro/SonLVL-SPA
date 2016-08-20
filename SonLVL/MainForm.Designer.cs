@@ -441,7 +441,7 @@ namespace SonicRetro.SonLVL.GUI
             this.enableDraggingBlocksButton});
 			blockListToolStrip.Location = new System.Drawing.Point(3, 3);
 			blockListToolStrip.Name = "blockListToolStrip";
-			blockListToolStrip.Size = new System.Drawing.Size(913, 25);
+			blockListToolStrip.Size = new System.Drawing.Size(449, 25);
 			blockListToolStrip.TabIndex = 1;
 			blockListToolStrip.Text = "toolStrip2";
 			// 
@@ -496,7 +496,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.remapBlocksButton.Enabled = false;
 			this.remapBlocksButton.Image = ((System.Drawing.Image)(resources.GetObject("remapBlocksButton.Image")));
 			this.remapBlocksButton.Name = "remapBlocksButton";
-			this.remapBlocksButton.Size = new System.Drawing.Size(137, 22);
+			this.remapBlocksButton.Size = new System.Drawing.Size(137, 19);
 			this.remapBlocksButton.Text = "Advanced Remapping...";
 			this.remapBlocksButton.Click += new System.EventHandler(this.remapBlocksButton_Click);
 			// 
@@ -508,7 +508,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.enableDraggingBlocksButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.enableDraggingBlocksButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.enableDraggingBlocksButton.Name = "enableDraggingBlocksButton";
-			this.enableDraggingBlocksButton.Size = new System.Drawing.Size(98, 22);
+			this.enableDraggingBlocksButton.Size = new System.Drawing.Size(98, 19);
 			this.enableDraggingBlocksButton.Text = "Enable Dragging";
 			// 
 			// tileListToolStrip
@@ -523,7 +523,7 @@ namespace SonicRetro.SonLVL.GUI
             this.enableDraggingTilesButton});
 			tileListToolStrip.Location = new System.Drawing.Point(3, 3);
 			tileListToolStrip.Name = "tileListToolStrip";
-			tileListToolStrip.Size = new System.Drawing.Size(913, 25);
+			tileListToolStrip.Size = new System.Drawing.Size(449, 25);
 			tileListToolStrip.TabIndex = 2;
 			tileListToolStrip.Text = "toolStrip3";
 			// 
@@ -569,7 +569,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.remapTilesButton.Enabled = false;
 			this.remapTilesButton.Image = ((System.Drawing.Image)(resources.GetObject("remapTilesButton.Image")));
 			this.remapTilesButton.Name = "remapTilesButton";
-			this.remapTilesButton.Size = new System.Drawing.Size(137, 22);
+			this.remapTilesButton.Size = new System.Drawing.Size(137, 19);
 			this.remapTilesButton.Text = "Advanced Remapping...";
 			this.remapTilesButton.Click += new System.EventHandler(this.remapTilesButton_Click);
 			// 
@@ -581,7 +581,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.enableDraggingTilesButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.enableDraggingTilesButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.enableDraggingTilesButton.Name = "enableDraggingTilesButton";
-			this.enableDraggingTilesButton.Size = new System.Drawing.Size(98, 22);
+			this.enableDraggingTilesButton.Size = new System.Drawing.Size(98, 19);
 			this.enableDraggingTilesButton.Text = "Enable Dragging";
 			// 
 			// tabControl2
@@ -656,7 +656,7 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.layoutSectionSplitContainer.Panel2.Controls.Add(this.layoutSectionPreview);
 			this.layoutSectionSplitContainer.Size = new System.Drawing.Size(254, 371);
-			this.layoutSectionSplitContainer.SplitterDistance = 167;
+			this.layoutSectionSplitContainer.SplitterDistance = 168;
 			this.layoutSectionSplitContainer.TabIndex = 0;
 			// 
 			// layoutSectionListBox
@@ -666,7 +666,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.layoutSectionListBox.IntegralHeight = false;
 			this.layoutSectionListBox.Location = new System.Drawing.Point(0, 25);
 			this.layoutSectionListBox.Name = "layoutSectionListBox";
-			this.layoutSectionListBox.Size = new System.Drawing.Size(254, 142);
+			this.layoutSectionListBox.Size = new System.Drawing.Size(254, 143);
 			this.layoutSectionListBox.TabIndex = 0;
 			this.layoutSectionListBox.SelectedIndexChanged += new System.EventHandler(this.layoutSectionListBox_SelectedIndexChanged);
 			this.layoutSectionListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.layoutSectionListBox_KeyDown);
@@ -696,7 +696,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.layoutSectionPreview.Location = new System.Drawing.Point(0, 0);
 			this.layoutSectionPreview.Margin = new System.Windows.Forms.Padding(0);
 			this.layoutSectionPreview.Name = "layoutSectionPreview";
-			this.layoutSectionPreview.Size = new System.Drawing.Size(254, 200);
+			this.layoutSectionPreview.Size = new System.Drawing.Size(254, 199);
 			this.layoutSectionPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.layoutSectionPreview.TabIndex = 0;
 			this.layoutSectionPreview.TabStop = false;
@@ -799,7 +799,7 @@ namespace SonicRetro.SonLVL.GUI
 			panel11.Location = new System.Drawing.Point(0, 134);
 			panel11.Margin = new System.Windows.Forms.Padding(0);
 			panel11.Name = "panel11";
-			panel11.Size = new System.Drawing.Size(198, 140);
+			panel11.Size = new System.Drawing.Size(180, 140);
 			panel11.TabIndex = 11;
 			// 
 			// flipTileHButton
@@ -866,7 +866,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.ColIndBox.Enabled = false;
 			this.ColIndBox.Location = new System.Drawing.Point(3, 87);
 			this.ColIndBox.Name = "ColIndBox";
-			this.ColIndBox.Size = new System.Drawing.Size(192, 50);
+			this.ColIndBox.Size = new System.Drawing.Size(174, 50);
 			this.ColIndBox.TabIndex = 4;
 			this.ColIndBox.TabStop = false;
 			this.ColIndBox.Text = "Collision Index";
@@ -1047,7 +1047,7 @@ namespace SonicRetro.SonLVL.GUI
 			tableLayoutPanel6.RowCount = 2;
 			tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			tableLayoutPanel6.Size = new System.Drawing.Size(198, 274);
+			tableLayoutPanel6.Size = new System.Drawing.Size(180, 274);
 			tableLayoutPanel6.TabIndex = 9;
 			// 
 			// TilePicture
@@ -2576,13 +2576,13 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabControl4.Controls.Add(this.tabPage14);
 			this.tabControl4.Controls.Add(this.tabPage5);
 			this.tabControl4.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tabControl4.Location = new System.Drawing.Point(387, 0);
+			this.tabControl4.Location = new System.Drawing.Point(369, 0);
 			this.tabControl4.Margin = new System.Windows.Forms.Padding(0);
 			this.tabControl4.MinimumSize = new System.Drawing.Size(300, 300);
 			this.tabControl4.Name = "tabControl4";
 			this.tableLayoutPanel4.SetRowSpan(this.tabControl4, 2);
 			this.tabControl4.SelectedIndex = 0;
-			this.tabControl4.Size = new System.Drawing.Size(927, 706);
+			this.tabControl4.Size = new System.Drawing.Size(463, 494);
 			this.tabControl4.TabIndex = 0;
 			// 
 			// tabPage13
@@ -2592,7 +2592,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage13.Location = new System.Drawing.Point(4, 22);
 			this.tabPage13.Name = "tabPage13";
 			this.tabPage13.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage13.Size = new System.Drawing.Size(919, 680);
+			this.tabPage13.Size = new System.Drawing.Size(455, 468);
 			this.tabPage13.TabIndex = 1;
 			this.tabPage13.Text = "Blocks";
 			this.tabPage13.UseVisualStyleBackColor = true;
@@ -2609,7 +2609,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.BlockSelector.Name = "BlockSelector";
 			this.BlockSelector.ScrollValue = 0;
 			this.BlockSelector.SelectedIndex = -1;
-			this.BlockSelector.Size = new System.Drawing.Size(913, 649);
+			this.BlockSelector.Size = new System.Drawing.Size(449, 437);
 			this.BlockSelector.TabIndex = 2;
 			this.BlockSelector.SelectedIndexChanged += new System.EventHandler(this.BlockSelector_SelectedIndexChanged);
 			this.BlockSelector.ItemDrag += new System.EventHandler(this.BlockSelector_ItemDrag);
@@ -2629,7 +2629,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage14.Location = new System.Drawing.Point(4, 22);
 			this.tabPage14.Name = "tabPage14";
 			this.tabPage14.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage14.Size = new System.Drawing.Size(919, 680);
+			this.tabPage14.Size = new System.Drawing.Size(455, 468);
 			this.tabPage14.TabIndex = 2;
 			this.tabPage14.Text = "Tiles";
 			this.tabPage14.UseVisualStyleBackColor = true;
@@ -2646,7 +2646,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.TileSelector.Name = "TileSelector";
 			this.TileSelector.ScrollValue = 0;
 			this.TileSelector.SelectedIndex = -1;
-			this.TileSelector.Size = new System.Drawing.Size(913, 649);
+			this.TileSelector.Size = new System.Drawing.Size(449, 437);
 			this.TileSelector.TabIndex = 2;
 			this.TileSelector.SelectedIndexChanged += new System.EventHandler(this.TileSelector_SelectedIndexChanged);
 			this.TileSelector.ItemDrag += new System.EventHandler(this.TileSelector_ItemDrag);
@@ -2665,7 +2665,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage5.Location = new System.Drawing.Point(4, 22);
 			this.tabPage5.Name = "tabPage5";
 			this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage5.Size = new System.Drawing.Size(919, 680);
+			this.tabPage5.Size = new System.Drawing.Size(455, 468);
 			this.tabPage5.TabIndex = 3;
 			this.tabPage5.Text = "Solids";
 			this.tabPage5.UseVisualStyleBackColor = true;
@@ -2682,7 +2682,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.CollisionSelector.Name = "CollisionSelector";
 			this.CollisionSelector.ScrollValue = 0;
 			this.CollisionSelector.SelectedIndex = -1;
-			this.CollisionSelector.Size = new System.Drawing.Size(913, 674);
+			this.CollisionSelector.Size = new System.Drawing.Size(449, 462);
 			this.CollisionSelector.TabIndex = 2;
 			this.CollisionSelector.SelectedIndexChanged += new System.EventHandler(this.CollisionSelector_SelectedIndexChanged);
 			this.CollisionSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CollisionSelector_MouseDown);

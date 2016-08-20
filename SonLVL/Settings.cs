@@ -73,10 +73,10 @@ namespace SonicRetro.SonLVL
 				Settings result = IniSerializer.Deserialize<Settings>(filename);
 				switch (result.CurrentTab)
 				{
-					case Tab.Chunks:
+					/*case Tab.Chunks:
 						result.CurrentTab = Tab.Art;
 						result.CurrentArtTab = ArtTab.Chunks;
-						break;
+						break;*/
 					case Tab.Blocks:
 						result.CurrentTab = Tab.Art;
 						result.CurrentArtTab = ArtTab.Blocks;
@@ -145,7 +145,7 @@ namespace SonicRetro.SonLVL
 
 	public enum ArtTab
 	{
-		Chunks,
+		//Chunks,
 		Blocks,
 		Tiles,
 		Solids
