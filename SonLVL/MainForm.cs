@@ -6876,6 +6876,76 @@ namespace SonicRetro.SonLVL.GUI
 				return LevelData.unkobj.GetBounds(new SPAObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
 		}
 
+		private byte alignWall_ColIndex(int x, int y)
+		{
+			int blkx = x / 32;
+			int blky = y / 32;
+			int tilex = (x / 8) % 4;
+			int tiley = (y / 8) % 4;
+			Block blk;
+			ushort btile;
+			byte colind;
+			
+			if (path2ToolStripMenuItem.Checked)
+				blk = LevelData.Blocks[LevelData.Layout.FGLayout[blkx, blky]];
+			else if (path1ToolStripMenuItem.Checked)
+				blk = LevelData.Blocks[LevelData.Layout.BGLayout[blkx, blky]];
+			else
+			{
+				blk = LevelData.Blocks[LevelData.Layout.FGLayout[blkx, blky]];
+				btile = blk.Tiles[tilex, tiley].Tile;
+				colind = LevelData.GetColInd(btile);
+				if (colind > 0)
+					return colind;
+				
+				blk = LevelData.Blocks[LevelData.Layout.BGLayout[blkx, blky]];
+			}
+			btile = blk.Tiles[tilex, tiley].Tile;
+			colind = LevelData.GetColInd(btile);
+			return colind;
+		}
+
+		private int alignWall_ColPos(byte colind, int x, int y, byte direction)
+		{
+			// direction 0 -> left side
+			// direction 1 -> right side
+			// direction 2 -> top side
+			// direction 3 -> bottom side
+			BitmapBits colbmp = LevelData.ColBmpBits[colind];
+			switch(direction)
+			{
+			case 0:
+				for (x = 0; x < colbmp.Width; x ++)
+				{
+					if (colbmp[x, y] > 0)
+						return x;
+				}
+				break;
+			case 1:
+				for (x = colbmp.Height - 1; x >= 0; x --)
+				{
+					if (colbmp[x, y] > 0)
+						return x;
+				}
+				break;
+			case 2:
+				for (y = 0; y < colbmp.Height; y ++)
+				{
+					if (colbmp[x, y] > 0)
+						return y;
+				}
+				break;
+			case 3:
+				for (y = colbmp.Height - 1; y >= 0; y --)
+				{
+					if (colbmp[x, y] > 0)
+						return y;
+				}
+				break;
+			}
+			return -1;
+		}
+
 		private void alignLeftWallToolStripButton_Click(object sender, EventArgs e)
 		{
 			foreach (Entry item in SelectedItems)
@@ -6883,53 +6953,21 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left - 1;
 				int y = bounds.Top + (bounds.Height / 2);
-				int cnkx = x / 32;
-				int cnky = y / 32;
-				int blkx = (x % 32) / 16;
-				int blky = (y % 32) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
-				/*while (x > 0)
+				x &= ~7;	// round down to multiples of 8
+				while (x > 0)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
+					byte colind = alignWall_ColIndex(x, y);
+					if (colind > 0)
 					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
+						int colpos = alignWall_ColPos(colind, x % 8, y % 8, 1);
+						if (colpos >= 0)
 						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
+							x += colpos;
 							break;
-					}
-					if (colx == 0)
-					{
-						colx = 15;
-						if (blkx == 0)
-						{
-							blkx = 32 / 16 - 1;
-							cnkx--;
 						}
-						else
-							blkx--;
 					}
-					else
-						colx--;
-					x--;
-				}*/
+					x -= 8;
+				}
 				item.X = (ushort)(x + 1 + (item.X - bounds.Left));
 				item.UpdateSprite();
 			}
@@ -6943,53 +6981,21 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Bottom + 1;
-				int cnkx = x / 32;
-				int cnky = y / 32;
-				int blkx = (x % 32) / 16;
-				int blky = (y % 32) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
-				/*while (y < LevelData.FGHeight * 32 - 1)
+				y &= ~7;	// round down to multiples of 8
+				while (y < LevelData.FGHeight * 32 - 1)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
+					byte colind = alignWall_ColIndex(x, y);
+					if (colind > 0)
 					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.TopSolid) == Solidity.TopSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
+						int colpos = alignWall_ColPos(colind, x % 8, y % 8, 2);
+						if (colpos >= 0)
 						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
+							y += colpos;
 							break;
-					}
-					if (coly == 15)
-					{
-						coly = 0;
-						if (blky == 32 / 16 - 1)
-						{
-							blky = 0;
-							cnky++;
 						}
-						else
-							blky++;
 					}
-					else
-						coly++;
-					y++;
-				}*/
+					y += 8;
+				}
 				item.Y = (ushort)(y + (item.Y - bounds.Bottom));
 				item.UpdateSprite();
 			}
@@ -7003,53 +7009,21 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Right + 1;
 				int y = bounds.Top + (bounds.Height / 2);
-				int cnkx = x / 32;
-				int cnky = y / 32;
-				int blkx = (x % 32) / 16;
-				int blky = (y % 32) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
-				/*while (x < LevelData.FGWidth * 32 - 1)
+				x &= ~7;	// round down to multiples of 8
+				while (x < LevelData.FGWidth * 32 - 1)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
+					byte colind = alignWall_ColIndex(x, y);
+					if (colind > 0)
 					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
+						int colpos = alignWall_ColPos(colind, x % 8, y % 8, 0);
+						if (colpos >= 0)
 						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
+							x += colpos;
 							break;
-					}
-					if (colx == 15)
-					{
-						colx = 0;
-						if (blkx == 32 / 16 - 1)
-						{
-							blkx = 0;
-							cnkx++;
 						}
-						else
-							blkx++;
 					}
-					else
-						colx++;
-					x++;
-				}*/
+					x += 8;
+				}
 				item.X = (ushort)(x + (item.X - bounds.Right));
 				item.UpdateSprite();
 			}
@@ -7063,53 +7037,21 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Top - 1;
-				int cnkx = x / 32;
-				int cnky = y / 32;
-				int blkx = (x % 32) / 16;
-				int blky = (y % 32) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
-				/*while (y > 0)
+				y &= ~7;	// round down to multiples of 8
+				while (y > 0)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
+					byte colind = alignWall_ColIndex(x, y);
+					if (colind > 0)
 					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
+						int colpos = alignWall_ColPos(colind, x % 8, y % 8, 3);
+						if (colpos >= 0)
 						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
+							y += colpos;
 							break;
-					}
-					if (coly == 0)
-					{
-						coly = 15;
-						if (blky == 0)
-						{
-							blky = 32 / 16 - 1;
-							cnky--;
 						}
-						else
-							blky--;
 					}
-					else
-						coly--;
-					y--;
-				}*/
+					y -= 8;
+				}
 				item.Y = (ushort)(y + 1 + (item.Y - bounds.Top));
 				item.UpdateSprite();
 			}
