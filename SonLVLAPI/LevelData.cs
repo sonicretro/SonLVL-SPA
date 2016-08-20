@@ -962,7 +962,7 @@ namespace SonicRetro.SonLVL.API
 				if (Level.ObjectFormat != EngineVersion.SPA)
 					Objects.Sort();
 				if (Level.ObjectFormat == EngineVersion.SPA)
-					((SPA.Object)ObjectFormat).LayoutSize = new Size(Level.LevelWidth * 6, Level.LevelHeight * 6);
+					((SPA.Object)ObjectFormat).LayoutSize = new Size(Level.LevelWidth * 32, Level.LevelHeight * 32);
 				ObjectFormat.WriteLayout(Objects, Level.ObjectCompression, Level.Objects, objectterm);
 			}
 			/*if (Level.Rings != null && RingFormat is RingLayoutFormat)

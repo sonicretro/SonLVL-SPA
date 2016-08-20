@@ -7,7 +7,20 @@ namespace SonicRetro.SonLVL.API.SPA
 {
 	public class Object : ObjectLayoutFormat
 	{
-		public System.Drawing.Size LayoutSize;
+		public System.Drawing.Size _LayoutSize;
+
+		public System.Drawing.Size LayoutSize
+		{
+			get
+			{
+				return _LayoutSize;
+			}
+			set
+			{
+				_LayoutSize.Width = (value.Width + 191) / 192 * 192;
+				_LayoutSize.Height = (value.Height + 191) / 192 * 192;
+			}
+		}
 		
 		public override Type ObjectType { get { return typeof(SPAObjectEntry); } }
 
@@ -21,8 +34,8 @@ namespace SonicRetro.SonLVL.API.SPA
 			terminator = false;
 			obWidth = rawdata[0];
 			obHeight = rawdata[1];
-			LayoutSize.Width = obWidth * 192;
-			LayoutSize.Height = obHeight * 192;
+			_LayoutSize.Width = obWidth * 192;
+			_LayoutSize.Height = obHeight * 192;
 			oaBase = oba = 2;
 			for (int oby = 0; oby < obHeight; oby ++)
 				for (int obx = 0; obx < obWidth; obx ++)
@@ -50,8 +63,8 @@ namespace SonicRetro.SonLVL.API.SPA
 			List<SPAObjectEntry>[,] obLUT;
 			byte oIdxStart;
 
-			obWidth = (LayoutSize.Width + 96) / 192;
-			obHeight = (LayoutSize.Height + 96) / 192;
+			obWidth = (_LayoutSize.Width + 191) / 192;
+			obHeight = (_LayoutSize.Height + 191) / 192;
 			// create Object Block table (sorts all objects into "activity blocks" of 192x192)
 			obLUT = new List<SPAObjectEntry>[obWidth, obHeight];
 			for (int oby = 0; oby < obHeight; oby++)
@@ -102,32 +115,8 @@ namespace SonicRetro.SonLVL.API.SPA
 
 	[DefaultProperty("ID")]
 	[Serializable]
-	public class SPAObjectEntry : ObjectEntry//, IComparable<SPAObjectEntry>	// TODO: with or without IComparable?
+	public class SPAObjectEntry : ObjectEntry
 	{
-		/*public override string _ID
-		{
-			get
-			{
-				return ID.ToString("X2");
-			}
-			set
-			{
-				ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
-
-		public override byte ID
-		{
-			get
-			{
-				return base.ID;
-			}
-			set
-			{
-				base.ID = (byte)(value & 0x7F);
-			}
-		}*/
-
 		public ushort internalY
 		{
 			// Actually the formula is (LevelHeigh - 1 - value),
@@ -189,13 +178,5 @@ namespace SonicRetro.SonLVL.API.SPA
 			Param2 = bytes[8];
 			Param3 = bytes[9];
 		}
-
-		/*int IComparable<SPAObjectEntry>.CompareTo(SPAObjectEntry other)
-		{
-			int c = ID.CompareTo(other.ID);
-			if (c == 0) c = X.CompareTo(other.X);
-			if (c == 0) c = internalY.CompareTo(other.internalY);
-			return c;
-		}*/
 	}
 }
