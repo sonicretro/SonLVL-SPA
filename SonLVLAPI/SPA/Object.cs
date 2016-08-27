@@ -117,6 +117,21 @@ namespace SonicRetro.SonLVL.API.SPA
 	[Serializable]
 	public class SPAObjectEntry : ObjectEntry
 	{
+		public override byte SubType
+		{
+			get
+			{
+				int stp = LevelData.GetObjectDefinition(ID).SubTypeParam;
+				return (stp >= 0) ? Params[stp] : (byte)0;
+			}
+			set
+			{
+				int stp = LevelData.GetObjectDefinition(ID).SubTypeParam;
+				if (stp >= 0)
+					Params[stp] = value;
+			}
+		}
+		
 		public ushort internalY
 		{
 			// Actually the formula is (LevelHeigh - 1 - value),
@@ -134,9 +149,11 @@ namespace SonicRetro.SonLVL.API.SPA
 		
 		public bool Difficulty { get; set; }
 		
-		public byte Param1 { get; set; }
-		public byte Param2 { get; set; }
-		public byte Param3 { get; set; }
+		public byte[] Params = new byte[4];
+		public byte Param0 { get { return Params[0]; } set { Params[0] = value; } }
+		public byte Param1 { get { return Params[1]; } set { Params[1] = value; } }
+		public byte Param2 { get { return Params[2]; } set { Params[2] = value; } }
+		public byte Param3 { get { return Params[3]; } set { Params[3] = value; } }
 		
 		public static int Size { get { return 10; } }
 
@@ -158,10 +175,7 @@ namespace SonicRetro.SonLVL.API.SPA
 			ret.Add(Difficulty ? (byte)1 : (byte)0);
 			ret.AddRange(ByteConverter.GetBytes(X));
 			ret.AddRange(ByteConverter.GetBytes(internalY));
-			ret.Add(SubType);
-			ret.Add(Param1);
-			ret.Add(Param2);
-			ret.Add(Param3);
+			ret.AddRange(Params);
 			return ret.ToArray();
 		}
 
@@ -173,10 +187,10 @@ namespace SonicRetro.SonLVL.API.SPA
 			Difficulty = (bytes[1] == 1);
 			X = ByteConverter.ToUInt16(bytes, 2);
 			internalY = ByteConverter.ToUInt16(bytes, 4);
-			SubType = bytes[6];
-			Param1 = bytes[7];
-			Param2 = bytes[8];
-			Param3 = bytes[9];
+			Params[0] = bytes[6];
+			Params[1] = bytes[7];
+			Params[2] = bytes[8];
+			Params[3] = bytes[9];
 		}
 	}
 }

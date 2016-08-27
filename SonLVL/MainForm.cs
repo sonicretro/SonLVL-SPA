@@ -1715,26 +1715,27 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		//List<object> oldvalues;
+		List<object> oldvalues;
 		void ObjectProperties_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
 		{
-			/*if (e.NewSelection.PropertyDescriptor == null || e.NewSelection.PropertyDescriptor.IsReadOnly) return;
+			if (e.NewSelection.PropertyDescriptor == null || e.NewSelection.PropertyDescriptor.IsReadOnly) return;
 			oldvalues = new List<object>();
 			if (SelectedItems.Count > 1)
 				oldvalues.Add(e.NewSelection.PropertyDescriptor.GetValue(SelectedItems.ToArray()));
 			else
-				oldvalues.Add(e.NewSelection.PropertyDescriptor.GetValue(SelectedItems[0]));*/
+				oldvalues.Add(e.NewSelection.PropertyDescriptor.GetValue(SelectedItems[0]));
 		}
 
 		void ObjectProperties_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
 		{
-			/*AddUndo(new ObjectPropertyChangedUndoAction(new List<Entry>(SelectedItems), oldvalues, e.ChangedItem.PropertyDescriptor));
-			oldvalues = new List<object>();*/
+			AddUndo(new ObjectPropertyChangedUndoAction(new List<Entry>(SelectedItems), oldvalues, e.ChangedItem.PropertyDescriptor));
+			oldvalues = new List<object>();
 			foreach (Entry item in SelectedItems)
 			{
-				//oldvalues.Add(e.ChangedItem.PropertyDescriptor.GetValue(item));
+				oldvalues.Add(e.ChangedItem.PropertyDescriptor.GetValue(item));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
 			DrawLevel();
 		}
 
@@ -2014,6 +2015,12 @@ namespace SonicRetro.SonLVL.GUI
 										if (coli > 0)
 											DrawCollNum(x * 32 + a * 8 - camera.X + 1, y * 32 + b * 8 - camera.Y + 1, coli.ToString("D2"));
 									}
+					/*if (LevelData.RingFormat is RingLayoutFormat)
+						ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
+					else*/ if (LevelData.RingFormat is RingBGFormat)
+						ringcnt = ((RingBGFormat)LevelData.RingFormat).CountRings(LevelData.Layout, LevelData.Blocks, LevelData.Objects);
+					else
+						ringcnt = ((RingObjectFormat)LevelData.RingFormat).CountRings(LevelData.Objects);
 					if (hUDToolStripMenuItem.Checked)
 					{
 						tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
@@ -2021,6 +2028,9 @@ namespace SonicRetro.SonLVL.GUI
 						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
 						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.BGWidth * 32).ToString("X4") + ' ' + (LevelData.BGHeight * 32).ToString("X4")));
+						hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom,
+							"Objects: " + LevelData.Objects.Count + '\n' +
+							"Rings: " + ringcnt));
 						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Block: ");
 						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, SelectedChunk.ToString("X3")));
@@ -3988,7 +3998,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			BitmapBits bmp = new BitmapBits(32, 32);
-			bmp.Bits.FastFill(0x20);
+			bmp.Bits.FastFill(0x00);
 			/*if (lowToolStripMenuItem.Checked)
 				bmp.DrawBitmap(LevelData.BlockBmpBits[SelectedBlock][0], 0, 0);
 			if (highToolStripMenuItem.Checked && ! lowToolStripMenuItem.Checked)
@@ -5549,7 +5559,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (showBlockBehindCollisionCheckBox.Checked)
 				{
 					BitmapBits bmp = new BitmapBits(8, 8);
-					bmp.Bits.FastFill(0x20);
+					bmp.Bits.FastFill(0x00);
 					//bmp.DrawBitmapComposited(LevelData.CompBlockBmpBits[SelectedBlock], 0, 0);
 					BitmapBits ctile = LevelData.TileToBmp8bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Palette);
 					bmp.DrawBitmapComposited(ctile, 0, 0);

@@ -52,15 +52,18 @@ namespace SonicRetro.SonLVL.API
 		[IniName("frame")]
 		public int Frame;
 		[IniName("pal")]
-		public int Palette;*/
+		public int Palette;
 		[IniName("sprite")]
 		[DefaultValue(-1)]
-		public int Sprite;
+		public int Sprite;*/
 		[IniName("offset")]
 		public Size Offset;
 		[IniName("flags")]
 		[DefaultValue((byte)0x10)]
 		public byte Flags;
+		[IniName("stypeparam")]
+		[DefaultValue(-1)]
+		public int STypeParam;
 		[IniName("pal1")]
 		[DefaultValue((short)-1)]
 		public short Palette1;
@@ -87,7 +90,7 @@ namespace SonicRetro.SonLVL.API
 
 		public ObjectData()
 		{
-			Sprite = -1;
+			//Sprite = -1;
 			Flags = 0x10;
 			Palette1 = Palette2 = -1;
 		}
@@ -146,6 +149,7 @@ namespace SonicRetro.SonLVL.API
 		public abstract string Name { get; }
 		//public virtual bool RememberState { get { return false; } }
 		public virtual byte DefaultSubtype { get { return 0; } }
+		public virtual sbyte SubTypeParam { get { return -1; } }
 		public abstract Sprite Image { get; }
 		public abstract Sprite GetSprite(ObjectEntry obj);
 		public abstract Rectangle GetBounds(ObjectEntry obj, Point camera);
@@ -558,6 +562,7 @@ namespace SonicRetro.SonLVL.API
 		private string name;
 		//private bool rememberstate;
 		private byte defsub;
+		private sbyte stypeparam;
 		private List<byte> subtypes = new List<byte>();
 		bool debug = false;
 
@@ -608,8 +613,8 @@ namespace SonicRetro.SonLVL.API
 					spr = new Sprite(img, new Point(data.Offset));
 					debug = true;
 				}
-				else if (data.Sprite > -1)
-					spr = ObjectHelper.GetSprite(data.Sprite);
+				//else if (data.Sprite > -1)
+				//	spr = ObjectHelper.GetSprite(data.Sprite);
 				else if (data.Sprites != null)
 				{
 					spr = LoadSpriteData(LevelData.SpriteTiles, 0x10, data.Palette1, data.Palette2, data.Sprites);
@@ -628,6 +633,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			//rememberstate = data.RememberState;
 			defsub = data.DefaultSubtype;
+			stypeparam = (sbyte)data.STypeParam;
 			debug = debug | data.Debug;
 			if (data.Subtypes != null)
 				subtypes.AddRange(data.Subtypes);
@@ -644,6 +650,8 @@ namespace SonicRetro.SonLVL.API
 		//public override bool RememberState { get { return rememberstate; } }
 
 		public override byte DefaultSubtype { get { return defsub; } }
+
+		public override sbyte SubTypeParam { get { return stypeparam; } }
 
 		public override Sprite Image { get { return spr; } }
 
@@ -1384,6 +1392,17 @@ namespace SonicRetro.SonLVL.API
 			get { return xmldef.DefaultSubtypeValue; }
 		}
 
+		public override sbyte SubTypeParam
+		{
+			get
+			{
+				if (String.IsNullOrEmpty(xmldef.SubTypeParameter))
+					return -1;
+				else
+					return sbyte.Parse(xmldef.SubTypeParameter, NumberStyles.Integer);
+			}
+		}
+
 		public override PropertySpec[] CustomProperties
 		{
 			get { return customProperties; }
@@ -1447,8 +1466,8 @@ namespace SonicRetro.SonLVL.API
 					BitmapBits img = new BitmapBits(data.Image);
 					spr = new Sprite(img, new Point(data.Offset));
 				}
-				else if (data.Sprite > -1)
-					spr = ObjectHelper.GetSprite(data.Sprite);
+				//else if (data.Sprite > -1)
+				//	spr = ObjectHelper.GetSprite(data.Sprite);
 				else
 					spr = ObjectHelper.UnknownObject;
 			}

@@ -29,6 +29,8 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		[XmlIgnore]
 		public bool DefaultSubtypeSpecified { get { return DefaultSubtypeValue != 0; } set { } }
 		[XmlAttribute]
+		public string SubTypeParameter { get; set; }
+		[XmlAttribute]
 		public bool Debug { get; set; }
 		[XmlIgnore]
 		public bool DebugSpecified { get { return !Debug; } set { } }
