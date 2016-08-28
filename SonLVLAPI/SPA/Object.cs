@@ -187,10 +187,7 @@ namespace SonicRetro.SonLVL.API.SPA
 			Difficulty = (bytes[1] == 1);
 			X = ByteConverter.ToUInt16(bytes, 2);
 			internalY = ByteConverter.ToUInt16(bytes, 4);
-			Params[0] = bytes[6];
-			Params[1] = bytes[7];
-			Params[2] = bytes[8];
-			Params[3] = bytes[9];
+			Array.Copy(bytes, 6, Params, 0, 4);
 		}
 	}
 }

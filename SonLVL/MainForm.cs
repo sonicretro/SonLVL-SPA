@@ -9,10 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using ChaotixObjectEntry = SonicRetro.SonLVL.API.Chaotix.ChaotixObjectEntry;
+/*using ChaotixObjectEntry = SonicRetro.SonLVL.API.Chaotix.ChaotixObjectEntry;
 using S1ObjectEntry = SonicRetro.SonLVL.API.S1.S1ObjectEntry;
 using S2ObjectEntry = SonicRetro.SonLVL.API.S2.S2ObjectEntry;
-using SCDObjectEntry = SonicRetro.SonLVL.API.SCD.SCDObjectEntry;
+using SCDObjectEntry = SonicRetro.SonLVL.API.SCD.SCDObjectEntry;*/
 using SPAObjectEntry = SonicRetro.SonLVL.API.SPA.SPAObjectEntry;
 
 namespace SonicRetro.SonLVL.GUI

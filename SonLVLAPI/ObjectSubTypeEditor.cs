@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
-using ChaotixObjectEntry = SonicRetro.SonLVL.API.Chaotix.ChaotixObjectEntry;
+//using ChaotixObjectEntry = SonicRetro.SonLVL.API.Chaotix.ChaotixObjectEntry;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -146,14 +146,14 @@ namespace SonicRetro.SonLVL.API
 			{
 				// Display an angle selection control and retrieve the value.
 				byte sub;
-				if (context.Instance is ChaotixObjectEntry)
+				/*if (context.Instance is ChaotixObjectEntry)
 					sub = (byte)(ushort)value;
-				else
+				else*/
 					sub = (byte)value;
 				SubTypeControl SubTypeControl = new SubTypeControl(((ObjectEntry)context.Instance).ID, sub, edSvc);
 				edSvc.DropDownControl(SubTypeControl);
-				if (context.Instance is ChaotixObjectEntry)
-					return (ushort)SubTypeControl.value;
+				//if (context.Instance is ChaotixObjectEntry)
+				//	return (ushort)SubTypeControl.value;
 				return SubTypeControl.value;
 			}
 			return value;
@@ -170,9 +170,9 @@ namespace SonicRetro.SonLVL.API
 			if (e.Value == null) return;
 			if (!LevelData.ObjTypes.ContainsKey(((ObjectEntry)e.Context.Instance).ID)) return;
 			byte sub;
-			if (e.Context.Instance is ChaotixObjectEntry)
+			/*if (e.Context.Instance is ChaotixObjectEntry)
 				sub = (byte)(ushort)e.Value;
-			else
+			else*/
 				sub = (byte)e.Value;
 			e.Graphics.DrawImage(LevelData.ObjTypes[((ObjectEntry)e.Context.Instance).ID].SubtypeImage(sub).Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
 		}

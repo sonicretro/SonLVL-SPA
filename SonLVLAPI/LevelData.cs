@@ -337,7 +337,7 @@ namespace SonicRetro.SonLVL.API
 			CurPal = 0;
 			switch (Level.ObjectFormat)
 			{
-				case EngineVersion.S1:
+				/*case EngineVersion.S1:
 					ObjectFormat = new S1.Object();
 					break;
 				case EngineVersion.S2:
@@ -354,7 +354,7 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case EngineVersion.Chaotix:
 					ObjectFormat = new Chaotix.Object();
-					break;
+					break;*/
 				case EngineVersion.SPA:
 					ObjectFormat = new SPA.Object();
 					break;
