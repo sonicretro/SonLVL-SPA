@@ -2927,7 +2927,7 @@ namespace SonicRetro.SonLVL.API
 			return ColInds2[index];
 		}*/
 
-		// TODO: fix this
+		// TODO: verify
 		public static byte[] FlipTile(byte[] tile, bool xflip, bool yflip)
 		{
 			int mode = (xflip ? 1 : 0) | (yflip ? 2 : 0);
@@ -2936,28 +2936,40 @@ namespace SonicRetro.SonLVL.API
 				default:
 					return tile;
 				case 1:
-					byte[] tileh = new byte[32];
+					List<byte> tileh = new List<byte>();
 					for (int ty = 0; ty < 8; ty++)
-						for (int tx = 0; tx < 4; tx++)
+					{
+						ushort px = ByteConverter.ToUInt16(tile, ty * 2);
+						ushort newpx = 0x0000;
+						for (int tx = 0; tx < 8; tx++)
 						{
-							byte px = tile[(ty * 4) + tx];
-							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+							newpx <<= 2;
+							newpx |= (ushort)(px & 0x03);
+							px >>= 2;
 						}
-					return tileh;
+						tileh.AddRange(ByteConverter.GetBytes(px));
+					}
+					return tileh.ToArray();
 				case 2:
-					byte[] tilev = new byte[32];
+					byte[] tilev = new byte[16];
 					for (int ty = 0; ty < 8; ty++)
-						Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
+						Array.Copy(tile, ty * 2, tilev, (7 - ty) * 2, 2);
 					return tilev;
 				case 3:
-					byte[] tilehv = new byte[32];
+					List<byte> tilehv = new List<byte>();
 					for (int ty = 0; ty < 8; ty++)
-						for (int tx = 0; tx < 4; tx++)
+					{
+						ushort px = ByteConverter.ToUInt16(tile, (7 - ty) * 2);
+						ushort newpx = 0x0000;
+						for (int tx = 0; tx < 8; tx++)
 						{
-							byte px = tile[(ty * 4) + tx];
-							tilehv[((7 - ty) * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+							newpx <<= 2;
+							newpx |= (ushort)(px & 0x03);
+							px >>= 2;
 						}
-					return tilehv;
+						tilehv.AddRange(ByteConverter.GetBytes(px));
+					}
+					return tilehv.ToArray();
 			}
 		}
 

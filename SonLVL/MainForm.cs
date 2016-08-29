@@ -7868,11 +7868,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Tiles.Swap(oldindex, newindex);
 					TileSelector.Images.Swap(oldindex, newindex);
 					if (LevelData.ColInds != null)
-					{
 						LevelData.ColInds.Swap(oldindex, newindex);
-						LevelData.ColBmpBits.Swap(oldindex, newindex);
-						LevelData.ColBmps.Swap(oldindex, newindex);
-					}
 					LevelData.UpdateTileArray();
 					/*if (LevelData.Level.TwoPlayerCompatible)
 						for (int i = 0; i < LevelData.Blocks.Count; i++)
@@ -7917,11 +7913,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Tiles.Move(oldindex, newindex);
 					TileSelector.Images.Move(oldindex, newindex);
 					if (LevelData.ColInds != null)
-					{
 						LevelData.ColInds.Move(oldindex, newindex);
-						LevelData.ColBmpBits.Move(oldindex, newindex);
-						LevelData.ColBmps.Move(oldindex, newindex);
-					}
 					LevelData.UpdateTileArray();
 					/*if (LevelData.Level.TwoPlayerCompatible)
 						for (int i = 0; i < LevelData.Blocks.Count; i++)
@@ -8094,8 +8086,6 @@ namespace SonicRetro.SonLVL.GUI
 					List<short> oldcolinds = null;
 					if (LevelData.ColInds != null)
 						oldcolinds = new List<short>(LevelData.ColInds);
-					List<Bitmap> oldcolbmps = new List<Bitmap>(LevelData.BlockColBmps);
-					List<BitmapBits> oldcolbmpbits = new List<BitmapBits>(LevelData.BlockColBmpBits);
 					Dictionary<ushort, ushort> ushortdict = new Dictionary<ushort, ushort>(/*LevelData.Level.TwoPlayerCompatible ? dlg.TileMap.Count * 2 :*/ dlg.TileMap.Count);
 					foreach (KeyValuePair<int, int> item in dlg.TileMap)
 					{
@@ -8113,8 +8103,6 @@ namespace SonicRetro.SonLVL.GUI
 							TileSelector.Images[item.Value] = oldimages[item.Key];
 							if (oldcolinds != null)
 								LevelData.ColInds[item.Value] = oldcolinds[item.Key];
-							LevelData.ColBmpBits[item.Value] = oldcolbmpbits[item.Key];
-							LevelData.ColBmps[item.Value] = oldcolbmps[item.Key];
 							ushortdict.Add((ushort)item.Key, (ushort)item.Value);
 						}
 					}
