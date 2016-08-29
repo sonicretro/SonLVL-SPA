@@ -4592,14 +4592,11 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.CompChunkBmps.RemoveAt(SelectedChunk);
 			LevelData.CompChunkBmpBits.RemoveAt(SelectedChunk);
 			SelectedChunk = (byte)Math.Min(SelectedChunk, LevelData.Chunks.Count - 1);
-			for (int y = 0; y < LevelData.FGHeight; y++)
-				for (int x = 0; x < LevelData.FGWidth; x++)
-					if (LevelData.Layout.FGLayout[x, y] > SelectedChunk && LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count + 1)
-						LevelData.Layout.FGLayout[x, y]--;
-			for (int y = 0; y < LevelData.BGHeight; y++)
-				for (int x = 0; x < LevelData.BGWidth; x++)
-					if (LevelData.Layout.BGLayout[x, y] > SelectedChunk && LevelData.Layout.BGLayout[x, y] < LevelData.Chunks.Count + 1)
-						LevelData.Layout.BGLayout[x, y]--;
+			LevelData.RemapLayouts((layout, x, y) =>
+			{
+				if (layout[x, y] > SelectedChunk && layout[x, y] < LevelData.Chunks.Count + 1)
+					layout[x, y]--;
+			});
 			ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
 			importChunksToolStripButton.Enabled = true;
 			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;*/
@@ -4716,14 +4713,11 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.ChunkColBmps.Insert(SelectedChunk, new Bitmap[2]);
 			LevelData.CompChunkBmps.Insert(SelectedChunk, null);
 			LevelData.CompChunkBmpBits.Insert(SelectedChunk, null);
-			for (int y = 0; y < LevelData.FGHeight; y++)
-				for (int x = 0; x < LevelData.FGWidth; x++)
-					if (LevelData.Layout.FGLayout[x, y] >= SelectedChunk && LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count)
-						LevelData.Layout.FGLayout[x, y]++;
-			for (int y = 0; y < LevelData.BGHeight; y++)
-				for (int x = 0; x < LevelData.BGWidth; x++)
-					if (LevelData.Layout.BGLayout[x, y] >= SelectedChunk && LevelData.Layout.BGLayout[x, y] < LevelData.Chunks.Count)
-						LevelData.Layout.BGLayout[x, y]++;
+			LevelData.RemapLayouts((layout, x, y) =>
+			{
+				if (layout[x, y] >= SelectedChunk && layout[x, y] < LevelData.Chunks.Count)
+					layout[x, y]++;
+			});
 			LevelData.RedrawChunk(SelectedChunk);
 			ChunkSelector.SelectedIndex = SelectedChunk;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
@@ -7560,22 +7554,13 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.ChunkColBmps.Swap(oldindex, newindex);
 					LevelData.CompChunkBmpBits.Swap(oldindex, newindex);
 					LevelData.CompChunkBmps.Swap(oldindex, newindex);
-					for (int y = 0; y < LevelData.FGHeight; y++)
-						for (int x = 0; x < LevelData.FGWidth; x++)
-						{
-							if (LevelData.Layout.FGLayout[x, y] == newindex)
-								LevelData.Layout.FGLayout[x, y] = oldindex;
-							else if (LevelData.Layout.FGLayout[x, y] == oldindex)
-								LevelData.Layout.FGLayout[x, y] = newindex;
-						}
-					for (int y = 0; y < LevelData.BGHeight; y++)
-						for (int x = 0; x < LevelData.BGWidth; x++)
-						{
-							if (LevelData.Layout.BGLayout[x, y] == newindex)
-								LevelData.Layout.BGLayout[x, y] = oldindex;
-							else if (LevelData.Layout.BGLayout[x, y] == oldindex)
-								LevelData.Layout.BGLayout[x, y] = newindex;
-						}
+					LevelData.RemapLayouts((layout, x, y) =>
+					{
+						if (layout[x, y] == newindex)
+							layout[x, y] = oldindex;
+						else if (layout[x, y] == oldindex)
+							layout[x, y] = newindex;
+					});
 					ChunkSelector.SelectedIndex = newindex;
 				}
 				else
@@ -7588,44 +7573,24 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.ChunkColBmps.Move(oldindex, newindex);
 					LevelData.CompChunkBmpBits.Move(oldindex, newindex);
 					LevelData.CompChunkBmps.Move(oldindex, newindex);
-					for (int y = 0; y < LevelData.FGHeight; y++)
-						for (int x = 0; x < LevelData.FGWidth; x++)
+					LevelData.RemapLayouts((layout, x, y) =>
+					{
+						byte c = layout[x, y];
+						if (newindex > oldindex)
 						{
-							byte c = LevelData.Layout.FGLayout[x, y];
-							if (newindex > oldindex)
-							{
-								if (c == oldindex)
-									LevelData.Layout.FGLayout[x, y] = (byte)(newindex - 1);
-								else if (c > oldindex && c < newindex)
-									LevelData.Layout.FGLayout[x, y] = (byte)(c - 1);
-							}
-							else
-							{
-								if (c == oldindex)
-									LevelData.Layout.FGLayout[x, y] = newindex;
-								else if (c >= newindex && c < oldindex)
-									LevelData.Layout.FGLayout[x, y] = (byte)(c + 1);
-							}
+							if (c == oldindex)
+								layout[x, y] = (byte)(newindex - 1);
+							else if (c > oldindex && c < newindex)
+								layout[x, y] = (byte)(c - 1);
 						}
-					for (int y = 0; y < LevelData.BGHeight; y++)
-						for (int x = 0; x < LevelData.BGWidth; x++)
+						else
 						{
-							byte c = LevelData.Layout.BGLayout[x, y];
-							if (newindex > oldindex)
-							{
-								if (c == oldindex)
-									LevelData.Layout.BGLayout[x, y] = (byte)(newindex - 1);
-								else if (c > oldindex && c < newindex)
-									LevelData.Layout.BGLayout[x, y] = (byte)(c - 1);
-							}
-							else
-							{
-								if (c == oldindex)
-									LevelData.Layout.BGLayout[x, y] = newindex;
-								else if (c >= newindex && c < oldindex)
-									LevelData.Layout.BGLayout[x, y] = (byte)(c + 1);
-							}
+							if (c == oldindex)
+								layout[x, y] = newindex;
+							else if (c >= newindex && c < oldindex)
+								layout[x, y] = (byte)(c + 1);
 						}
+					});
 					if (newindex > oldindex)
 						ChunkSelector.SelectedIndex = newindex - 1;
 					else
@@ -8042,14 +8007,11 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.CompChunkBmps[item.Value] = oldcompchunkbmps[item.Key];
 						bytedict.Add((byte)item.Key, (byte)item.Value);
 					}
-					for (int y = 0; y < LevelData.FGHeight; y++)
-						for (int x = 0; x < LevelData.FGWidth; x++)
-							if (bytedict.ContainsKey(LevelData.Layout.FGLayout[x, y]))
-								LevelData.Layout.FGLayout[x, y] = bytedict[LevelData.Layout.FGLayout[x, y]];
-					for (int y = 0; y < LevelData.BGHeight; y++)
-						for (int x = 0; x < LevelData.BGWidth; x++)
-							if (bytedict.ContainsKey(LevelData.Layout.BGLayout[x, y]))
-								LevelData.Layout.BGLayout[x, y] = bytedict[LevelData.Layout.BGLayout[x, y]];
+					LevelData.RemapLayouts((layout, x, y) =>
+					{
+						if (bytedict.ContainsKey(layout[x, y]))
+							layout[x, y] = bytedict[layout[x, y]];
+					});
 					ChunkSelector.ChangeSize();
 					ChunkSelector_SelectedIndexChanged(this, EventArgs.Empty);
 				}*/
@@ -8890,30 +8852,24 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void deleteUnusedChunksToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show(this, "This action may break other levels that share the same block set, or levels that alter the level layout dynamically.\n\nAre you sure you want to delete all blocks not used in the layout?", "Delete Unused Blocks", MessageBoxButtons.OKCancel) != DialogResult.OK)
+			if (MessageBox.Show(this, "This action may break other levels that share part of the same block set, or levels that alter the level layout dynamically.\n\nAre you sure you want to delete all blocks not used in the layout?", "Delete Unused Blocks", MessageBoxButtons.OKCancel) != DialogResult.OK)
 				return;
 			bool[] blocksused = new bool[LevelData.Blocks.Count];
-			for (int y = 0; y < LevelData.FGHeight; y++)
-				for (int x = 0; x < LevelData.FGWidth; x++)
-					if (LevelData.Layout.FGLayout[x, y] < blocksused.Length)
-						blocksused[LevelData.Layout.FGLayout[x, y]] = true;
-			for (int y = 0; y < LevelData.BGHeight; y++)
-				for (int x = 0; x < LevelData.BGWidth; x++)
-					if (LevelData.Layout.BGLayout[x, y] < blocksused.Length)
-						blocksused[LevelData.Layout.BGLayout[x, y]] = true;
+			LevelData.RemapLayouts((layout, x, y) =>
+			{
+				if (layout[x, y] < blocksused.Length)
+					blocksused[layout[x, y]] = true;
+			});
 			ushort c = 0;
 			Dictionary<ushort, ushort> blockmap = new Dictionary<ushort, ushort>();
 			for (int i = 0; i < blocksused.Length; i++)
 				if (blocksused[i])
 					blockmap[(ushort)i] = c++;
-			for (int y = 0; y < LevelData.FGHeight; y++)
-				for (int x = 0; x < LevelData.FGWidth; x++)
-					if (blockmap.ContainsKey(LevelData.Layout.FGLayout[x, y]))
-						LevelData.Layout.FGLayout[x, y] = blockmap[LevelData.Layout.FGLayout[x, y]];
-			for (int y = 0; y < LevelData.BGHeight; y++)
-				for (int x = 0; x < LevelData.BGWidth; x++)
-					if (blockmap.ContainsKey(LevelData.Layout.BGLayout[x, y]))
-						LevelData.Layout.BGLayout[x, y] = blockmap[LevelData.Layout.BGLayout[x, y]];
+			LevelData.RemapLayouts((layout, x, y) =>
+			{
+				if (blockmap.ContainsKey(layout[x, y]))
+					layout[x, y] = blockmap[layout[x, y]];
+			});
 			int numdel = 0;
 			for (int i = blocksused.Length - 1; i >= 0; i--)
 			{
@@ -9168,14 +9124,11 @@ namespace SonicRetro.SonLVL.GUI
 					//LevelData.CompBlockBmps.RemoveAt(i);
 				}
 				BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
-				for (int y = 0; y < LevelData.FGHeight; y++)
-					for (int x = 0; x < LevelData.FGWidth; x++)
-						if (chunkMap.ContainsKey(LevelData.Layout.FGLayout[x, y]))
-							LevelData.Layout.FGLayout[x, y] = chunkMap[LevelData.Layout.FGLayout[x, y]];
-				for (int y = 0; y < LevelData.BGHeight; y++)
-					for (int x = 0; x < LevelData.BGWidth; x++)
-						if (chunkMap.ContainsKey(LevelData.Layout.BGLayout[x, y]))
-							LevelData.Layout.BGLayout[x, y] = chunkMap[LevelData.Layout.BGLayout[x, y]];
+				LevelData.RemapLayouts((layout, x, y) =>
+				{
+					if (chunkMap.ContainsKey(layout[x, y]))
+						layout[x, y] = chunkMap[layout[x, y]];
+				});
 				DrawLevel();
 			}
 			MessageBox.Show(this, "Removed " + deleted.Count + " duplicate blocks.", "SonLVL");
