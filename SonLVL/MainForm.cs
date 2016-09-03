@@ -1831,6 +1831,7 @@ namespace SonicRetro.SonLVL.GUI
 							ObjectEntry objitem = (ObjectEntry)item;
 							Rectangle objbnd = LevelData.GetObjectDefinition(objitem.ID).GetBounds(objitem, camera);
 							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), objbnd);
+							objbnd.Width--;	objbnd.Height--;
 							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, objbnd);
 						}
 						/*else if (item is RingEntry)
@@ -1838,18 +1839,22 @@ namespace SonicRetro.SonLVL.GUI
 							RingEntry rngitem = (RingEntry)item;
 							Rectangle bnd = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(rngitem, camera);
 							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Yellow)), bnd);
+							bnd.Width--;	bnd.Height--;
 							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
 						}
 						else if (item is CNZBumperEntry)
 						{
-							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y)));
-							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y)));
+							Rectangle bnd = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y));
+							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), bnd);
+							bnd.Width--;	bnd.Height--;
+							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
 						}*/
 						else if (item is StartPositionEntry)
 						{
 							StartPositionEntry strtitem = (StartPositionEntry)item;
 							Rectangle bnd = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(strtitem)].GetBounds(strtitem, camera);
 							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Red)), bnd);
+							bnd.Width--;	bnd.Height--;
 							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
 						}
 					}
@@ -1857,7 +1862,7 @@ namespace SonicRetro.SonLVL.GUI
 						for (int y = Math.Max(camera.Y / 32, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / 32, LevelData.FGHeight - 1); y++)
 							for (int x = Math.Max(camera.X / 32, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / 32, LevelData.FGWidth - 1); x++)
 								if (LevelData.Layout.FGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 }, x * 32 - camera.X, y * 32 - camera.Y, 32, 32);*/
+									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);*/
 					if (selecting)
 					{
 						Rectangle selbnds = Rectangle.FromLTRB(
@@ -1866,6 +1871,7 @@ namespace SonicRetro.SonLVL.GUI
 						Math.Max(selpoint.X, lastmouse.X) - camera.X,
 						Math.Max(selpoint.Y, lastmouse.Y) - camera.Y);
 						LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
+						selbnds.Width--;	selbnds.Height--;
 						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
 					}
 					Panel1Gfx.DrawImage(LevelBmp, 0, 0, objectPanel.Width, objectPanel.Height);
@@ -1948,7 +1954,7 @@ namespace SonicRetro.SonLVL.GUI
 						for (int y = Math.Max(camera.Y / 32, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / 32, LevelData.FGHeight - 1); y++)
 							for (int x = Math.Max(camera.X / 32, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / 32, LevelData.FGWidth - 1); x++)
 								if (LevelData.Layout.FGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * 32 - camera.X, y * 32 - camera.Y, 32, 32);*/
+									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);*/
 					switch (FGMode)
 					{
 						case EditingMode.Draw:
@@ -1964,6 +1970,7 @@ namespace SonicRetro.SonLVL.GUI
 								Rectangle selbnds = FGSelection.Scale(32, 32);
 								selbnds.Offset(-camera.X, -camera.Y);
 								LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
+								selbnds.Width--;	selbnds.Height--;
 								LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
 							}
 							break;
@@ -2046,7 +2053,7 @@ namespace SonicRetro.SonLVL.GUI
 						for (int y = Math.Max(camera.Y / 32, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / 32, LevelData.BGHeight - 1); y++)
 							for (int x = Math.Max(camera.X / 32, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / 32, LevelData.BGWidth - 1); x++)
 								if (LevelData.Layout.BGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * 32 - camera.X, y * 32 - camera.Y, 32, 32);*/
+									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);*/
 					switch (BGMode)
 					{
 						case EditingMode.Draw:
@@ -2062,6 +2069,7 @@ namespace SonicRetro.SonLVL.GUI
 								Rectangle selbnds = BGSelection.Scale(32, 32);
 								selbnds.Offset(-camera.X, -camera.Y);
 								LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
+								selbnds.Width--;	selbnds.Height--;
 								LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
 							}
 							break;
@@ -3332,8 +3340,8 @@ namespace SonicRetro.SonLVL.GUI
 				else*/
 					ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
 				double gs = 1 << ObjGrid;
-				ent.X = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
-				ent.Y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+				ent.X = (ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+				ent.Y = (ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
 				/*if (ent is SCDObjectEntry)
 				{
 					SCDObjectEntry entcd = (SCDObjectEntry)ent;
@@ -3364,8 +3372,8 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			double gs = 1 << ObjGrid;
 			Entry ent = LevelData.RingFormat.CreateRing();
-			ent.X = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
-			ent.Y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+			ent.X = (ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+			ent.Y = (ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
 			if (ent is ObjectEntry)
 			{
 				LevelData.Objects.Add((ObjectEntry)ent);
@@ -3402,8 +3410,8 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						double gs = 1 << ObjGrid;
 						Point pt = new Point(
-							(ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
-							(ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
+							(ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
+							(ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
 							);
 						int xst = pt.X;
 						Size xsz = new Size((int)dlg.XDist.Value, 0);
@@ -3460,8 +3468,8 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					double gs = 1 << ObjGrid;
 					Point pt = new Point(
-						(ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
-						(ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
+						(ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
+						(ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
 						);
 					int xst = pt.X;
 					Size xsz = new Size((int)dlg.XDist.Value, 0);
@@ -4020,7 +4028,7 @@ namespace SonicRetro.SonLVL.GUI
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}*/
 			bmp = bmp.Scale(4);
-			bmp.DrawRectangle(LevelData.ColorWhite, SelectedBlockTile.X * 32 - 1, SelectedBlockTile.Y * 32 - 1, SelectedBlockTile.Width * 32 + 1, /*LevelData.Level.TwoPlayerCompatible ? 130 :*/ SelectedBlockTile.Height * 32 + 1);
+			bmp.DrawRectangle(LevelData.ColorWhite, SelectedBlockTile.X * 32 - 1, SelectedBlockTile.Y * 32 - 1, SelectedBlockTile.Width * 32 + 1, /*LevelData.Level.TwoPlayerCompatible ? 129 :*/ SelectedBlockTile.Height * 32 + 1);
 			using (Graphics gfx = BlockPicture.CreateGraphics())
 			{
 				gfx.SetOptions();
@@ -5153,7 +5161,6 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentArtTab)
 			{
 				/*case ArtTab.Chunks:
-
 					LevelData.Chunks.InsertAfter(SelectedChunk, new Chunk());
 					SelectedChunk++;
 					InsertChunk();
@@ -9217,19 +9224,9 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					byte[] tile = new byte[64];
 					Array.Copy(LevelData.TileArray, i * 32, tile, 0, 64);
-					byte[] tileh = new byte[64];
-					for (int ty = 0; ty < 16; ty++)
-						for (int tx = 0; tx < 4; tx++)
-						{
-							byte px = tile[(ty * 4) + tx];
-							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
-						}
-					byte[] tilev = new byte[64];
-					for (int ty = 0; ty < 16; ty++)
-						Array.Copy(tile, ty * 4, tilev, (15 - ty) * 4, 4);
-					byte[] tilehv = new byte[64];
-					for (int ty = 0; ty < 16; ty++)
-						Array.Copy(tileh, ty * 4, tilehv, (15 - ty) * 4, 4);
+					byte[] tileh = LevelData.FlipTileInterlaced(tile, true, false);
+					byte[] tilev = LevelData.FlipTileInterlaced(tile, false, true);
+					byte[] tilehv = LevelData.FlipTileInterlaced(tile, true, true);
 					foreach (var item in tiles)
 					{
 						if (tile.FastArrayEqual(item.Value))
@@ -9295,21 +9292,10 @@ namespace SonicRetro.SonLVL.GUI
 				Stack<int> deleted = new Stack<int>();
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
 				{
-					// TODO
 					byte[] tile = LevelData.Tiles[i];
-					byte[] tileh = new byte[32];
-					for (int ty = 0; ty < 8; ty++)
-						for (int tx = 0; tx < 4; tx++)
-						{
-							byte px = tile[(ty * 4) + tx];
-							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
-						}
-					byte[] tilev = new byte[32];
-					for (int ty = 0; ty < 8; ty++)
-						Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
-					byte[] tilehv = new byte[32];
-					for (int ty = 0; ty < 8; ty++)
-						Array.Copy(tileh, ty * 4, tilehv, (7 - ty) * 4, 4);
+					byte[] tileh = LevelData.FlipTile(tile, true, false);
+					byte[] tilev = LevelData.FlipTile(tile, false, true);
+					byte[] tilehv = LevelData.FlipTile(tile, true, true);
 					foreach (var item in tiles)
 					{
 						if (tile.FastArrayEqual(item.Value))
