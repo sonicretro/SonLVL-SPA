@@ -33,6 +33,8 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion TileFormat { get; set; }
 		[IniName("tilecmp")]
 		public CompressionType TileCompression { get; set; }
+		[IniName("tilesreserved")]
+		public ushort TilesReserved { get; set; }
 		[IniName("blockfmt")]
 		public EngineVersion BlockFormat { get; set; }
 		[IniName("blockcmp")]
@@ -241,6 +243,8 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion TileFormat { get; set; }
 		[IniName("tilecmp")]
 		public CompressionType TileCompression { get; set; }
+		[IniName("tilesreserved")]
+		public ushort TilesReserved { get; set; }
 		[IniName("tiles")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public FileInfo[] Tiles { get; set; }

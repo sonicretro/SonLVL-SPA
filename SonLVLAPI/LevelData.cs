@@ -15,6 +15,7 @@ namespace SonicRetro.SonLVL.API
 	{
 		public static GameInfo Game;
 		public static LevelInfo Level;
+		public static ushort TilesReserved;
 		public static MultiFileIndexer<byte[]> Tiles;
 		public static byte[] TileArray;
 		public static MultiFileIndexer<Block> Blocks;
@@ -136,6 +137,7 @@ namespace SonicRetro.SonLVL.API
 				throw new ArgumentException("Chunk width must be divisible by 16!");
 			if ((Level.ChunkHeight & 15) != 0)
 				throw new ArgumentException("Chunk height must be divisible by 16!");*/
+			TilesReserved = Level.TilesReserved;
 			byte[] tmp = null;
 			List<byte> data = new List<byte>();
 			Tiles = new MultiFileIndexer<byte[]>(() => new byte[32]);

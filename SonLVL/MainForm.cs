@@ -8782,7 +8782,7 @@ namespace SonicRetro.SonLVL.GUI
 				foreach (PatternIndex pat in blk.Tiles)
 					if (pat.Tile < tilesused.Length)
 						tilesused[pat.Tile] = true;
-			for (ushort i = 0; i < 0x10; i++)
+			for (ushort i = 0; i < LevelData.TilesReserved; i++)
 				tilesused[i] = true;	// tiles reserved for rings + text
 			ushort c = 0;
 			Dictionary<ushort, ushort> tilemap = new Dictionary<ushort, ushort>();
@@ -9290,7 +9290,14 @@ namespace SonicRetro.SonLVL.GUI
 				Dictionary<ushort, byte[]> tiles = new Dictionary<ushort, byte[]>(LevelData.Tiles.Count);
 				Dictionary<ushort, PatternIndex> tileMap = new Dictionary<ushort, PatternIndex>(LevelData.Tiles.Count);
 				Stack<int> deleted = new Stack<int>();
-				for (int i = 0; i < LevelData.Tiles.Count; i++)
+				// Note: Tile 0 can be compared against, but not removed.
+				// Tiles 1 .. Reserved-1 are completely ignored
+				if (LevelData.TilesReserved > 0)
+				{
+					tileMap[0] = new PatternIndex() { Tile = (ushort)tiles.Count };
+					tiles[0] = LevelData.Tiles[0];
+				}
+				for (int i = LevelData.TilesReserved; i < LevelData.Tiles.Count; i++)
 				{
 					byte[] tile = LevelData.Tiles[i];
 					byte[] tileh = LevelData.FlipTile(tile, true, false);
