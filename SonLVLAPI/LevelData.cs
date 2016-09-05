@@ -1132,11 +1132,18 @@ namespace SonicRetro.SonLVL.API
 				int yend = 0;
 				for (int y = 0; y < FGHeight; y++)
 					for (int x = 0; x < FGWidth; x++)
+					{
+						if (Layout.BGLayout[x, y] > 0)
+						{
+							xend = Math.Max(xend, x);
+							yend = Math.Max(yend, y);
+						}
 						if (Layout.FGLayout[x, y] > 0)
 						{
 							xend = Math.Max(xend, x);
 							yend = Math.Max(yend, y);
 						}
+					}
 				xend++;
 				yend++;
 				bounds = new Rectangle(0, 0, xend * 32, yend * 32);
@@ -1204,11 +1211,18 @@ namespace SonicRetro.SonLVL.API
 				int yend = 0;
 				for (int y = 0; y < Layout.BGLayout.GetLength(1); y++)
 					for (int x = 0; x < Layout.BGLayout.GetLength(0); x++)
+					{
 						if (Layout.BGLayout[x, y] > 0)
 						{
 							xend = Math.Max(xend, x);
 							yend = Math.Max(yend, y);
 						}
+						if (Layout.FGLayout[x, y] > 0)
+						{
+							xend = Math.Max(xend, x);
+							yend = Math.Max(yend, y);
+						}
+					}
 				xend++;
 				yend++;
 				bounds = new Rectangle(0, 0, xend * 32, yend * 32);
@@ -1232,9 +1246,9 @@ namespace SonicRetro.SonLVL.API
 
 		public static bool ObjectVisible(ObjectEntry obj, bool allTimeZones)
 		{
-			/*if (allTimeZones)
+			if (allTimeZones)
 				return true;
-			if (obj is SonicRetro.SonLVL.API.SCD.SCDObjectEntry)
+			/*if (obj is SonicRetro.SonLVL.API.SCD.SCDObjectEntry)
 			{
 				SonicRetro.SonLVL.API.SCD.SCDObjectEntry scdobj = (SonicRetro.SonLVL.API.SCD.SCDObjectEntry)obj;
 				switch (Level.TimeZone)
@@ -1249,6 +1263,13 @@ namespace SonicRetro.SonLVL.API
 						return true;
 				}
 			}*/
+			if (obj is SonicRetro.SonLVL.API.SPA.SPAObjectEntry)
+			{
+				SonicRetro.SonLVL.API.SPA.SPAObjectEntry spaobj = (SonicRetro.SonLVL.API.SPA.SPAObjectEntry)obj;
+				if (!spaobj.Difficulty)
+					return true;
+				// return (! easyMode);
+			}
 			return true;
 		}
 

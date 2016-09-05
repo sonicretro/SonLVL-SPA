@@ -42,15 +42,11 @@ namespace SonicRetro.SonLVL.GUI
 			System.Windows.Forms.ToolStrip layoutSectionListToolStrip;
 			System.Windows.Forms.ToolStripMenuItem line0ToolStripMenuItem;
 			System.Windows.Forms.ToolStripMenuItem line1ToolStripMenuItem;
-			System.Windows.Forms.ToolStripMenuItem line2ToolStripMenuItem;
-			System.Windows.Forms.ToolStripMenuItem line3ToolStripMenuItem;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 			System.Windows.Forms.ToolStripMenuItem fullToolStripMenuItem;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 			System.Windows.Forms.ToolStripMenuItem line0ToolStripMenuItem1;
 			System.Windows.Forms.ToolStripMenuItem line1ToolStripMenuItem1;
-			System.Windows.Forms.ToolStripMenuItem line2ToolStripMenuItem1;
-			System.Windows.Forms.ToolStripMenuItem line3ToolStripMenuItem1;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
 			System.Windows.Forms.ToolStripMenuItem fullToolStripMenuItem1;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
@@ -157,15 +153,11 @@ namespace SonicRetro.SonLVL.GUI
 			this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.paletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pNGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.yYCHRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.jASCPALToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.tilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.paletteLine0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.paletteLine1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.paletteLine2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.paletteLine3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.blocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.chunksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.solidityMapsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.foregroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.backgroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -310,15 +302,11 @@ namespace SonicRetro.SonLVL.GUI
 			layoutSectionListToolStrip = new System.Windows.Forms.ToolStrip();
 			line0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			line1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			line2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			line3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			fullToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			line0ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			line1ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			line2ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-			line3ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			fullToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
@@ -704,36 +692,24 @@ namespace SonicRetro.SonLVL.GUI
 			// line0ToolStripMenuItem
 			// 
 			line0ToolStripMenuItem.Name = "line0ToolStripMenuItem";
-			line0ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
-			line0ToolStripMenuItem.Text = "Line &0";
+			line0ToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+			line0ToolStripMenuItem.Text = "&BG Palette";
 			// 
 			// line1ToolStripMenuItem
 			// 
 			line1ToolStripMenuItem.Name = "line1ToolStripMenuItem";
-			line1ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
-			line1ToolStripMenuItem.Text = "Line &1";
-			// 
-			// line2ToolStripMenuItem
-			// 
-			line2ToolStripMenuItem.Name = "line2ToolStripMenuItem";
-			line2ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
-			line2ToolStripMenuItem.Text = "Line &2";
-			// 
-			// line3ToolStripMenuItem
-			// 
-			line3ToolStripMenuItem.Name = "line3ToolStripMenuItem";
-			line3ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
-			line3ToolStripMenuItem.Text = "Line &3";
+			line1ToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+			line1ToolStripMenuItem.Text = "&FG Palette";
 			// 
 			// toolStripSeparator2
 			// 
 			toolStripSeparator2.Name = "toolStripSeparator2";
-			toolStripSeparator2.Size = new System.Drawing.Size(102, 6);
+			toolStripSeparator2.Size = new System.Drawing.Size(125, 6);
 			// 
 			// fullToolStripMenuItem
 			// 
 			fullToolStripMenuItem.Name = "fullToolStripMenuItem";
-			fullToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+			fullToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
 			fullToolStripMenuItem.Text = "&Full";
 			// 
 			// toolStripSeparator1
@@ -744,36 +720,24 @@ namespace SonicRetro.SonLVL.GUI
 			// line0ToolStripMenuItem1
 			// 
 			line0ToolStripMenuItem1.Name = "line0ToolStripMenuItem1";
-			line0ToolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
-			line0ToolStripMenuItem1.Text = "Line &0";
+			line0ToolStripMenuItem1.Size = new System.Drawing.Size(128, 22);
+			line0ToolStripMenuItem1.Text = "&BG Palette";
 			// 
 			// line1ToolStripMenuItem1
 			// 
 			line1ToolStripMenuItem1.Name = "line1ToolStripMenuItem1";
-			line1ToolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
-			line1ToolStripMenuItem1.Text = "Line &1";
-			// 
-			// line2ToolStripMenuItem1
-			// 
-			line2ToolStripMenuItem1.Name = "line2ToolStripMenuItem1";
-			line2ToolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
-			line2ToolStripMenuItem1.Text = "Line &2";
-			// 
-			// line3ToolStripMenuItem1
-			// 
-			line3ToolStripMenuItem1.Name = "line3ToolStripMenuItem1";
-			line3ToolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
-			line3ToolStripMenuItem1.Text = "Line &3";
+			line1ToolStripMenuItem1.Size = new System.Drawing.Size(128, 22);
+			line1ToolStripMenuItem1.Text = "&FG Palette";
 			// 
 			// toolStripSeparator13
 			// 
 			toolStripSeparator13.Name = "toolStripSeparator13";
-			toolStripSeparator13.Size = new System.Drawing.Size(102, 6);
+			toolStripSeparator13.Size = new System.Drawing.Size(125, 6);
 			// 
 			// fullToolStripMenuItem1
 			// 
 			fullToolStripMenuItem1.Name = "fullToolStripMenuItem1";
-			fullToolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
+			fullToolStripMenuItem1.Size = new System.Drawing.Size(128, 22);
 			fullToolStripMenuItem1.Text = "&Full";
 			// 
 			// toolStripSeparator14
@@ -1552,7 +1516,6 @@ namespace SonicRetro.SonLVL.GUI
             this.paletteToolStripMenuItem,
             this.tilesToolStripMenuItem,
             this.blocksToolStripMenuItem,
-            this.chunksToolStripMenuItem,
             this.solidityMapsToolStripMenuItem,
             this.foregroundToolStripMenuItem,
             this.backgroundToolStripMenuItem,
@@ -1571,7 +1534,6 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.paletteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.pNGToolStripMenuItem,
-            this.yYCHRToolStripMenuItem,
             this.jASCPALToolStripMenuItem});
 			this.paletteToolStripMenuItem.Name = "paletteToolStripMenuItem";
 			this.paletteToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
@@ -1582,8 +1544,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.pNGToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             line0ToolStripMenuItem,
             line1ToolStripMenuItem,
-            line2ToolStripMenuItem,
-            line3ToolStripMenuItem,
             toolStripSeparator2,
             fullToolStripMenuItem});
 			this.pNGToolStripMenuItem.Name = "pNGToolStripMenuItem";
@@ -1591,20 +1551,11 @@ namespace SonicRetro.SonLVL.GUI
 			this.pNGToolStripMenuItem.Text = "&PNG";
 			this.pNGToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.pNGToolStripMenuItem_DropDownItemClicked);
 			// 
-			// yYCHRToolStripMenuItem
-			// 
-			this.yYCHRToolStripMenuItem.Name = "yYCHRToolStripMenuItem";
-			this.yYCHRToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
-			this.yYCHRToolStripMenuItem.Text = "&YY-CHR";
-			this.yYCHRToolStripMenuItem.Click += new System.EventHandler(this.yYCHRToolStripMenuItem_Click);
-			// 
 			// jASCPALToolStripMenuItem
 			// 
 			this.jASCPALToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             line0ToolStripMenuItem1,
             line1ToolStripMenuItem1,
-            line2ToolStripMenuItem1,
-            line3ToolStripMenuItem1,
             toolStripSeparator13,
             fullToolStripMenuItem1});
 			this.jASCPALToolStripMenuItem.Name = "jASCPALToolStripMenuItem";
@@ -1616,9 +1567,7 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.tilesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.paletteLine0ToolStripMenuItem,
-            this.paletteLine1ToolStripMenuItem,
-            this.paletteLine2ToolStripMenuItem,
-            this.paletteLine3ToolStripMenuItem});
+            this.paletteLine1ToolStripMenuItem});
 			this.tilesToolStripMenuItem.Name = "tilesToolStripMenuItem";
 			this.tilesToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.tilesToolStripMenuItem.Text = "&Tiles";
@@ -1627,26 +1576,14 @@ namespace SonicRetro.SonLVL.GUI
 			// paletteLine0ToolStripMenuItem
 			// 
 			this.paletteLine0ToolStripMenuItem.Name = "paletteLine0ToolStripMenuItem";
-			this.paletteLine0ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-			this.paletteLine0ToolStripMenuItem.Text = "Palette line &0";
+			this.paletteLine0ToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.paletteLine0ToolStripMenuItem.Text = "&Current Palette";
 			// 
 			// paletteLine1ToolStripMenuItem
 			// 
 			this.paletteLine1ToolStripMenuItem.Name = "paletteLine1ToolStripMenuItem";
-			this.paletteLine1ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-			this.paletteLine1ToolStripMenuItem.Text = "Palette line &1";
-			// 
-			// paletteLine2ToolStripMenuItem
-			// 
-			this.paletteLine2ToolStripMenuItem.Name = "paletteLine2ToolStripMenuItem";
-			this.paletteLine2ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-			this.paletteLine2ToolStripMenuItem.Text = "Palette line &2";
-			// 
-			// paletteLine3ToolStripMenuItem
-			// 
-			this.paletteLine3ToolStripMenuItem.Name = "paletteLine3ToolStripMenuItem";
-			this.paletteLine3ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-			this.paletteLine3ToolStripMenuItem.Text = "Palette line &3";
+			this.paletteLine1ToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+			this.paletteLine1ToolStripMenuItem.Text = "&Grey Palette";
 			// 
 			// blocksToolStripMenuItem
 			// 
@@ -1654,14 +1591,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.blocksToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.blocksToolStripMenuItem.Text = "&Blocks";
 			this.blocksToolStripMenuItem.Click += new System.EventHandler(this.blocksToolStripMenuItem_Click);
-			// 
-			// chunksToolStripMenuItem
-			// 
-			this.chunksToolStripMenuItem.Name = "chunksToolStripMenuItem";
-			this.chunksToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
-			this.chunksToolStripMenuItem.Text = "&Chunks";
-			this.chunksToolStripMenuItem.Visible = false;
-			this.chunksToolStripMenuItem.Click += new System.EventHandler(this.chunksToolStripMenuItem_Click);
 			// 
 			// solidityMapsToolStripMenuItem
 			// 
@@ -3182,14 +3111,11 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem tilesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem blocksToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem chunksToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem foregroundToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem backgroundToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem transparentBackFGBGToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem paletteLine0ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem paletteLine1ToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem paletteLine2ToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem paletteLine3ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem includeobjectsWithFGToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem objectsAboveHighPlaneToolStripMenuItem;
@@ -3369,7 +3295,6 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.CheckBox showBlockBehindCollisionCheckBox;
 		private System.Windows.Forms.ToolStripMenuItem pasteOverToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pNGToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem yYCHRToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton importToolStripButton;
 		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem2;
 		private System.Windows.Forms.ToolStripButton importBlocksToolStripButton;

@@ -150,10 +150,10 @@ namespace SonicRetro.SonLVL.API.SPA
 		public bool Difficulty { get; set; }
 		
 		public byte[] Params = new byte[4];
-		public byte Param0 { get { return Params[0]; } set { Params[0] = value; } }
-		public byte Param1 { get { return Params[1]; } set { Params[1] = value; } }
-		public byte Param2 { get { return Params[2]; } set { Params[2] = value; } }
-		public byte Param3 { get { return Params[3]; } set { Params[3] = value; } }
+		public sbyte Param0 { get { return (sbyte)Params[0]; } set { Params[0] = (byte)value; } }
+		public sbyte Param1 { get { return (sbyte)Params[1]; } set { Params[1] = (byte)value; } }
+		public sbyte Param2 { get { return (sbyte)Params[2]; } set { Params[2] = (byte)value; } }
+		public sbyte Param3 { get { return (sbyte)Params[3]; } set { Params[3] = (byte)value; } }
 		
 		public static int Size { get { return 10; } }
 

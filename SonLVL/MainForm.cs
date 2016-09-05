@@ -1165,36 +1165,43 @@ namespace SonicRetro.SonLVL.GUI
 				if (a.ShowDialog(this) == DialogResult.OK)
 				{
 					int line = pNGToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
-					if (line < 4)
+					if (line < 2)
 					{
-						BitmapBits bmp = new BitmapBits(16 * 8, 8);
-						Color[] pal = new Color[4];
-						pal[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
-						for (int i = 0; i < 3; i++)
+						BitmapBits bmp = new BitmapBits(4 * 8, 16 * 8);
+						Color[] pal = new Color[16 * 4];
+						int pbase = line * 16;
+						for (int p = 0; p < 16; p ++)
 						{
-							pal[1+i] = LevelData.PaletteToColor(line, 1 + i, false);
-							bmp.FillRectangle((byte)i, i * 8, 0, 8, 8);
+							for (int i = 0; i < 4; i++)
+							{
+								byte idx = (byte)(p * 4 + i);
+								pal[idx] = LevelData.PaletteToColor(pbase + p, i, transparentBackFGBGToolStripMenuItem.Checked);
+								bmp.FillRectangle(idx, i * 8, p * 8, 8, 8);
+							}
+							bmp.ToBitmap(pal).Save(a.FileName);
 						}
-						bmp.ToBitmap4bpp(pal).Save(a.FileName);
 					}
 					else
 					{
-						BitmapBits bmp = new BitmapBits(16 * 8, 4 * 8);
-						Color[] pal = new Color[256];
-						pal[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
-						for (int i = 0; i < 32*3; i++)
-							pal[1+i] = LevelData.PaletteToColor(i / 3, 1 + i % 3, false);
-						for (int i = 1+32*3; i < LevelData.ColorFirstGlobal; i++)
-							pal[i] = LevelData.BmpPal.Entries[i];
-						for (int y = 0; y < 4; y++)
-							for (int x = 0; x < 16; x++)
-								bmp.FillRectangle((byte)((y * 16) + x), x * 8, y * 8, 8, 8);
+						BitmapBits bmp = new BitmapBits(16 * 4 * 8, 2 * 8);
+						Color[] pal = new Color[2 * 16 * 4];
+						for (int t = 0; t < 2; t ++)
+							for (int p = 0; p < 16; p ++)
+							{
+								for (int i = 0; i < 4; i++)
+								{
+									byte idx = (byte)((t * 16 + p) * 4 + i);
+									pal[idx] = LevelData.PaletteToColor(t * 16 + p, i, false);
+									bmp.FillRectangle(idx, (p * 4 + i) * 8, t * 8, 8, 8);
+								}
+								bmp.ToBitmap(pal).Save(a.FileName);
+							}
 						bmp.ToBitmap(pal).Save(a.FileName);
 					}
 				}
 		}
 
-		private void yYCHRToolStripMenuItem_Click(object sender, EventArgs e)
+		/*private void yYCHRToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "pal", Filter = "Palette Files|*.pal", RestoreDirectory = true })
 				if (a.ShowDialog(this) == DialogResult.OK)
@@ -1216,7 +1223,7 @@ namespace SonicRetro.SonLVL.GUI
 						if (cnt != 4)
 							bw.Write(new byte[0xC0 * (4 - cnt)]);
 					}
-		}
+		}*/
 
 		private void jASCPALToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
@@ -1228,26 +1235,26 @@ namespace SonicRetro.SonLVL.GUI
 						writer.WriteLine("JASC-PAL");
 						writer.WriteLine("0100");
 						int line = jASCPALToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
-						if (line < 4)
+						if (line < 2)
 						{
-							writer.WriteLine("16");
-							for (int i = 0; i < 16; i++)
-							{
-								SonLVLColor col = LevelData.Palette[LevelData.CurPal][line, i];
-								writer.WriteLine("{0} {1} {2}", col.R, col.G, col.B);
-							}
+							// TODO: Writing any values other than 16 or 256 might be incorrect?
+							writer.WriteLine("64");
+							for (int p = 0; p < 16; p++)
+								for (int i = 0; i < 4; i++)
+								{
+									SonLVLColor col = LevelData.Palette[LevelData.CurPal][line * 16 + p, i];
+									writer.WriteLine("{0} {1} {2}", col.R, col.G, col.B);
+								}
 						}
 						else
 						{
-							writer.WriteLine("256");
-							for (int y = 0; y < 4; y++)
-								for (int x = 0; x < 16; x++)
+							writer.WriteLine("128");
+							for (int y = 0; y < 32; y++)
+								for (int x = 0; x < 4; x++)
 								{
 									SonLVLColor col = LevelData.Palette[LevelData.CurPal][y, x];
 									writer.WriteLine("{0} {1} {2}", col.R, col.G, col.B);
 								}
-							for (int i = 64; i < 256; i++)
-								writer.WriteLine("0 0 0");
 						}
 						writer.Close();
 					}
@@ -1258,10 +1265,17 @@ namespace SonicRetro.SonLVL.GUI
 			exportToolStripMenuItem.DropDown.Hide();
 			using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
 				if (a.ShowDialog() == DialogResult.OK)
+				{
+					int tpal;
+					if (tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem) == 0)
+						tpal = SelectedColor.Palette;
+					else
+						tpal = 0;
 					for (int i = 0; i < LevelData.Tiles.Count; i++)
-						LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem))
+						LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tpal)
 							.Save(Path.Combine(a.SelectedPath,
-							(useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
+							(useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X3") : i.ToString("D3")) + ".png"));
+				}
 		}
 
 		private void blocksToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1279,8 +1293,8 @@ namespace SonicRetro.SonLVL.GUI
 						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString());
 						if (exportArtcollisionpriorityToolStripMenuItem.Checked)
 						{
-							LevelData.BlockBmpBits[0][i].ToBitmap(LevelImgPalette).Save(pathBase + "_bgpal.png");
-							LevelData.BlockBmpBits[1][i].ToBitmap(LevelImgPalette).Save(pathBase + "_fgpal.png");
+							LevelData.BlockBmpBits[i][0].ToBitmap(LevelImgPalette).Save(pathBase + "_bgpal.png");
+							LevelData.BlockBmpBits[i][1].ToBitmap(LevelImgPalette).Save(pathBase + "_fgpal.png");
 							/*bool dualPath = false;
 							switch (LevelData.Level.ChunkFormat)
 							{
@@ -1332,14 +1346,14 @@ namespace SonicRetro.SonLVL.GUI
 					}
 		}
 
-		private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
+		/*private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (!highToolStripMenuItem.Checked && !lowToolStripMenuItem.Checked && !path1ToolStripMenuItem.Checked && !path2ToolStripMenuItem.Checked)
 			{
 				MessageBox.Show(this, "Cannot export chunks with nothing visible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return;
 			}
-			/*using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
+			using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
 				if (a.ShowDialog() == DialogResult.OK)
 					for (int i = 0; i < LevelData.Chunks.Count; i++)
 					{
@@ -1402,16 +1416,16 @@ namespace SonicRetro.SonLVL.GUI
 								bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][1], 0, 0);
 							bits.ToBitmap(LevelImgPalette).Save(pathBase + ".png");
 						}
-					}*/
-		}
+					}
+		}*/
 
 		private void solidityMapsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			/*using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
+			using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
 				if (a.ShowDialog() == DialogResult.OK)
-					for (int i = 0; i < LevelData.ColBmpBits.Length; i++)
-						LevelData.ColBmpBits[i].ToBitmap1bpp(Color.Transparent, Color.White).Save(Path.Combine(a.SelectedPath,
-							(useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));*/
+					for (int i = 0; i < LevelData.BlockColBmpBits.Count; i++)
+						LevelData.BlockColBmpBits[i].ToBitmap1bpp(Color.Transparent, Color.White).Save(Path.Combine(a.SelectedPath,
+							(useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X4") : i.ToString()) + ".png"));
 		}
 
 		private void foregroundToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1431,9 +1445,9 @@ namespace SonicRetro.SonLVL.GUI
 						BitmapBits bmp = LevelData.DrawForeground(null, false, false, false, true, true, false, false, false);
 						/*for (int i = 0; i < bmp.Bits.Length; i++)
 							if (bmp.Bits[i] == 0)
-								bmp.Bits[i] = 32;*/
+								bmp.Bits[i] = 32;
 						if (waterPalette != -1 && bmp.Height > waterHeight)
-							bmp.ApplyWaterPalette(waterHeight);
+							bmp.ApplyWaterPalette(waterHeight);*/
 						Bitmap res = bmp.ToBitmap();
 						ColorPalette pal = res.Palette;
 						pal.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
