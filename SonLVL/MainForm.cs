@@ -1290,7 +1290,7 @@ namespace SonicRetro.SonLVL.GUI
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 					{
 						BitmapBits bits = null;
-						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString());
+						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X3") : i.ToString("D4"));
 						if (exportArtcollisionpriorityToolStripMenuItem.Checked)
 						{
 							LevelData.BlockBmpBits[i][0].ToBitmap(LevelImgPalette).Save(pathBase + "_bgpal.png");
@@ -5227,20 +5227,20 @@ namespace SonicRetro.SonLVL.GUI
 				if (opendlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
 					Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
-					if (CurrentArtTab != ArtTab.Tiles)
+					//if (CurrentArtTab != ArtTab.Tiles)
 					{
 						string fmt = Path.Combine(Path.GetDirectoryName(opendlg.FileName),
 							Path.GetFileNameWithoutExtension(opendlg.FileName) + "_{0}" + Path.GetExtension(opendlg.FileName));
-						if (File.Exists(string.Format(fmt, "col1")))
+						/*if (File.Exists(string.Format(fmt, "col1")))
 						{
 							colbmp1 = new Bitmap(string.Format(fmt, "col1"));
 							if (File.Exists(string.Format(fmt, "col2")))
 								colbmp2 = new Bitmap(string.Format(fmt, "col2"));
 						}
-						else if (File.Exists(string.Format(fmt, "col")))
+						else*/ if (File.Exists(string.Format(fmt, "col")))
 							colbmp1 = new Bitmap(string.Format(fmt, "col"));
-						if (File.Exists(string.Format(fmt, "pri")))
-							pribmp = new Bitmap(string.Format(fmt, "pri"));
+						//if (File.Exists(string.Format(fmt, "pri")))
+						//	pribmp = new Bitmap(string.Format(fmt, "pri"));
 					}
 					ImportImage(new Bitmap(opendlg.FileName), colbmp1, colbmp2, pribmp, null);
 				}
@@ -5267,16 +5267,16 @@ namespace SonicRetro.SonLVL.GUI
 			BlockColInfo[,] blockcoldata = null;
 			if (colbmp1 != null)
 			{
-				//blockcoldata = ProcessColBmps(colbmp1, colbmp2, w, h);
-				//Application.DoEvents();
+				blockcoldata = ProcessColBmps(colbmp1, colbmp2, w, h);
+				Application.DoEvents();
 			}
-			bool[,] priority = new bool[w / 8, h / 8];
+			/*bool[,] priority = new bool[w / 8, h / 8];
 			if (pribmp != null)
 			{
 				using (pribmp)
 					LevelData.GetPriMap(pribmp, priority);
 				Application.DoEvents();
-			}
+			}*/
 			byte? forcepal = (bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed) ? (byte)SelectedColor.Palette : (byte?)null;
 			List<byte[]> tiles = new List<byte[]>(LevelData.Tiles.Count);
 			/*if (LevelData.Level.TwoPlayerCompatible)
@@ -5295,13 +5295,13 @@ namespace SonicRetro.SonLVL.GUI
 				blocks.Add(LevelData.Blocks[i].GetBytes());
 			Application.DoEvents();
 			List<byte> colInds1 = new List<byte>(/*LevelData.ColInds1*/);
-			List<byte> colInds2 = new List<byte>(/*LevelData.ColInds2*/);
+			//List<byte> colInds2 = new List<byte>(LevelData.ColInds2);
 			Application.DoEvents();
-			ImportResult ir = LevelData.BitmapToTiles(bmpi, priority, forcepal, tiles, /*LevelData.Level.TwoPlayerCompatible*/false, true, () => { importProgressControl1.CurrentProgress++; Application.DoEvents(); });
+			ImportResult ir = LevelData.BitmapToTiles(bmpi, /*priority*/null, forcepal, tiles, /*LevelData.Level.TwoPlayerCompatible*/false, true, () => { importProgressControl1.CurrentProgress++; Application.DoEvents(); });
 			List<byte[]> newTiles = ir.Art;
 			List<Block> newBlocks = new List<Block>();
 			List<byte> newColInds1 = new List<byte>();
-			List<byte> newColInds2 = new List<byte>();
+			//List<byte> newColInds2 = new List<byte>();
 			//List<Chunk> newChunks = new List<Chunk>();
 			switch (CurrentTab)
 			{
@@ -5322,7 +5322,7 @@ namespace SonicRetro.SonLVL.GUI
 						case ArtTab.Blocks:
 							for (int by = 0; by < h / 32; by++)
 								for (int bx = 0; bx < w / 32; bx++)
-									ImportBlock(ir.Mappings, blockcoldata, blocks, colInds1, colInds2, newBlocks, newColInds1, newColInds2, /*null,*/ 0, 0, bx, by);
+									ImportBlock(ir.Mappings, blockcoldata, blocks, colInds1, /*colInds2,*/ newBlocks, newColInds1, /*newColInds2, null,*/ 0, 0, bx, by);
 							break;
 						case ArtTab.Tiles:
 							break;
@@ -5380,6 +5380,10 @@ namespace SonicRetro.SonLVL.GUI
 					}*/
 					LevelData.BlockBmps.Add(new Bitmap[2]);
 					LevelData.BlockBmpBits.Add(new BitmapBits[2]);
+					LevelData.BlockColBmps.Add(null);
+					LevelData.BlockColBmpBits.Add(null);
+					LevelData.BlockBmpsA[0].Add(null);
+					LevelData.BlockBmpsA[1].Add(null);
 					//LevelData.CompBlockBmps.Add(null);
 					//LevelData.CompBlockBmpBits.Add(null);
 					LevelData.RedrawBlock(LevelData.Blocks.Count - 1, false);
@@ -5463,13 +5467,13 @@ namespace SonicRetro.SonLVL.GUI
 			return;
 		}*/
 
-		private void ImportBlock(PatternIndex[,] map, BlockColInfo[,] blockcoldata, List<byte[]> blocks, List<byte> colInds1, List<byte> colInds2, List<Block> newBlocks, List<byte> newColInds1, List<byte> newColInds2, /*Chunk cnk,*/ int left, int top, int bx, int by)
+		private void ImportBlock(PatternIndex[,] map, BlockColInfo[,] blockcoldata, List<byte[]> blocks, List<byte> colInds1, /*List<byte> colInds2, */List<Block> newBlocks, List<byte> newColInds1, /*List<byte> newColInds2, Chunk cnk,*/ int left, int top, int bx, int by)
 		{
 			BlockColInfo col = new BlockColInfo(0, 0, Solidity.NotSolid, Solidity.NotSolid, false, false);
 			Block blk = new Block();
 			if (blockcoldata != null)
 			{
-				col = blockcoldata[(left / 16) + bx, (top / 16) + by];
+				col = blockcoldata[(left / 32) + bx, (top / 32) + by];
 				/*if (cnk != null)
 				{
 					cnk.Blocks[bx, by].Solid1 = col.Solidity1;
@@ -5479,31 +5483,37 @@ namespace SonicRetro.SonLVL.GUI
 					cnk.Blocks[bx, by].YFlip = col.YFlip;
 				}*/
 			}
-			for (int x = 0; x < 2; x++)
-				for (int y = 0; y < 2; y++)
-					blk.Tiles[x, y] = map[(left / 8) + (bx * 2) + x, (top / 8) + (by * 2) + y];
+			for (int x = 0; x < 4; x++)
+				for (int y = 0; y < 4; y++)
+					blk.Tiles[x, y] = map[(left / 8) + (bx * 4) + x, (top / 8) + (by * 4) + y];
 			/*if (LevelData.Level.TwoPlayerCompatible)
 			{
 				if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 1 && blk.Tiles[1, 1].Tile == 1)
 					return;
 			}
-			else*/ if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
+			else if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
+				return;*/
+			ushort tilemask = 0;
+			for (int x = 0; x < 4; x++)
+				for (int y = 0; y < 4; y++)
+					tilemask |= blk.Tiles[x, y].Tile;
+			if (tilemask == 0)
 				return;
 			blk = blk.Flip(col.XFlip, col.YFlip);
 			byte[] blkb = blk.GetBytes();
-			byte[] blkh = blk.Flip(true, false).GetBytes();
-			byte[] blkv = blk.Flip(false, true).GetBytes();
-			byte[] blkhv = blk.Flip(true, true).GetBytes();
+			//byte[] blkh = blk.Flip(true, false).GetBytes();
+			//byte[] blkv = blk.Flip(false, true).GetBytes();
+			//byte[] blkhv = blk.Flip(true, true).GetBytes();
 			for (int i = 0; i < blocks.Count; i++)
 			{
 				Application.DoEvents();
-				if (blockcoldata != null)
+				/*if (blockcoldata != null)
 				{
 					if (colInds1[i] != col.ColInd1)
 						continue;
-					//if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && colInds2[i] != col.ColInd2)
-					//	continue;
-				}
+					if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && colInds2[i] != col.ColInd2)
+						continue;
+				}*/
 				if (blkb.FastArrayEqual(blocks[i]))
 				{
 					//if (cnk != null)
@@ -5540,12 +5550,12 @@ namespace SonicRetro.SonLVL.GUI
 				}*/
 			}
 			blocks.Add(blkb);
-			colInds1.AddOrSet(blocks.Count - 1, col.ColInd1);
-			colInds2.AddOrSet(blocks.Count - 1, col.ColInd2);
+			//colInds1.AddOrSet(blocks.Count - 1, col.ColInd1);
+			//colInds2.AddOrSet(blocks.Count - 1, col.ColInd2);
 			newBlocks.Add(blk);
-			newColInds1.Add(col.ColInd1);
+			/*newColInds1.Add(col.ColInd1);
 			newColInds2.Add(col.ColInd2);
-			/*if (cnk != null)
+			if (cnk != null)
 			{
 				cnk.Blocks[bx, by].Block = (ushort)(LevelData.Blocks.Count + newBlocks.Count - 1);
 				cnk.Blocks[bx, by].XFlip = col.XFlip;
@@ -8477,9 +8487,9 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		/*private BlockColInfo[,] ProcessColBmps(Bitmap colbmp1, Bitmap colbmp2, int w, int h)
+		private BlockColInfo[,] ProcessColBmps(Bitmap colbmp1, Bitmap colbmp2, int w, int h)
 		{
-			ColInfo[,] coldata1;
+			/*ColInfo[,] coldata1;
 			ColInfo[,] coldata2 = null;
 			using (colbmp1)
 			using (Bitmap tmp = new Bitmap(w, h))
@@ -8570,10 +8580,11 @@ namespace SonicRetro.SonLVL.GUI
 					blockcoldata[x, y] = new BlockColInfo(ind1, ind2, blk1.Solidity, blk2.Solidity, xflip, yflip);
 					Application.DoEvents();
 				}
-			return blockcoldata;
+			return blockcoldata;*/
+			return null;
 		}
 
-		private void MatchCol(ColInfo blk, out byte ind, out bool xflip, out bool yflip)
+		/*private void MatchCol(ColInfo blk, out byte ind, out bool xflip, out bool yflip)
 		{
 			if (blk.HeightMap.FastArrayEqual(LevelData.ColArr1[0xFF]))
 			{
@@ -9411,7 +9422,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							break;
 					}
-					ImportResult res = LevelData.BitmapToTiles(bmpi, new bool[bmpi.Width / 8, bmpi.Height / 8], null, new List<byte[]>(), false, false, () => Application.DoEvents());
+					ImportResult res = LevelData.BitmapToTiles(bmpi, /*new bool[bmpi.Width / 8, bmpi.Height / 8]*/null, null, new List<byte[]>(), false, false, () => Application.DoEvents());
 					List<int> editedTiles = new List<int>();
 					switch (CurrentArtTab)
 					{
