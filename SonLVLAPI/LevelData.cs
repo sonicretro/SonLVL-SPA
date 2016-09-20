@@ -293,6 +293,8 @@ namespace SonicRetro.SonLVL.API
 						LevelInfo lvlinf = Game.GetLevelInfo(lvlname);
 						if (Level.LayoutFormat == lvlinf.LayoutFormat && Level.Blocks.ArrayEqual(lvlinf.Blocks))
 						{
+							if (Level.LayoutFormat == EngineVersion.SPA)
+								((SPA.Layout)lfs).LayoutSize = new Size(lvlinf.LevelWidth, lvlinf.LevelHeight);
 							if (Level.FGLayout != lvlinf.FGLayout && !AdditionalLayouts.ContainsKey(lvlinf.FGLayout))
 							{
 								LayoutData ld = new LayoutData();

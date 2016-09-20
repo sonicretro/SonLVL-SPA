@@ -618,6 +618,7 @@ namespace SonicRetro.SonLVL.API
 				else if (data.Sprites != null)
 				{
 					spr = LoadSpriteData(LevelData.SpriteTiles, 0x10, data.Palette1, data.Palette2, data.Sprites);
+					spr = new Sprite(spr, data.Offset.Width, data.Offset.Height, false, false);
 				}
 				else
 				{
