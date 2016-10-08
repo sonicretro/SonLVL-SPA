@@ -32,6 +32,8 @@ namespace SonicRetro.SonLVL.API.SPA
 			int obWidth, obHeight;
 
 			terminator = false;
+			if (rawdata.Length < 2)
+				return objs;
 			obWidth = rawdata[0];
 			obHeight = rawdata[1];
 			_LayoutSize.Width = obWidth * 192;

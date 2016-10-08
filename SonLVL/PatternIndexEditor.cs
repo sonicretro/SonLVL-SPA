@@ -120,6 +120,8 @@ namespace SonicRetro.SonLVL
 			if (!initializing && palette.Value > -1)
 			{
 				int palBase = priority.Checked ? 16 : 0;
+				foreach (PatternIndex item in selectedObjects)
+					item.Palette = (byte)palette.Value;
 				PropertyValueChanged(palette, EventArgs.Empty);
 			}
 		}
@@ -137,6 +139,11 @@ namespace SonicRetro.SonLVL
 						item.Tile = (ushort)tile.Value;
 				PropertyValueChanged(tile, EventArgs.Empty);
 			}
+		}
+
+		public bool IsPaletteChange(object sender)
+		{
+			return sender.Equals(palette);
 		}
 	}
 }

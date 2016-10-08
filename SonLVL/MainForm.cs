@@ -3949,6 +3949,14 @@ namespace SonicRetro.SonLVL.GUI
 					TileSelector.SelectedIndex = /*LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 :*/ copiedBlockTile.Tile;
 				blockTileEditor.SelectedObjects = new[] { copiedBlockTile };
 				DrawBlockPicture();
+				int newPal = copiedBlockTile.Palette + (blockPal ? 16 : 0);
+				if (SelectedColor.Palette != newPal)
+				{
+					SelectedColor.Palette = newPal;
+					TilePicture.Invalidate();
+					PalettePanel.Invalidate();
+					RefreshColorControl();
+				}
 			}
 		}
 
@@ -3982,6 +3990,13 @@ namespace SonicRetro.SonLVL.GUI
 			DrawLevel();
 			DrawBlockPicture();
 			BlockSelector.Invalidate();
+			if (blockTileEditor.IsPaletteChange(sender))
+			{
+				SelectedColor.Palette = copiedBlockTile.Palette + (blockPal ? 16 : 0);
+				TilePicture.Invalidate();
+				PalettePanel.Invalidate();
+				RefreshColorControl();
+			}
 		}
 
 		private void BlockSelector_SelectedIndexChanged(object sender, EventArgs e)
@@ -4150,6 +4165,14 @@ namespace SonicRetro.SonLVL.GUI
 			DrawBlockPicture();
 			BlockSelector.Invalidate();
 			copiedBlockTile = (blockTileEditor.SelectedObjects = tiles)[0];
+			int newPal = copiedBlockTile.Palette + (blockPal ? 16 : 0);
+			if (SelectedColor.Palette != newPal)
+			{
+				SelectedColor.Palette = newPal;
+				TilePicture.Invalidate();
+				PalettePanel.Invalidate();
+				RefreshColorControl();
+			}
 		}
 
 		private void PalettePanel_Paint(object sender, PaintEventArgs e)
@@ -4202,21 +4225,7 @@ namespace SonicRetro.SonLVL.GUI
 				DrawLevel();
 			}
 			cols = a.CustomColors;
-			loaded = false;
-			/*if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
-			{
-				colorRed.Value = LevelData.Palette[LevelData.CurPal][line, index].R;
-				colorGreen.Value = LevelData.Palette[LevelData.CurPal][line, index].G;
-				colorBlue.Value = LevelData.Palette[LevelData.CurPal][line, index].B;
-			}
-			else*/
-			{
-				ushort md = LevelData.Palette[LevelData.CurPal][line, index].NGPCColor;
-				colorRed.Value = (md >> 0) & 0xF;
-				colorGreen.Value = (md >> 4) & 0xF;
-				colorBlue.Value = (md >> 8) & 0xF;
-			}
-			loaded = true;
+			RefreshColorControl();
 		}
 
 		private void color_ValueChanged(object sender, EventArgs e)
@@ -4301,6 +4310,11 @@ namespace SonicRetro.SonLVL.GUI
 			TilePicture.Invalidate();
 			RefreshTileSelector();
 			TileSelector.Invalidate();
+			RefreshColorControl();
+		}
+
+		private void RefreshColorControl()
+		{
 			loaded = false;
 			/*if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
 			{
@@ -4421,7 +4435,9 @@ namespace SonicRetro.SonLVL.GUI
 					if (SelectedTile < LevelData.ColInds.Count)
 					{
 						ColIndBox.Enabled = true;
-						BlockCollision1.Value = LevelData.GetColInd(SelectedTile);
+						int colval = LevelData.GetColInd(SelectedTile);
+						BlockCollision1.Value = colval;
+						CollisionSelector.SelectedIndex = colval;
 					}
 					else
 						ColIndBox.Enabled = false;
@@ -4474,6 +4490,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				SelectedColor.Color = tile[e.X / 16, e.Y / 16];
 				PalettePanel.Invalidate();
+				RefreshColorControl();
 			}
 		}
 
